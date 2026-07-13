@@ -1,0 +1,8 @@
+.DS_Store
+
+# Child projects are independent Git repos. The root AlchemistSuite repo only
+# tracks cross-repo coordination docs and contract issues.
+/alchemist-v2/
+/DealFinder/
+/Alchemist_Dashboard/
+
