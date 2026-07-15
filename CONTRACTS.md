@@ -170,11 +170,11 @@ verified live 2026-07-15 (grant + policy both checked):
 | `business_snapshots` | SELECT / INSERT / UPDATE / DELETE | table grants (TRUNCATE revoked); permissive `using(true)` policy — accepted for single-user finance data |
 | `deal_notifications` | SELECT only | grant + read policy |
 | `ungating_opportunities` | SELECT only | grant + read policy |
-| `products` | *intended* SELECT only — **currently broken**: read policy exists but the anon SELECT grant is missing (§6) |
+| `products` | SELECT only | grant: SELECT (dashboard migration `20260715120000`, fixing §6 item 3) + pre-existing `USING (true)` read policy |
+| `run_log` | SELECT only | grant + `USING (true)` read policy (dashboard migration `20260715120000`) |
 
-Everything else (`run_log`, `scout_log`, `ungate_log`, `tracking_log_archived`): **no
-anon access**. Note `run_log` has no anon read either — a gap the pipeline card will hit
-through a true anon key (§6).
+Everything else (`scout_log`, `ungate_log`, `tracking_log_archived`): **no anon
+access**.
 
 Rules:
 
@@ -244,6 +244,8 @@ Logged as repo-local issues in the owning repo, per the issue-routing rule:
    grants anon/authenticated full table privileges (incl. TRUNCATE/DELETE) with RLS on
    and zero policies. Effective anon access is denied today, but the grants are the same
    over-broad legacy pattern dashboard issue 011 fixed elsewhere.
-3. **`Alchemist_Dashboard/issues/013-bug-anon-read-surface-gaps.md`** — `products` has an
-   anon read *policy* but no anon SELECT *grant* (anon reads fail); `run_log` has no anon
-   access at all (pipeline card can't read it through a true anon key).
+3. **`Alchemist_Dashboard/issues/013-bug-anon-read-surface-gaps.md`** — `products` had an
+   anon read *policy* but no anon SELECT *grant* (anon reads failed); `run_log` had no
+   anon access at all. **Fixed 2026-07-15** by dashboard migration
+   `20260715120000_anon_read_products_run_log.sql` (SELECT-only grants + `run_log` read
+   policy; verified live as the anon role, no write privilege added).
