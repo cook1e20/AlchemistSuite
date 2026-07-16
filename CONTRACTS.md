@@ -112,12 +112,12 @@ per table is in §3.
   CLI and `scheduler.js`, the deployed cron process). Statuses: `running` →
   `completed` / `completed_with_errors` (from `stats.errors`) / `failed` (stage threw;
   message in `stats.error`). `full` CLI runs log child stages individually — no `full`
-  row; dry runs write nothing. **Live state (2026-07-16, root issue 003):** the table
-  holds 86 legacy `stage='wholesale'` rows (newest 2026-07-06, written by pre-strip
-  code; housekeeping will purge them at >60d) and no canonical-stage rows yet — the
-  deployed scheduler is alive but runs pre-`7a0e170` code (VERIFICATION.md §2.2 is the
-  recheck). `wholesale` is not a canonical name; the dashboard must keep ignoring it.
-  Housekeeping purges rows >60d, monthly.
+  row; dry runs write nothing. **Live state (2026-07-16, root issue 003):** the server
+  pulled and restarted on `36084f3` and the first canonical row (`commands`,
+  `completed`, 08:00:00Z) was verified live — run_log recency is now the primary
+  scheduler-liveness signal (VERIFICATION.md §2.2). 86 legacy `stage='wholesale'` rows
+  remain (newest 2026-07-06, pre-strip code; housekeeping purges them at >60d) —
+  `wholesale` is not a canonical name; the dashboard must keep ignoring it.
 - Timestamp gotcha: values come back as `+00`-offset strings that `new Date()` rejects;
   the dashboard compares them lexically (`pipeline-status.ts`).
 
@@ -241,10 +241,10 @@ One Keepa account (one token bucket) is shared deliberately:
   casual `node index.js --stage mine --dry-run` cost real tokens. Now both `mine` and
   `import` stop before the first paid Keepa call under `--dry-run` (candidate-selection
   / sheet-validation report only; the free `/token` balance read stays). **Deploy
-  caveat:** the fix is safe only where that commit is running — and root issue 003's
-  live check (2026-07-16) **confirmed the deployed scheduler predates it** (alive, but
-  pre-`7a0e170`/`36084f3`), so keep treating live `mine`/`import` runs — including
-  `--dry-run` — as paid until a server pull is verified (VERIFICATION.md §2.2).
+  caveat resolved:** the server pulled `36084f3` and was verified live 2026-07-16
+  (first canonical `run_log` row at 08:00:00Z) — `--dry-run` is now genuinely
+  spend-free on the deployed scheduler too. Re-verify via VERIFICATION.md §2.2 after
+  any future deploy before trusting dry-run on the server.
 
 ## 6. Discrepancies found during live verification (2026-07-15)
 

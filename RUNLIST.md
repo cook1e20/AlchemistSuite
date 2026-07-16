@@ -100,10 +100,13 @@ of this order.
   API).
 - Each child repo is its own git repo — implementation commits land there; runlist
   ticks commit here.
-- A2 landed 2026-07-16: `--dry-run` is spend-free in the *repo* code, but A3's live
-  check **confirmed the deployed server still runs pre-`36084f3` code** — treat live
-  `mine`/`import` runs (dry-run included) as paid until a server pull is verified via
-  VERIFICATION.md §2.2 (CONTRACTS.md §5).
-- Root issue 005 (2026-07-16, HITL): a 742k-row bulk load into `commands` already
-  happened live on 2026-07-15 — operator must confirm it before Phase E work builds on
-  assumptions about queue state.
+- Deploy verified 2026-07-16: the server runs `36084f3`+ (first canonical `run_log`
+  row observed 08:00:00Z) — `--dry-run` is spend-free live, and `run_log` recency is
+  now the scheduler-liveness check (VERIFICATION.md §2.2). C2's "needs A3's answer"
+  gate is satisfied.
+- Root issue 005 (2026-07-16, HITL): a 742k-row bulk load into `commands` happened
+  live on 2026-07-15; operator chose purge (executed same day — queue now empty).
+  Re-load waits on E1 + UPC leading-zero normalisation.
+- DealFinder issue 032 logged 2026-07-16 (bug, major, uncommitted in that repo): zero
+  funnel passes since the 07-11 widening (028–031) despite 10x evaluation volume;
+  `monthlySold` ~99% n/a. Candidate to work next if hits matter more than A4.
