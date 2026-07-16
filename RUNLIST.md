@@ -47,6 +47,13 @@ of this order.
       `ungating`/legacy `wholesale` fall through the `known:false` drift alarm.
       98/98 tests, typecheck green. C2's pipeline-card leg is unblocked.*
 
+- [ ] **A5. `DealFinder/issues/032-bug-zero-passes-since-funnel-widening.md`** (bug,
+      major) — zero funnel passes / Discord hits since the 07-11 widening (028–031)
+      despite 10x evaluation volume; `monthlySold` ~99% n/a so velocity runs on
+      `salesRankDrops30` alone. Prioritised 2026-07-16 (operator call): every day
+      unfixed is a day of zero deal hits plus Keepa spend on a degenerate pool.
+      Blockers: none. (Committed in DealFinder as `29b40c7`.)
+
 ## Phase B — docs hygiene (AFK, cheap, any order)
 
 - [ ] **B1. `alchemist-v2/issues/018-bug-claude-md-rls-note-stale.md`** (bug, minor) —
@@ -112,6 +119,5 @@ of this order.
 - Root issue 005 (2026-07-16, HITL): a 742k-row bulk load into `commands` happened
   live on 2026-07-15; operator chose purge (executed same day — queue now empty).
   Re-load waits on E1 + UPC leading-zero normalisation.
-- DealFinder issue 032 logged 2026-07-16 (bug, major, uncommitted in that repo): zero
-  funnel passes since the 07-11 widening (028–031) despite 10x evaluation volume;
-  `monthlySold` ~99% n/a. Candidate to work next if hits matter more than A4.
+- DealFinder issue 032 promoted into the queue as A5 on 2026-07-16 (operator call) and
+  committed in that repo (`29b40c7`). DealFinder has no other open issues.
