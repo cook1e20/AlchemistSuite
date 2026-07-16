@@ -82,9 +82,16 @@ of this order.
 
 ## Phase C — live verification (HITL — operator in the loop)
 
-- [ ] **C1. `alchemist-v2/issues/019-bug-ungate-log-anon-grants-overbroad.md`**
+- [x] **C1. `alchemist-v2/issues/019-bug-ungate-log-anon-grants-overbroad.md`**
       (bug, minor) — one live `REVOKE` on `ungate_log`, then read-only re-verify.
       Blockers: none.
+      *2026-07-16: landed (alchemist-v2 `8f9ba1d`) — `revoke all on public.ungate_log
+      from anon, authenticated;` applied live with operator go-ahead; re-verified
+      read-only (zero anon/authenticated grants remain, service_role untouched).
+      `scout_log` confirmed clean. No CONTRACTS.md change (§3 already said no anon
+      access). Root cause noted in alchemist-v2 CLAUDE.md: Supabase default privileges
+      give every new public table full anon grants — service-role-only tables need an
+      explicit revoke at creation.*
 - [ ] **C2. root `issues/002-e2e-queue-verification.md`** — the live queue → claim →
       enrich → pipeline-card pass. Closing this also satisfies Dashboard 007's last
       open criterion — treat C2/C3 as one session. Blockers: A1, A4 (card leg only;
