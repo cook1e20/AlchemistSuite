@@ -38,9 +38,14 @@ of this order.
       discovery → root issue 005: 738k pending bulk-loaded commands (2026-07-15),
       ~86% failing on stripped-leading-zero UPCs; makes E1/E2 urgent, needs operator
       confirmation before Phase E proceeds.*
-- [ ] **A4. `Alchemist_Dashboard/issues/012-pipeline-stage-key-alignment.md`** —
+- [x] **A4. `Alchemist_Dashboard/issues/012-pipeline-stage-key-alignment.md`** —
       card must match the real producer stage names (`scout` not `ungating`, add
       `commands`). Blockers: A1 (needs the landed producer names as fact).
+      *2026-07-16: landed (Alchemist_Dashboard `8e0a820`, on its existing
+      `wholesale-700k-backfill-plan` branch) — `KNOWN_STAGES` is now exactly the
+      five canonical producer names incl. `scout` + `commands` + `housekeeping`;
+      `ungating`/legacy `wholesale` fall through the `known:false` drift alarm.
+      98/98 tests, typecheck green. C2's pipeline-card leg is unblocked.*
 
 ## Phase B — docs hygiene (AFK, cheap, any order)
 

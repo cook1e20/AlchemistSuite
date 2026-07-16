@@ -105,8 +105,10 @@ per table is in §3.
   `commands`, `housekeeping`. The dashboard renders exactly these names — no aliases.
   Known drift hazards this contract settles: the scheduler's internal console label
   `miner` (cosmetic, must not leak into `run_log.stage`) and the dashboard's legacy
-  `ungating` card key (real stage is `scout`;
-  `Alchemist_Dashboard/issues/012-pipeline-stage-key-alignment.md`).
+  `ungating` card key (real stage is `scout`) — the latter fixed 2026-07-16
+  (Alchemist_Dashboard issue 012, `8e0a820`): the card's `KNOWN_STAGES` now mirrors
+  the five canonical names exactly; non-canonical stages render via its
+  `known:false` fallback.
 - **Current state:** writers landed 2026-07-15 (alchemist-v2 `7a0e170`, issue 017):
   `run-log.js`'s `withRunLog` wraps every stage run in both dispatchers (`index.js`
   CLI and `scheduler.js`, the deployed cron process). Statuses: `running` →
