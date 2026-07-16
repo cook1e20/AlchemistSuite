@@ -19,10 +19,15 @@ of this order.
       path, not index.js); canonical names incl. `housekeeping`, `full` = child rows
       only, `failed` status on throw, dry-run writes nothing; 94/94 tests. Live rows
       appear once the server pulls the commit (A3/C2 verify).*
-- [ ] **A2. `alchemist-v2/issues/020-bug-dry-run-spends-keepa-tokens.md`** (bug, major) —
+- [x] **A2. `alchemist-v2/issues/020-bug-dry-run-spends-keepa-tokens.md`** (bug, major) —
       `--dry-run` fires real Keepa calls in `mine`/`import` (already burned ~350 tokens
       once). Land before any live-verification session tempts a casual stage run.
       Blockers: none.
+      *2026-07-16: landed (alchemist-v2 `36084f3`) — dry-run now stops before the first
+      paid Keepa call in both stages (mine: after candidate selection; import: after
+      sheet validation, which also skips SP-API). No spend-but-don't-write mode added.
+      96/96 tests, proven red first. Safe to dry-run as a check once the server pulls
+      the commit — until then the deployed code still spends.*
 - [ ] **A3. root `issues/003-live-service-check-runbook.md`** — `VERIFICATION.md`
       runbook; also answers the open "is `scheduler.js` actually deployed anywhere?"
       question that gates Dashboard 007/root 002. Blockers: none.
@@ -88,5 +93,6 @@ of this order.
   API).
 - Each child repo is its own git repo — implementation commits land there; runlist
   ticks commit here.
-- Until A2 lands: **never run alchemist-v2 `mine`/`import` as a "check"** — `--dry-run`
-  spends real Keepa tokens (CONTRACTS.md §5).
+- A2 landed 2026-07-16: `--dry-run` is spend-free in the *repo* code, but the **deployed
+  server keeps spending until it pulls alchemist-v2 `36084f3`** — treat live `mine`/
+  `import` runs as paid until A3/C2 confirm the deploy (CONTRACTS.md §5).

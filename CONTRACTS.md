@@ -231,10 +231,14 @@ One Keepa account (one token bucket) is shared deliberately:
 - **Rule: Keepa-token spend is server-side and schedule-gated only.** No dashboard action
   spends tokens live; the dashboard's only path to Keepa work is queueing a `commands`
   row that the overnight miner eventually services.
-- **Gotcha (durable):** in alchemist-v2, `--dry-run` gates only the DB write — the Keepa
-  API calls in `stage-miner.js` fire unconditionally. A casual
-  `node index.js --stage mine --dry-run` costs real tokens. Never run alchemist-v2's
-  `mine`/`import` stages as a "check".
+- **Gotcha (fixed 2026-07-16, alchemist-v2 issue 020 / commit `36084f3`):** `--dry-run`
+  used to gate only the DB write — the Keepa API calls fired unconditionally, so a
+  casual `node index.js --stage mine --dry-run` cost real tokens. Now both `mine` and
+  `import` stop before the first paid Keepa call under `--dry-run` (candidate-selection
+  / sheet-validation report only; the free `/token` balance read stays). **Deploy
+  caveat:** the fix is safe only where that commit is running — the deployed server
+  keeps the old behaviour until it pulls it (A3/C2 verify), so keep treating live
+  `mine`/`import` runs as paid until then.
 
 ## 6. Discrepancies found during live verification (2026-07-15)
 
