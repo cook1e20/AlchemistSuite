@@ -41,3 +41,15 @@ not built; RUNLIST E3 lists the live load as a pending human call):
 
 Nothing technical — blocked on operator confirmation. Feeds directly into RUNLIST
 E1/E2/E3 sequencing; does not change their order.
+
+## Progress (2026-07-16)
+
+Operator chose **purge** (decision 3) — "we need to purge, I can get them in again."
+Executed live: deleted 738,848 `pending` + 3,089 `failed` (`invalid EAN shape`) rows;
+the 463 pre-existing `done` rows kept as history. Verified: `commands` now contains
+only those 463 done rows.
+
+Still open before the re-load: land E1 (batch 50 → ~500) so the queue drains in days
+not months, and fix the leading-zero/UPC normalisation (decision 2) so the ~86%
+failure rate doesn't repeat. Decision 1 (what performed the original load, and whether
+it also wrote the unexplained +19k `products` rows) remains unanswered.
