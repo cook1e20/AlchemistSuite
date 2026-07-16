@@ -131,4 +131,6 @@ of this order.
   committed in that repo (`29b40c7`); landed same day (`49c1906`). Its investigation
   spawned DealFinder issue 033 (screen-budget ordering / drop 25–29% dark band, HITL,
   major) — DealFinder's only open issue, not yet slotted in this queue; operator to
-  place it. The 032 fix needs a VPS deploy (PM2) before live behaviour changes.
+  place it. The 032 fix was deployed to the VPS 2026-07-16 ~12:50Z (pushed to GitHub,
+  pulled + PM2 restart by operator; probe tick confirmed live 12:54Z). Watch: if no
+  Discord hit lands by ~2026-07-23, reopen against issue 033's ordering options.
