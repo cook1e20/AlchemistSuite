@@ -72,10 +72,15 @@ per table is in §3.
   alchemist-v2 candidate selection.
 - **Key column semantics:**
   - `target_gb_price` — the channel-neutral desired price; see §4.
-  - `last_mined_at` (default `now()`) — "UK signal last refreshed *or attempted*". The
-    default means a bare command-queued row gets `now()` on insert **before any real
-    enrichment** — consumers must not read `last_mined_at` as "has signal"; the dashboard
-    uses `title IS NOT NULL` to tell enriched from queued.
+  - `last_mined_at` (default `now()`) — "UK signal last refreshed *or attempted*";
+    `NULL` = never attempted. The column default used to stamp bare command-queued rows
+    with `now()` on insert — which both looked like an attempt that never happened *and*
+    sorted user-queued rows to the very back of the miner's oldest-first backlog
+    (~6 nights, measured live 2026-07-16). As of alchemist-v2 issue 027 (`2e8a88a`,
+    2026-07-16) the commands worker inserts bare rows with an explicit `NULL` and the
+    miner enriches never-attempted rows first (deploy-gated: inert until the server
+    pulls that commit). Either way, consumers must not read `last_mined_at` as "has
+    signal"; the dashboard uses `title IS NOT NULL` to tell enriched from queued.
   - `last_evaluated_at` — stamped only when a full economics/gating verdict was computed
     (DealFinder); not yet read by any gating logic.
   - `de/fr/it/es_360day_min` (default `-1`) — legacy EU-scan minima; `-1` = never scanned.

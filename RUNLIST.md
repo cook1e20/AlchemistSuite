@@ -104,6 +104,13 @@ of this order.
       miner treadmill (~6 nights). Logged alchemist-v2 026 (monthly_sold
       completeness treadmill, major) + 027 (queued EANs enrich last, major) +
       023 data note, commit `660439b`. Recommend slotting 027 before closing C2.*
+      *Same day, operator "agree fix": alchemist-v2 027 LANDED (`2e8a88a`, 101/101) —
+      bare inserts now write `last_mined_at NULL` (never-attempted) and the miner
+      enriches never-attempted rows first, ahead of the deal tie-break (needed:
+      `has_current_deal` is a sticky true on 94.7% of rows → DealFinder issue 034
+      logged, `7641153`). CONTRACTS.md §2 updated. To finish C2/C3: operator deploys
+      `2e8a88a` before ~20:00 UTC + one-row null of the test row's timestamp, then
+      next-morning read-only check (enriched row + mine on card).*
 - [ ] **C3. `Alchemist_Dashboard/issues/007-wholesale-server-paired.md`** — only the
       enrichment-half criterion remains; record the C2 observation and move to done.
       Blockers: C2.

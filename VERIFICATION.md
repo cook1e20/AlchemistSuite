@@ -89,7 +89,7 @@ Interpretation (all times UTC; the miner window is 21:00–04:59 **UK-local**):
 | `commands_pending` | — | draining over time, not growing (worker claims 50/run, oldest-first). |
 | `scout_last_batch` | scout every 30 min, but per-brand 14-day cooldown | hours-old is fine (no eligible brands is normal); many days old while ungating work is expected means look closer. |
 | `run_log_last_start` | every stage, once the server runs commit `7a0e170`+ | fresh rows with canonical stage names (`mine`/`import`/`scout`/`commands`/`housekeeping`). **Until that commit is deployed this stays stale — see version lag below.** |
-| `miner_last_touch` | every 15 min inside the overnight window | during/after each overnight window, thousands of enriched rows touched. The `title is not null` filter matters: bare command-queued rows default `last_mined_at = now()` on insert, so an unfiltered `max(last_mined_at)` reflects the *commands worker*, not the miner. |
+| `miner_last_touch` | every 15 min inside the overnight window | during/after each overnight window, thousands of enriched rows touched. The `title is not null` filter matters: unfiltered, the max reflects other writers (DealFinder's daytime write-through; pre-`2e8a88a` servers also default-stamped bare command-queued rows to `now()` on insert — alchemist-v2 027 changed those inserts to explicit `NULL`), not the miner. |
 
 **Version lag:** a live scheduler is not necessarily a *current* scheduler. Once
 `run_log` writers (alchemist-v2 `7a0e170`) are deployed, `run_log` recency becomes the
