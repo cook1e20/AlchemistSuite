@@ -71,9 +71,14 @@ of this order.
       anon needs grant + policy, pointing at CONTRACTS.md §2/§3 for per-table state.
       Side spot → alchemist-v2 issue 025 (minor): ARCHITECTURE.md still lists
       `commands` as dropped / omits it from the live table list.*
-- [ ] **B2. root `issues/004-claude-md-constellation-sections.md`** — Constellation
+- [x] **B2. root `issues/004-claude-md-constellation-sections.md`** — Constellation
       section in each repo's CLAUDE.md + root README pointer. Blockers: none
       (CONTRACTS.md exists).
+      *2026-07-16: landed — Constellation section added to all three repos' CLAUDE.md
+      (alchemist-v2 `f65b3fc`, DealFinder `4cbf715`, Alchemist_Dashboard `9e8c6f9` on
+      its existing `wholesale-700k-backfill-plan` branch) + root README "Start here"
+      block. Pointers + one-liners only, no contract text duplicated; all three test
+      gates green.*
 
 ## Phase C — live verification (HITL — operator in the loop)
 

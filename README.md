@@ -11,6 +11,18 @@ The application code lives in three separate sibling repos:
 This root repo tracks only cross-repo contracts, PRDs, and coordination issues. The child
 repos stay independent and are intentionally ignored by this repo.
 
+## Start here
+
+- **`CONTRACTS.md`** — the single cross-repo contract map: table ownership, the anon
+  grant surface, `run_log` stage names, money units, the Keepa token split. Read it
+  before touching anything shared.
+- **`issues/constellation-prd.md`** — system-level intent behind the constellation.
+- **`RUNLIST.md`** — the ordered work queue across all three repos (`/next-task` works
+  the topmost unblocked entry).
+- **`VERIFICATION.md`** — the live-service check runbook.
+- Each child repo's `CLAUDE.md` has a Constellation section stating its ownership
+  boundary and pointing back here.
+
 ## Workflow
 
 Use the same Claude/Ralph method as the child projects:
