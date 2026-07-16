@@ -106,10 +106,13 @@ per table is in §3.
   `miner` (cosmetic, must not leak into `run_log.stage`) and the dashboard's legacy
   `ungating` card key (real stage is `scout`;
   `Alchemist_Dashboard/issues/012-pipeline-stage-key-alignment.md`).
-- **Current state (verified):** 0 rows — no stage writes `run_log` yet
-  (`db.createRunLog`/`updateRunLog` exist but are uncalled;
-  `alchemist-v2/issues/017-bug-run-log-not-written.md`). Housekeeping purges rows >60d,
-  monthly.
+- **Current state:** writers landed 2026-07-15 (alchemist-v2 `7a0e170`, issue 017):
+  `run-log.js`'s `withRunLog` wraps every stage run in both dispatchers (`index.js`
+  CLI and `scheduler.js`, the deployed cron process). Statuses: `running` →
+  `completed` / `completed_with_errors` (from `stats.errors`) / `failed` (stage threw;
+  message in `stats.error`). `full` CLI runs log child stages individually — no `full`
+  row; dry runs write nothing. The live table stays at 0 rows until the server pulls
+  that commit (root issue 003/002 verify). Housekeeping purges rows >60d, monthly.
 - Timestamp gotcha: values come back as `+00`-offset strings that `new Date()` rejects;
   the dashboard compares them lexically (`pipeline-status.ts`).
 

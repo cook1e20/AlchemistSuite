@@ -1,0 +1,92 @@
+# Constellation run list
+
+Ordered queue for working the open issues across the constellation, one per fresh
+session. Usage: `/next-task` from this root directory works the **topmost unchecked,
+unblocked entry**, in the repo that owns it; `/clear` between iterations. Tick the box
+(and add a one-line result note) when the issue lands.
+
+Priorities set 2026-07-15 (constellation review). Reorder freely — this file is the
+queue, not a contract. `severity: critical` bugs in any repo jump the queue regardless
+of this order.
+
+## Phase A — keystone bugs and safety (all AFK)
+
+- [x] **A1. `alchemist-v2/issues/017-bug-run-log-not-written.md`** (bug, major) —
+      no stage writes `run_log`; the dashboard pipeline card renders nothing real.
+      Unblocks Dashboard 012 and root 002. Blockers: none.
+      *2026-07-15: landed (alchemist-v2 `7a0e170`) — new `run-log.js` `withRunLog`
+      wraps every stage in BOTH dispatchers (scheduler.js is the real production
+      path, not index.js); canonical names incl. `housekeeping`, `full` = child rows
+      only, `failed` status on throw, dry-run writes nothing; 94/94 tests. Live rows
+      appear once the server pulls the commit (A3/C2 verify).*
+- [ ] **A2. `alchemist-v2/issues/020-bug-dry-run-spends-keepa-tokens.md`** (bug, major) —
+      `--dry-run` fires real Keepa calls in `mine`/`import` (already burned ~350 tokens
+      once). Land before any live-verification session tempts a casual stage run.
+      Blockers: none.
+- [ ] **A3. root `issues/003-live-service-check-runbook.md`** — `VERIFICATION.md`
+      runbook; also answers the open "is `scheduler.js` actually deployed anywhere?"
+      question that gates Dashboard 007/root 002. Blockers: none.
+- [ ] **A4. `Alchemist_Dashboard/issues/012-pipeline-stage-key-alignment.md`** —
+      card must match the real producer stage names (`scout` not `ungating`, add
+      `commands`). Blockers: A1 (needs the landed producer names as fact).
+
+## Phase B — docs hygiene (AFK, cheap, any order)
+
+- [ ] **B1. `alchemist-v2/issues/018-bug-claude-md-rls-note-stale.md`** (bug, minor) —
+      "RLS is disabled" line actively misleads fresh sessions. Blockers: none.
+- [ ] **B2. root `issues/004-claude-md-constellation-sections.md`** — Constellation
+      section in each repo's CLAUDE.md + root README pointer. Blockers: none
+      (CONTRACTS.md exists).
+
+## Phase C — live verification (HITL — operator in the loop)
+
+- [ ] **C1. `alchemist-v2/issues/019-bug-ungate-log-anon-grants-overbroad.md`**
+      (bug, minor) — one live `REVOKE` on `ungate_log`, then read-only re-verify.
+      Blockers: none.
+- [ ] **C2. root `issues/002-e2e-queue-verification.md`** — the live queue → claim →
+      enrich → pipeline-card pass. Closing this also satisfies Dashboard 007's last
+      open criterion — treat C2/C3 as one session. Blockers: A1, A4 (card leg only;
+      queue legs can run early). Needs A3's answer on scheduler deployment.
+- [ ] **C3. `Alchemist_Dashboard/issues/007-wholesale-server-paired.md`** — only the
+      enrichment-half criterion remains; record the C2 observation and move to done.
+      Blockers: C2.
+
+## Phase D — quick feature win
+
+- [ ] **D1. `Alchemist_Dashboard/issues/005-ungating-opportunities.md`** — read-only
+      section on the Deals tab. Its stated blocker (anon SELECT grant on
+      `ungating_opportunities`) is **already satisfied live** per CONTRACTS.md §3
+      (verified 2026-07-15) — startable now despite the HITL label.
+
+## Phase E — 700k catalog backfill (Dashboard issue 014 is the coordination record)
+
+- [ ] **E1. `alchemist-v2/issues/021-commands-batch-limit-raise.md`** (AFK) — Phase 1,
+      worker drain 50 → ~500. Blockers: none.
+- [ ] **E2. `alchemist-v2/issues/023-not-found-marker.md`** (AFK) — Phase 3 brought
+      forward: dead EANs must leave the candidate pool before any bulk mining.
+      Blockers: none.
+- [ ] **E3. `alchemist-v2/issues/022-bulk-catalog-loader.md`** (HITL) — Phase 2 script;
+      build is safe, the live 700k load is the human call. Blockers: E2 should land
+      before the *mining* that follows the load.
+- [ ] **E4. `Alchemist_Dashboard/issues/014-...` Phase 4 pilot** (HITL, business
+      decision) — pause DealFinder, 2–3 day pilot, measure hit rate, then decide.
+      Blockers: E1–E3, and the A2 dry-run fix.
+
+## Phase F — build last
+
+- [ ] **F1. `Alchemist_Dashboard/issues/009-housekeeping-retirement.md`** (HITL) —
+      retire the old matcher, `reference/old-refactor/`, `project-memory/`,
+      `alchemist-server-side/`. Blockers: C3.
+- [ ] **F2. `alchemist-v2/issues/024-sp-api-analytics-stage.md`** (HITL) — scheduled
+      SP-API `analytics_cache` snapshot stage. Blockers: A1; grill the scope first.
+- [ ] **F3. `Alchemist_Dashboard/issues/008-inventory-tab.md`** (HITL) — reads what F2
+      writes; explicitly "built last". Blockers: F2 (verified writing live data).
+
+## Standing notes
+
+- Deferred, not in this queue: `Alchemist_Dashboard/issues/deferred/` (hosting, Qogita
+  API).
+- Each child repo is its own git repo — implementation commits land there; runlist
+  ticks commit here.
+- Until A2 lands: **never run alchemist-v2 `mine`/`import` as a "check"** — `--dry-run`
+  spends real Keepa tokens (CONTRACTS.md §5).
