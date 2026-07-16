@@ -57,8 +57,9 @@ per table is in §3.
   staleness; the table only grows (~34.8k rows at verification).
 - **Writers (service_role):**
   - `alchemist-v2` backfill miner (`stage-miner.js`) — full enrichment upsert
-    (`source = 'miner'`), plus a narrow `last_mined_at`-only touch on rows that fail to
-    enrich (so doomed rows don't retry forever).
+    (`source = 'backfill-miner'` — corrected 2026-07-16 against code and live data;
+    the ~2.1k `source = 'miner'` rows are legacy), plus a narrow `last_mined_at`-only
+    touch on rows that fail to enrich (so doomed rows don't retry forever).
   - `alchemist-v2` commands worker (`stage-commands.js` → `db.upsertBareProduct`) — bare
     rows: **only** `ean` / `uk_asin` / `brand`, never signal columns.
   - `alchemist-v2` buy-sheet import (`stage-import.js`).
@@ -111,8 +112,12 @@ per table is in §3.
   CLI and `scheduler.js`, the deployed cron process). Statuses: `running` →
   `completed` / `completed_with_errors` (from `stats.errors`) / `failed` (stage threw;
   message in `stats.error`). `full` CLI runs log child stages individually — no `full`
-  row; dry runs write nothing. The live table stays at 0 rows until the server pulls
-  that commit (root issue 003/002 verify). Housekeeping purges rows >60d, monthly.
+  row; dry runs write nothing. **Live state (2026-07-16, root issue 003):** the table
+  holds 86 legacy `stage='wholesale'` rows (newest 2026-07-06, written by pre-strip
+  code; housekeeping will purge them at >60d) and no canonical-stage rows yet — the
+  deployed scheduler is alive but runs pre-`7a0e170` code (VERIFICATION.md §2.2 is the
+  recheck). `wholesale` is not a canonical name; the dashboard must keep ignoring it.
+  Housekeeping purges rows >60d, monthly.
 - Timestamp gotcha: values come back as `+00`-offset strings that `new Date()` rejects;
   the dashboard compares them lexically (`pipeline-status.ts`).
 
@@ -236,9 +241,10 @@ One Keepa account (one token bucket) is shared deliberately:
   casual `node index.js --stage mine --dry-run` cost real tokens. Now both `mine` and
   `import` stop before the first paid Keepa call under `--dry-run` (candidate-selection
   / sheet-validation report only; the free `/token` balance read stays). **Deploy
-  caveat:** the fix is safe only where that commit is running — the deployed server
-  keeps the old behaviour until it pulls it (A3/C2 verify), so keep treating live
-  `mine`/`import` runs as paid until then.
+  caveat:** the fix is safe only where that commit is running — and root issue 003's
+  live check (2026-07-16) **confirmed the deployed scheduler predates it** (alive, but
+  pre-`7a0e170`/`36084f3`), so keep treating live `mine`/`import` runs — including
+  `--dry-run` — as paid until a server pull is verified (VERIFICATION.md §2.2).
 
 ## 6. Discrepancies found during live verification (2026-07-15)
 

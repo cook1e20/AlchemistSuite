@@ -47,3 +47,24 @@ but does not require it).
 ## User stories addressed
 
 - User story 13
+
+## Resolution (2026-07-16)
+
+`VERIFICATION.md` written at root with the three tiers; every Tier-2 query was executed
+read-only against the live project while writing it (zero spend), so the commands are
+verified, not assumed. Local gates confirmed against each repo's package.json/CLAUDE.md
+(alchemist-v2 has no typecheck by design; dashboard adds `npm run build` for UI output).
+
+**The standing scheduler question is answered: deployed and alive, but lagging.**
+`commands.processed_at` was 13 min fresh, scout batched at 02:30 UTC, 20k+ enriched
+rows touched in 24h — yet `run_log` has only 86 legacy `stage='wholesale'` rows (newest
+2026-07-06), so the server runs pre-`7a0e170` code and therefore also pre-`36084f3`:
+live dry-runs still spend Keepa tokens until it pulls. The scheduler host is not
+documented anywhere in alchemist-v2 — flagged in VERIFICATION.md §2.2 for the operator
+to fill in.
+
+Side discovery logged as root `issues/005-bulk-load-queue-observed.md`: 738,848 pending
+`queue_backfill_ean` commands bulk-inserted 2026-07-15 (Phase-E-shaped, but E3 isn't
+built), ~86% of drained rows failing on 11-digit leading-zero-stripped UPCs, and an
+unexplained +19k `products` rows. CONTRACTS.md corrected in the same commit (run_log
+current state; miner writes `source='backfill-miner'`, not `'miner'`).

@@ -28,9 +28,16 @@ of this order.
       sheet validation, which also skips SP-API). No spend-but-don't-write mode added.
       96/96 tests, proven red first. Safe to dry-run as a check once the server pulls
       the commit — until then the deployed code still spends.*
-- [ ] **A3. root `issues/003-live-service-check-runbook.md`** — `VERIFICATION.md`
+- [x] **A3. root `issues/003-live-service-check-runbook.md`** — `VERIFICATION.md`
       runbook; also answers the open "is `scheduler.js` actually deployed anywhere?"
       question that gates Dashboard 007/root 002. Blockers: none.
+      *2026-07-16: landed — VERIFICATION.md written, all Tier-2 checks executed live
+      (read-only). Scheduler question ANSWERED: deployed and alive (commands worker
+      13 min fresh) but running pre-`7a0e170`/`36084f3` code — run_log still legacy-only,
+      live dry-run still spends. Host undocumented (operator TODO in §2.2). Side
+      discovery → root issue 005: 738k pending bulk-loaded commands (2026-07-15),
+      ~86% failing on stripped-leading-zero UPCs; makes E1/E2 urgent, needs operator
+      confirmation before Phase E proceeds.*
 - [ ] **A4. `Alchemist_Dashboard/issues/012-pipeline-stage-key-alignment.md`** —
       card must match the real producer stage names (`scout` not `ungating`, add
       `commands`). Blockers: A1 (needs the landed producer names as fact).
@@ -93,6 +100,10 @@ of this order.
   API).
 - Each child repo is its own git repo — implementation commits land there; runlist
   ticks commit here.
-- A2 landed 2026-07-16: `--dry-run` is spend-free in the *repo* code, but the **deployed
-  server keeps spending until it pulls alchemist-v2 `36084f3`** — treat live `mine`/
-  `import` runs as paid until A3/C2 confirm the deploy (CONTRACTS.md §5).
+- A2 landed 2026-07-16: `--dry-run` is spend-free in the *repo* code, but A3's live
+  check **confirmed the deployed server still runs pre-`36084f3` code** — treat live
+  `mine`/`import` runs (dry-run included) as paid until a server pull is verified via
+  VERIFICATION.md §2.2 (CONTRACTS.md §5).
+- Root issue 005 (2026-07-16, HITL): a 742k-row bulk load into `commands` already
+  happened live on 2026-07-15 — operator must confirm it before Phase E work builds on
+  assumptions about queue state.
