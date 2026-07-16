@@ -64,8 +64,13 @@ of this order.
 
 ## Phase B — docs hygiene (AFK, cheap, any order)
 
-- [ ] **B1. `alchemist-v2/issues/018-bug-claude-md-rls-note-stale.md`** (bug, minor) —
+- [x] **B1. `alchemist-v2/issues/018-bug-claude-md-rls-note-stale.md`** (bug, minor) —
       "RLS is disabled" line actively misleads fresh sessions. Blockers: none.
+      *2026-07-16: landed (alchemist-v2 `b6aa0ee`) — CLAUDE.md and ARCHITECTURE.md
+      (same stale sentence) now state RLS is on everywhere, service_role bypasses,
+      anon needs grant + policy, pointing at CONTRACTS.md §2/§3 for per-table state.
+      Side spot → alchemist-v2 issue 025 (minor): ARCHITECTURE.md still lists
+      `commands` as dropped / omits it from the live table list.*
 - [ ] **B2. root `issues/004-claude-md-constellation-sections.md`** — Constellation
       section in each repo's CLAUDE.md + root README pointer. Blockers: none
       (CONTRACTS.md exists).

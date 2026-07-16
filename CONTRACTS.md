@@ -45,9 +45,8 @@ several repos, but the work is split so one iteration owns one task in one repo.
 
 ## 2. Shared table contract
 
-RLS is **enabled on every table** in the shared project (verified live 2026-07-15 — note
-`alchemist-v2/CLAUDE.md`'s "RLS is disabled" line is stale; logged as a repo-local issue
-there). Server-side writers use the **service_role** key, which bypasses RLS; the browser
+RLS is **enabled on every table** in the shared project (verified live 2026-07-15).
+Server-side writers use the **service_role** key, which bypasses RLS; the browser
 uses the **anon** key, which needs *both* a grant *and* a policy. Effective anon access
 per table is in §3.
 
@@ -254,7 +253,8 @@ Logged as repo-local issues in the owning repo, per the issue-routing rule:
 
 1. **`alchemist-v2/issues/018-bug-claude-md-rls-note-stale.md`** — CLAUDE.md still says
    "RLS is disabled; access relies on explicit grants"; live, RLS is enabled on all 10
-   tables.
+   tables. **Fixed 2026-07-16** (alchemist-v2 `b6aa0ee`): CLAUDE.md and ARCHITECTURE.md
+   now describe the live model and defer per-table detail to §2/§3 here.
 2. **`alchemist-v2/issues/019-bug-ungate-log-anon-grants-overbroad.md`** — `ungate_log`
    grants anon/authenticated full table privileges (incl. TRUNCATE/DELETE) with RLS on
    and zero policies. Effective anon access is denied today, but the grants are the same
