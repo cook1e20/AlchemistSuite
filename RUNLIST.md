@@ -47,12 +47,20 @@ of this order.
       `ungating`/legacy `wholesale` fall through the `known:false` drift alarm.
       98/98 tests, typecheck green. C2's pipeline-card leg is unblocked.*
 
-- [ ] **A5. `DealFinder/issues/032-bug-zero-passes-since-funnel-widening.md`** (bug,
+- [x] **A5. `DealFinder/issues/032-bug-zero-passes-since-funnel-widening.md`** (bug,
       major) — zero funnel passes / Discord hits since the 07-11 widening (028–031)
       despite 10x evaluation volume; `monthlySold` ~99% n/a so velocity runs on
       `salesRankDrops30` alone. Prioritised 2026-07-16 (operator call): every day
       unfixed is a day of zero deal hits plus Keepa spend on a degenerate pool.
       Blockers: none. (Committed in DealFinder as `29b40c7`.)
+      *2026-07-16: landed (DealFinder `49c1906`) — root cause: 029 cache pre-filter's
+      flat-150p shipping overtaxed light items ~9 ROI pts vs the live weight-based
+      rate, rejecting real winners (proven against the 07-10 PopSockets pass:
+      est 25.5% vs live 34.1%); fixed to charge basePence (optimistic bound).
+      `monthlySold` n/a is genuine Keepa coverage (Amazon "50+ bought" badge floor —
+      min observed 50, never below). Budget-starvation/ordering defect logged as
+      DealFinder issue 033 (HITL). Fix inert until the VPS pulls the commit —
+      operator deploy needed (PM2, DealFinder ops runbook).*
 
 ## Phase B — docs hygiene (AFK, cheap, any order)
 
@@ -120,4 +128,7 @@ of this order.
   live on 2026-07-15; operator chose purge (executed same day — queue now empty).
   Re-load waits on E1 + UPC leading-zero normalisation.
 - DealFinder issue 032 promoted into the queue as A5 on 2026-07-16 (operator call) and
-  committed in that repo (`29b40c7`). DealFinder has no other open issues.
+  committed in that repo (`29b40c7`); landed same day (`49c1906`). Its investigation
+  spawned DealFinder issue 033 (screen-budget ordering / drop 25–29% dark band, HITL,
+  major) — DealFinder's only open issue, not yet slotted in this queue; operator to
+  place it. The 032 fix needs a VPS deploy (PM2) before live behaviour changes.
