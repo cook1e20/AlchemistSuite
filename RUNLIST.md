@@ -96,6 +96,14 @@ of this order.
       enrich → pipeline-card pass. Closing this also satisfies Dashboard 007's last
       open criterion — treat C2/C3 as one session. Blockers: A1, A4 (card leg only;
       queue legs can run early). Needs A3's answer on scheduler deployment.
+      *2026-07-16 in progress: queue→claim legs verified live (EAN 3017620422003
+      queued 14:07:44Z anon, claimed+done 14:15:00Z, bare row per contract, card
+      shows the Commands run). Two legs remain: card's `mine` row (first one lands
+      tonight ≥21:15 UK — deploy postdated last night's window) and enrichment —
+      which CANNOT happen "next window": queued EANs sort last behind a 54k-row
+      miner treadmill (~6 nights). Logged alchemist-v2 026 (monthly_sold
+      completeness treadmill, major) + 027 (queued EANs enrich last, major) +
+      023 data note, commit `660439b`. Recommend slotting 027 before closing C2.*
 - [ ] **C3. `Alchemist_Dashboard/issues/007-wholesale-server-paired.md`** — only the
       enrichment-half criterion remains; record the C2 observation and move to done.
       Blockers: C2.
