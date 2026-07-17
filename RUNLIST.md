@@ -191,9 +191,24 @@ of this order.
       300-token run). Safe for 027's null-first priority via the DB's nullsFirst
       order; 023 exclusion unchanged; 5 new tests red-first, 159/159. Deploy-gated —
       server should pull before the pilot starts.*
+- [ ] **E4a. `alchemist-v2/issues/026-bug-miner-monthly-sold-completeness-treadmill.md`**
+      (bug, major, AFK) — slotted 2026-07-17 (operator chose "prep, then full pilot"):
+      ~30,445 enriched-but-`monthly_sold`-null rows sort ahead of the 742k bulk cohort
+      and re-mine on a ~3-day cycle; landing this saves ~30k pilot tokens and lets the
+      pilot measure the catalog, not the old pool. Blockers: none.
+- [ ] **E4b. `alchemist-v2/issues/030-miner-window-env-tunable.md`** (AFK) — filed +
+      slotted 2026-07-17: env-tunable miner cron window (defaults reproduce the §5
+      overnight split; `start === end` = all-day) so the pilot doesn't hand-edit
+      scheduler.js on the server. Blockers: none.
 - [ ] **E4. `Alchemist_Dashboard/issues/014-...` Phase 4 pilot** (HITL, business
       decision) — pause DealFinder, 2–3 day pilot, measure hit rate, then decide.
-      Blockers: E1–E3, and the A2 dry-run fix.
+      Blockers: E1–E3, E4a, E4b, and the A2 dry-run fix.
+      *2026-07-17 prep decision (operator): full pilot after E4a/E4b land + operator
+      deploys tip and PM2-stops DealFinder. Baseline + runbook recorded in issue 014
+      Phase 4 status: 742,933 bare rows live; ~63k old rows ahead of the cohort;
+      `uk_not_found_at` on 0 rows so E1/E2/E3b are NOT yet deployed (server on
+      `2e8a88a`); DealFinder has 0 hits since the 032 fix, so the pause costs no
+      observed deal flow but suspends the ~07-23 watch until the pilot ends.*
 
 ## Phase F — build last
 
