@@ -147,8 +147,9 @@ per table is in §3.
 ### `ungating_opportunities` — gated-but-attractive deals. Owner: `DealFinder`
 
 - **PK:** `(asin, marketplace)`. EU side in cents, UK side in pence (§4). Written by
-  DealFinder only; anon read-only. The dashboard's Ungating tab consumes it as-is
-  (`Alchemist_Dashboard/issues/005`), never redefining gating semantics.
+  DealFinder only; anon read-only. The dashboard's Deals-tab ungating section consumes
+  it as-is (`Alchemist_Dashboard/issues/done/005`, landed 2026-07-17 — one bounded GET,
+  no write path), never redefining gating semantics.
 
 ### `business_snapshots` — finance history. Owner: `Alchemist_Dashboard`
 

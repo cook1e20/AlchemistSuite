@@ -129,10 +129,20 @@ of this order.
 
 ## Phase D — quick feature win
 
-- [ ] **D1. `Alchemist_Dashboard/issues/005-ungating-opportunities.md`** — read-only
+- [x] **D1. `Alchemist_Dashboard/issues/005-ungating-opportunities.md`** — read-only
       section on the Deals tab. Its stated blocker (anon SELECT grant on
       `ungating_opportunities`) is **already satisfied live** per CONTRACTS.md §3
       (verified 2026-07-15) — startable now despite the HITL label.
+      *2026-07-17: landed (Alchemist_Dashboard `7d0ef4c`, on its existing
+      `wholesale-700k-backfill-plan` branch) — pure `ungating.ts` + read-only Deals-tab
+      card; the table's only dashboard reference is one GET. Anon surface re-verified
+      as-anon (SELECT only; 10,887 live rows). Live check caught the `+00` timestamp
+      gotcha on `last_seen` pre-ship — normalised at the shaping edge; gotcha
+      generalised in that repo's CLAUDE.md (applies to every timestamptz via REST,
+      invisible to Vitest/node). 107/107 tests, typecheck+build green. No HITL step
+      remained (grant shipped in DealFinder's 2026-07-02 create migration). Note:
+      newest `last_seen` is 2026-07-10 — parking resumes when the funnel flows again
+      (DealFinder 032 deploy watch / 033).*
 
 ## Phase E — 700k catalog backfill (Dashboard issue 014 is the coordination record)
 
