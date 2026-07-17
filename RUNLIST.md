@@ -92,7 +92,7 @@ of this order.
       access). Root cause noted in alchemist-v2 CLAUDE.md: Supabase default privileges
       give every new public table full anon grants — service-role-only tables need an
       explicit revoke at creation.*
-- [ ] **C2. root `issues/002-e2e-queue-verification.md`** — the live queue → claim →
+- [x] **C2. root `issues/002-e2e-queue-verification.md`** — the live queue → claim →
       enrich → pipeline-card pass. Closing this also satisfies Dashboard 007's last
       open criterion — treat C2/C3 as one session. Blockers: A1, A4 (card leg only;
       queue legs can run early). Needs A3's answer on scheduler deployment.
@@ -111,9 +111,21 @@ of this order.
       logged, `7641153`). CONTRACTS.md §2 updated. To finish C2/C3: operator deploys
       `2e8a88a` before ~20:00 UTC + one-row null of the test row's timestamp, then
       next-morning read-only check (enriched row + mine on card).*
-- [ ] **C3. `Alchemist_Dashboard/issues/007-wholesale-server-paired.md`** — only the
+      *2026-07-17: **done** — deploy + null confirmed by observation: the miner
+      attempted the queued EAN in the FIRST run of the window (21:02:18Z touch; 027
+      works), but Keepa skipped it (no UK match for the French-market GTIN, or
+      validation fail — indistinguishable read-only; visibility gap = alchemist-v2 023).
+      Same run enriched 1,153 rows; first canonical `mine` run_log rows landed and are
+      anon-visible (card leg met). Operator accepted criterion 3's attempted-touch arm
+      over a 1-token probe / second EAN round. Issue moved to `issues/done/`.*
+- [x] **C3. `Alchemist_Dashboard/issues/007-wholesale-server-paired.md`** — only the
       enrichment-half criterion remains; record the C2 observation and move to done.
       Blockers: C2.
+      *2026-07-17: done — C2 observation recorded in the issue (scheduler confirmed
+      deployed, queued EAN attempted first-in-window, `classifyEanFreshness` renders
+      the correct "Queued" state for a skipped EAN; the visible Queued→Enriched flip
+      awaits alchemist-v2 023 or a Keepa-matchable EAN). Moved to `issues/done/` on
+      the `wholesale-700k-backfill-plan` branch.*
 
 ## Phase D — quick feature win
 

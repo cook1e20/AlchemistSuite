@@ -26,16 +26,21 @@ when closing it. Any gap found is logged as a repo-local bug issue in the owning
 
 ## Acceptance criteria
 
-- [ ] A real unmatched EAN was queued via the dashboard UI using the anon key (no direct
-      browser write to `products`).
-- [ ] The `commands` row transitioned pending → claimed/completed by the service-role
+- [x] A real unmatched EAN was queued via the dashboard UI using the anon key (no direct
+      browser write to `products`). *(2026-07-16 — byte-identical anon POST; caveat in
+      progress note.)*
+- [x] The `commands` row transitioned pending → claimed/completed by the service-role
       worker, and a bare `products` row appeared with signal columns untouched.
-- [ ] After the next overnight window, the same row shows fresh Keepa signal and
+      *(2026-07-16.)*
+- [x] After the next overnight window, the same row shows fresh Keepa signal and
       `last_mined_at` set (or a deliberate "attempted" touch if Keepa had no UK listing).
-- [ ] The dashboard pipeline card showed the `commands` and `mine` stage runs from
-      `run_log`.
-- [ ] Observed timeline recorded in this file; every discrepancy logged as a repo-local
-      issue in the owning repo.
+      *(2026-07-17 — closed on the letter's attempted-touch arm, operator decision; see
+      the 07-17 progress note for the ambiguity.)*
+- [x] The dashboard pipeline card showed the `commands` and `mine` stage runs from
+      `run_log`. *(2026-07-17 — first canonical `mine` rows landed overnight, anon-visible.)*
+- [x] Observed timeline recorded in this file; every discrepancy logged as a repo-local
+      issue in the owning repo. *(alchemist-v2 026/027 logged 07-16, 027 landed same day;
+      the remaining skip-visibility gap is pre-existing alchemist-v2 023.)*
 
 ## Blocked by
 
@@ -106,3 +111,46 @@ Operator-approved single-EAN run (expected ~1–2 Keepa tokens). EAN chosen:
 (re-check `title is not null` each morning), or land + deploy `alchemist-v2/issues/027`
 first, after which the *next* window should enrich it and criterion 3's intent (not its
 current letter) is satisfied. Recommendation: slot 027 next in the runlist.
+
+---
+
+## Progress note — 2026-07-17 (morning-after read-only check)
+
+Operator deployed `2e8a88a` and nulled the test row's timestamp on 2026-07-16 as
+planned — both confirmed by observation, read-only, zero spend.
+
+- **Criterion 4 (pipeline card): met.** The 07-16 21:00–07-17 04:45 window wrote the
+  first real canonical `mine` rows to `run_log` (every 15 min, all `completed`, e.g.
+  04:45 run: 303 enriched / 315 candidates). Verified via live `set role anon` read
+  that the card's anon fetch sees them (`commands`, `mine`, `scout` all `completed`
+  within the card's lookback). With the reduction already exercised live on 07-16
+  (`mine` was `idle` only for lack of rows), the card renders both `commands` and
+  `mine` runs.
+- **Criterion 3 (enrichment): attempted-touch outcome, not enrichment.** Issue 027's
+  fix demonstrably worked: the test EAN was selected by the *first* mine run of the
+  window (run finished 21:02:18.562; row's `last_mined_at` = 21:02:18.059 — no longer
+  behind the 54k treadmill). But it was one of that run's 107 *skipped* rows: no
+  title/ASIN/signal written, deliberate attempted-touch only, while the same run
+  enriched 1,153 rows. Cause is ambiguous from the DB (`stage-miner.js` touches on
+  both paths): Keepa UK's EAN index may genuinely lack `3017620422003` (the
+  French-market Nutella GTIN; Amazon UK's Nutella 400g `B01F9F4KDS` may carry a
+  different GTIN in Keepa's `eanList`), or the product returned but failed price
+  validation — the distinguishing console line lives on the undocumented scheduler
+  host. The catalog contains zero Nutella rows to corroborate either way. Criterion
+  3's *letter* ("deliberate 'attempted' touch if Keepa had no UK listing") is
+  therefore plausibly met but not proven; its *intent* (queued EAN visibly enriched)
+  was not observed for this EAN. The user-facing gap — a queued EAN that skips leaves
+  no visible record of why — is already logged as `alchemist-v2/issues/023`
+  (not-found marker).
+
+**Observed timeline (final):** queued 2026-07-16 14:07:44Z (anon) → claimed + bare row
+14:15:00Z (service-role worker) → attempted by miner 2026-07-16 21:02:18Z (first run of
+the first window after the 027 deploy) → skipped (no Keepa UK match or validation
+fail), attempted-touch recorded.
+
+**Closed 2026-07-17, operator decision:** accept criterion 3's attempted-touch arm —
+the e2e mechanism is proven end-to-end (queue → claim → attempt-first-next-window →
+deliberate touch), enrichment itself proven by 1,153 rows in the same run, and the
+skip-visibility gap is already tracked as `alchemist-v2/issues/023`. Alternatives
+declined: a 1-token Keepa probe of `B01F9F4KDS`'s `eanList`, or a second overnight
+round with a known-indexed EAN.
