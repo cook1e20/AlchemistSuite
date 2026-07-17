@@ -182,6 +182,15 @@ of this order.
       `\"` escapes swallowing 438k rows), alchemist-v2 `d6cf8f7`+`b3e53c5`+`c8fb127`,
       all pushed. Root 005's re-load is thereby done. Follow-up: alchemist-v2 029
       (miner candidate fetch pages ~790k rows/run — land before/early in E4).*
+- [x] **E3b. `alchemist-v2/issues/029-bug-miner-candidate-fetch-unbounded-at-700k.md`**
+      (bug, major, AFK) — slotted 2026-07-17 (operator call, per E3's follow-up note):
+      post-load the miner paged the full ~790k-row pool (~790 REST calls) every 15-min
+      run; must land before the E4 pilot repeats that ~96×/day.
+      *2026-07-17: landed (alchemist-v2 `ab4086a`, pushed) — `getBackfillCandidates`
+      takes a `maxRows` cap; miner passes 5× the run's token budget (~2 pages for a
+      300-token run). Safe for 027's null-first priority via the DB's nullsFirst
+      order; 023 exclusion unchanged; 5 new tests red-first, 159/159. Deploy-gated —
+      server should pull before the pilot starts.*
 - [ ] **E4. `Alchemist_Dashboard/issues/014-...` Phase 4 pilot** (HITL, business
       decision) — pause DealFinder, 2–3 day pilot, measure hit rate, then decide.
       Blockers: E1–E3, and the A2 dry-run fix.
