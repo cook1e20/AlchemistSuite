@@ -154,9 +154,17 @@ of this order.
       `upsertBareProduct` was still marked done, and one thrown row killed the whole
       remaining batch. 3 new tests red-first, 104/104. Deploy-gated as usual;
       CONTRACTS.md §2 batch wording updated in this commit.*
-- [ ] **E2. `alchemist-v2/issues/023-not-found-marker.md`** (AFK) — Phase 3 brought
+- [x] **E2. `alchemist-v2/issues/023-not-found-marker.md`** (AFK) — Phase 3 brought
       forward: dead EANs must leave the candidate pool before any bulk mining.
       Blockers: none.
+      *2026-07-17: landed (alchemist-v2 `2957789`) — `uk_not_found_at` column applied
+      LIVE (additive/nullable, migration `add_products_uk_not_found_at`; safe ahead of
+      deploy, and required before it). Genuine Keepa not-found → 90-day park, lowest-
+      priority re-entry; validation failures keep the 30-day touch; enrichment clears
+      the marker; dead tail also excluded at the DB fetch. 112/112 tests (8 new,
+      red first). CONTRACTS.md §2 updated in this commit. Effect deploy-gated as
+      usual. Follow-up: alchemist-v2 issue 028 (HITL) — dashboard re-queue of a
+      marked EAN is a silent 90-day no-op; operator to place it in this queue.*
 - [ ] **E3. `alchemist-v2/issues/022-bulk-catalog-loader.md`** (HITL) — Phase 2 script;
       build is safe, the live 700k load is the human call. Blockers: E2 should land
       before the *mining* that follows the load.

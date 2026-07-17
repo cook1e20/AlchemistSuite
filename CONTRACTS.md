@@ -57,8 +57,10 @@ per table is in §3.
 - **Writers (service_role):**
   - `alchemist-v2` backfill miner (`stage-miner.js`) — full enrichment upsert
     (`source = 'backfill-miner'` — corrected 2026-07-16 against code and live data;
-    the ~2.1k `source = 'miner'` rows are legacy), plus a narrow `last_mined_at`-only
-    touch on rows that fail to enrich (so doomed rows don't retry forever).
+    the ~2.1k `source = 'miner'` rows are legacy), plus, on rows that fail to enrich,
+    either a narrow `last_mined_at`-only touch (found on Keepa but failed validation)
+    or a narrow `uk_not_found_at` + `last_mined_at` mark (Keepa has no UK product at
+    all — alchemist-v2 issue 023, 2026-07-17) so doomed rows don't retry forever.
   - `alchemist-v2` commands worker (`stage-commands.js` → `db.upsertBareProduct`) — bare
     rows: **only** `ean` / `uk_asin` / `brand`, never signal columns.
   - `alchemist-v2` buy-sheet import (`stage-import.js`).
@@ -83,6 +85,18 @@ per table is in §3.
     signal"; the dashboard uses `title IS NOT NULL` to tell enriched from queued.
   - `last_evaluated_at` — stamped only when a full economics/gating verdict was computed
     (DealFinder); not yet read by any gating logic.
+  - `uk_not_found_at` (timestamptz, nullable, no default — added live 2026-07-17,
+    alchemist-v2 issue 023, migration `add_products_uk_not_found_at`) — last time a
+    Keepa UK lookup found **no product at all** for this EAN/ASIN. Written only by the
+    alchemist-v2 miner (service_role); cleared by successful enrichment
+    (`upsertProduct` sends an explicit `null`). The miner excludes marked rows from
+    the backfill pool for 90 days (`NOT_FOUND_RETRY_DAYS`), after which they re-enter
+    at the lowest priority. No grant change was needed (anon's table-level SELECT
+    covers new columns — anon may read it, e.g. for a future dashboard "not found on
+    Amazon UK" state; see alchemist-v2 issue 028). Deploy-gated: the live server
+    keeps plain-touching not-found rows until it pulls alchemist-v2 `2957789`.
+    DealFinder's write-through column list does not include it and must leave it
+    untouched.
   - `de/fr/it/es_360day_min` (default `-1`) — legacy EU-scan minima; `-1` = never scanned.
 
 ### `commands` — dashboard→server command queue. Owner: `alchemist-v2` (consumer); payload shape co-owned with dashboard
