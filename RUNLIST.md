@@ -165,9 +165,17 @@ of this order.
       red first). CONTRACTS.md §2 updated in this commit. Effect deploy-gated as
       usual. Follow-up: alchemist-v2 issue 028 (HITL) — dashboard re-queue of a
       marked EAN is a silent 90-day no-op; operator to place it in this queue.*
-- [ ] **E3. `alchemist-v2/issues/022-bulk-catalog-loader.md`** (HITL) — Phase 2 script;
+- [x] **E3. `alchemist-v2/issues/022-bulk-catalog-loader.md`** (HITL) — Phase 2 script;
       build is safe, the live 700k load is the human call. Blockers: E2 should land
       before the *mining* that follows the load.
+      *2026-07-17: landed (alchemist-v2 `bf75749`) — `bulk-load-catalog.js`: dry-run by
+      default, `--execute` to write; repairs the 11-digit stripped-zero UPCs behind the
+      07-15 load's ~86% failure rate (root 005's fix); insert-only, can never modify an
+      existing row; bulk rows stamped `last_mined_at` = load time (NOT null) so
+      user-queued EANs keep 027's front-of-queue slot. 35 new tests red-first, 147/147;
+      dry-run verified live read-only. The live 700k load was NOT run — operator's
+      call (E4); invocation recorded in the issue. No deploy needed (direct CLI, no
+      Keepa). CONTRACTS.md §2 writers list updated in this commit.*
 - [ ] **E4. `Alchemist_Dashboard/issues/014-...` Phase 4 pilot** (HITL, business
       decision) — pause DealFinder, 2–3 day pilot, measure hit rate, then decide.
       Blockers: E1–E3, and the A2 dry-run fix.

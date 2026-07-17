@@ -64,6 +64,15 @@ per table is in §3.
   - `alchemist-v2` commands worker (`stage-commands.js` → `db.upsertBareProduct`) — bare
     rows: **only** `ean` / `uk_asin` / `brand`, never signal columns.
   - `alchemist-v2` buy-sheet import (`stage-import.js`).
+  - `alchemist-v2` bulk catalog loader (`bulk-load-catalog.js`, issue 022 — one-off
+    operator-invoked CLI, not a scheduled stage; dry-run by default, `--execute` to
+    write). Insert-only bare rows (`ean` + optional `uk_asin`/`brand`): ON CONFLICT DO
+    NOTHING with no merge path, so it can never modify an existing row. New rows are
+    stamped `last_mined_at` = load time, deliberately **not** `NULL` — `NULL` is the
+    "never attempted, user explicitly asked" front-of-queue signal (issue 027), and a
+    bulk load claiming it would bury dashboard-queued EANs; stamped rows remain tier-0
+    miner candidates behind user-queued ones. Repairs 11-digit stripped-leading-zero
+    UPCs by left-padding to GTIN-13 (root issue 005's chosen fix for the re-load path).
   - `DealFinder` write-through (`src/products-upsert/`, `source = 'dealfinder'`) — writes
     only the columns its header comment lists (ean, uk_asin, de_asin, title, brand,
     uk_current_price, uk_avg30_price, monthly_sold, seller_count, source,
