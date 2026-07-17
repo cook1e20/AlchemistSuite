@@ -146,8 +146,14 @@ of this order.
 
 ## Phase E — 700k catalog backfill (Dashboard issue 014 is the coordination record)
 
-- [ ] **E1. `alchemist-v2/issues/021-commands-batch-limit-raise.md`** (AFK) — Phase 1,
+- [x] **E1. `alchemist-v2/issues/021-commands-batch-limit-raise.md`** (AFK) — Phase 1,
       worker drain 50 → ~500. Blockers: none.
+      *2026-07-17: landed (alchemist-v2 `26c6f23`) — BATCH_LIMIT 500 (48k/day), per-row
+      loop kept (isolation is a criterion; ~500 round-trips well under a minute per
+      run). Criterion 3 exposed and fixed two latent defects: a false-returning
+      `upsertBareProduct` was still marked done, and one thrown row killed the whole
+      remaining batch. 3 new tests red-first, 104/104. Deploy-gated as usual;
+      CONTRACTS.md §2 batch wording updated in this commit.*
 - [ ] **E2. `alchemist-v2/issues/023-not-found-marker.md`** (AFK) — Phase 3 brought
       forward: dead EANs must leave the candidate pool before any bulk mining.
       Blockers: none.

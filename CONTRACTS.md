@@ -92,7 +92,9 @@ per table is in §3.
 - **Contract:** anon may **only insert** rows shaped
   `{type: 'queue_backfill_ean', payload: {ean, [uk_asin], [brand]}, status: 'pending'}`
   (RLS-enforced, §3). The service-role worker (`stage-commands.js`, every 15 min) claims
-  pending rows oldest-first (batch 50), validates the EAN, upserts a bare `products` row,
+  pending rows oldest-first (batch 500 as of alchemist-v2 issue 021, 2026-07-17;
+  deploy-gated — the server drains 50 until it pulls `26c6f23`), validates the EAN,
+  upserts a bare `products` row,
   and sets `status` to `'done'` or `'failed'` (+ `error`, `processed_at`). Duplicates of
   an already-queued EAN are marked `done`.
 - The payload shape is pinned on both sides: dashboard `wholesale-queue.ts`
