@@ -53,3 +53,20 @@ Still open before the re-load: land E1 (batch 50 → ~500) so the queue drains i
 not months, and fix the leading-zero/UPC normalisation (decision 2) so the ~86%
 failure rate doesn't repeat. Decision 1 (what performed the original load, and whether
 it also wrote the unexplained +19k `products` rows) remains unanswered.
+
+## Progress (2026-07-17) — re-load DONE via the E3 loader
+
+The re-load happened through `alchemist-v2/bulk-load-catalog.js` (E3), bypassing
+`commands` entirely — the queue-drain concern is moot for bulk (E1's batch-500 still
+serves selective dashboard queues). Operator-approved live run against
+`catalogue_export_2026-07-13_155814.csv`: 742,470 rows inserted, 0 failed, 1,787
+pre-existing rows untouched; `products` verified at 810,306.
+
+Decision 2 resolved with data: the loader carries the 11-digit left-pad repair, but
+this export needed it **zero times** — it stores EANs as validated zero-padded
+13-digit text. The 07-15 load's ~86% failure rate was damage introduced by whatever
+spreadsheet/export path fed the `commands` queue, not the source catalogue.
+
+Decision 1 (who/what ran the 07-15 load and wrote the +19k unexplained `products`
+rows) remains unanswered — the only still-open thread here; operator to close or
+accept.

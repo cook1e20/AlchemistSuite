@@ -176,6 +176,12 @@ of this order.
       dry-run verified live read-only. The live 700k load was NOT run — operator's
       call (E4); invocation recorded in the issue. No deploy needed (direct CLI, no
       Keepa). CONTRACTS.md §2 writers list updated in this commit.*
+      *Same day, operator go-ahead: **live load executed** — 742,470 rows inserted,
+      0 failed, 1,787 pre-existing untouched; `products` now 810,306 (verified live).
+      Two real-file defects fixed red-first pre-write (OOM → streaming; MySQL-style
+      `\"` escapes swallowing 438k rows), alchemist-v2 `d6cf8f7`+`b3e53c5`+`c8fb127`,
+      all pushed. Root 005's re-load is thereby done. Follow-up: alchemist-v2 029
+      (miner candidate fetch pages ~790k rows/run — land before/early in E4).*
 - [ ] **E4. `Alchemist_Dashboard/issues/014-...` Phase 4 pilot** (HITL, business
       decision) — pause DealFinder, 2–3 day pilot, measure hit rate, then decide.
       Blockers: E1–E3, and the A2 dry-run fix.
