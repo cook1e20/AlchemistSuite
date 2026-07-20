@@ -39,6 +39,8 @@ is a snapshot, refreshed when re-verified.
 | Browser UI; all anon-key payload shapes | `Alchemist_Dashboard` |
 | `business_snapshots` (finance history) | `Alchemist_Dashboard` |
 | Deal review actions (buy/dismiss), wholesale matching, command insertion, status rendering | `Alchemist_Dashboard` |
+| `wholesale_sync_requests` (schema); `qogita-catalog-webhook` Edge Function | `Alchemist_Dashboard` |
+| Qogita catalog-download submit/ingest (`wholesale-sync` stage, Phase 3, not yet built) | `alchemist-v2` |
 
 Code and schema changes are implemented in the owning repo. A system issue may name
 several repos, but the work is split so one iteration owns one task in one repo.
@@ -193,6 +195,23 @@ per table is in §3.
 - Both are service-role-only in practice. (`ungate_log`'s over-broad legacy anon grants
   are a logged discrepancy, §6.)
 
+### `wholesale_sync_requests` — Qogita catalog-sync request bookkeeping. Owner: `Alchemist_Dashboard`
+
+- **PK:** `id` (bigint identity). Columns: `status` (default `'pending'`),
+  `catalog_request_id`, `download_url`, `filename`, `requested_at`, `completed_at`,
+  `error`, `created_at` (default `now()`). Created live 2026-07-20 (Alchemist_Dashboard
+  issue 015/016, migration `20260720130000`).
+- **Contract:** bookkeeping only, never catalog data (owner ruled out a Qogita-catalog
+  data table entirely — issue 015 Design). A handful of ephemeral rows. Status lifecycle:
+  `pending` (anon-inserted) → `requested` (alchemist-v2's `wholesale-sync` stage submit
+  leg, not yet built — Phase 3) → `ready` / `failed` (the `qogita-catalog-webhook` Edge
+  Function, on Qogita's completion webhook) → `done` (the same stage's ingest leg, once
+  built).
+- **Writers:** anon may only INSERT a fresh `pending` row (§3). The Edge Function and the
+  future `wholesale-sync` stage both write via service_role, bypassing RLS.
+- **Readers:** the dashboard polls its own request's status (no push channel available to
+  a static SPA).
+
 ### `tracking_log_archived` — archived, read-only
 
 Frozen history of retired sniper Keepa trackings (0 rows live). No live writer; not a
@@ -212,6 +231,7 @@ verified live 2026-07-15 (grant + policy both checked):
 | `ungating_opportunities` | SELECT only | grant + read policy |
 | `products` | SELECT only | grant: SELECT (dashboard migration `20260715120000`, fixing §6 item 3) + pre-existing `USING (true)` read policy |
 | `run_log` | SELECT only | grant + `USING (true)` read policy (dashboard migration `20260715120000`) |
+| `wholesale_sync_requests` | SELECT all; INSERT rows shaped `{status: 'pending', catalog_request_id: null}` | grant: SELECT, INSERT; policy `WITH CHECK (status = 'pending' AND catalog_request_id IS NULL)` on insert, `USING (true)` on select (dashboard migration `20260720130000`) |
 
 Everything else (`scout_log`, `ungate_log`, `tracking_log_archived`): **no anon
 access**.

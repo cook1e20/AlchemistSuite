@@ -249,6 +249,16 @@ is the coordination record)
       `qogita-catalog-webhook`). HITL: operator must register the deployed function's
       URL with Qogita's own webhook subscription UI before Phase 4 can run — mechanism
       isn't documented anywhere in code. Blockers: none, can build alongside G1.
+      *2026-07-20: build landed (Alchemist_Dashboard `dc2c901`, filed as issue 016) —
+      migration `20260720130000` applied live (anon SELECT+INSERT only, verified as
+      the anon role; a non-`pending`/non-null-`catalog_request_id` insert is RLS-
+      rejected; no new `get_advisors` findings) and `qogita-catalog-webhook` deployed
+      live (`verify_jwt:false`, its own `?token=` auth). 122/122 tests (15 new),
+      typecheck green. CONTRACTS.md §1/§2/§3 updated same commit (root). **Left open**
+      (issue 016 stays unresolved on this): no MCP tool sets Edge Function secrets, so
+      `QOGITA_WEBHOOK_TOKEN` is unset and the deployed function fails closed; operator
+      still needs to generate+set that secret and register the function URL (recorded
+      in issue 015) with Qogita's account UI before Phase 3/4 can do anything real.
 - [ ] **G3. alchemist-v2 Phase 3 — `wholesale-sync` stage** (submit + ingest legs;
       streams Qogita's CSV straight into Supabase Storage, no new catalog-data table —
       owner explicitly ruled that out 2026-07-20). Dispatched manually via `index.js`
