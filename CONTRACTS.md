@@ -40,7 +40,7 @@ is a snapshot, refreshed when re-verified.
 | `business_snapshots` (finance history) | `Alchemist_Dashboard` |
 | Deal review actions (buy/dismiss), wholesale matching, command insertion, status rendering | `Alchemist_Dashboard` |
 | `wholesale_sync_requests` (schema); `qogita-catalog-webhook` Edge Function | `Alchemist_Dashboard` |
-| Qogita catalog-download submit/ingest (`wholesale-sync` stage, Phase 3, not yet built) | `alchemist-v2` |
+| Qogita catalog-download submit/ingest (`wholesale-sync` stage, Phase 3) | `alchemist-v2` |
 
 Code and schema changes are implemented in the owning repo. A system issue may name
 several repos, but the work is split so one iteration owns one task in one repo.
@@ -133,13 +133,18 @@ per table is in §3.
 - **PK:** `id`. Columns: `stage`, `status` (default `'running'`), `stats` (jsonb),
   `started_at` (default `now()`), `finished_at`.
 - **Canonical stage names (the published contract):** `mine`, `import`, `scout`,
-  `commands`, `housekeeping`. The dashboard renders exactly these names — no aliases.
-  Known drift hazards this contract settles: the scheduler's internal console label
-  `miner` (cosmetic, must not leak into `run_log.stage`) and the dashboard's legacy
-  `ungating` card key (real stage is `scout`) — the latter fixed 2026-07-16
-  (Alchemist_Dashboard issue 012, `8e0a820`): the card's `KNOWN_STAGES` now mirrors
-  the five canonical names exactly; non-canonical stages render via its
-  `known:false` fallback.
+  `commands`, `housekeeping`, `wholesale-sync`. The dashboard renders exactly these
+  names — no aliases. Known drift hazards this contract settles: the scheduler's
+  internal console label `miner` (cosmetic, must not leak into `run_log.stage`) and
+  the dashboard's legacy `ungating` card key (real stage is `scout`) — the latter
+  fixed 2026-07-16 (Alchemist_Dashboard issue 012, `8e0a820`): the card's
+  `KNOWN_STAGES` mirrored the first five canonical names exactly; non-canonical
+  stages render via its `known:false` fallback. **`wholesale-sync` landed
+  2026-07-20 (alchemist-v2 issue 033, Phase 3) but is dispatched manually only
+  (`node index.js --stage wholesale-sync`) — not yet on `scheduler.js`'s cron
+  (Phase 6) — so `Alchemist_Dashboard/src/pipeline-status.ts`'s `KNOWN_STAGES` was
+  deliberately left at five entries this round; a manual test run's row surfaces via
+  the existing `known:false` fallback until Phase 5 touches that file anyway.**
 - **Current state:** writers landed 2026-07-15 (alchemist-v2 `7a0e170`, issue 017):
   `run-log.js`'s `withRunLog` wraps every stage run in both dispatchers (`index.js`
   CLI and `scheduler.js`, the deployed cron process). Statuses: `running` →
@@ -204,13 +209,20 @@ per table is in §3.
 - **Contract:** bookkeeping only, never catalog data (owner ruled out a Qogita-catalog
   data table entirely — issue 015 Design). A handful of ephemeral rows. Status lifecycle:
   `pending` (anon-inserted) → `requested` (alchemist-v2's `wholesale-sync` stage submit
-  leg, not yet built — Phase 3) → `ready` / `failed` (the `qogita-catalog-webhook` Edge
-  Function, on Qogita's completion webhook) → `done` (the same stage's ingest leg, once
-  built).
+  leg, landed 2026-07-20, issue 033 — Phase 3) → `ready` / `failed` (the
+  `qogita-catalog-webhook` Edge Function, on Qogita's completion webhook) → `done` (the
+  same stage's ingest leg) or `failed` (submit error, or a Storage upload failure on
+  ingest).
 - **Writers:** anon may only INSERT a fresh `pending` row (§3). The Edge Function and the
-  future `wholesale-sync` stage both write via service_role, bypassing RLS.
+  `wholesale-sync` stage both write via service_role, bypassing RLS.
 - **Readers:** the dashboard polls its own request's status (no push channel available to
   a static SPA).
+- **Storage:** the ingest leg streams the downloaded CSV into Storage bucket
+  `wholesale-catalogs` (private, created live 2026-07-20 via Supabase MCP
+  `apply_migration` — Phase 2 didn't create it), path `latest.csv`, overwritten each
+  sync (no per-request versioning, single-user tool). Owner: `alchemist-v2` (the only
+  writer, service_role). No anon read policy exists yet — Phase 5 (dashboard UI fetch)
+  decides that.
 
 ### `tracking_log_archived` — archived, read-only
 

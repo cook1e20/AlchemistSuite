@@ -284,10 +284,26 @@ is the coordination record)
       multi-minute-stale results throughout and never surfaced any test-event
       invocation, including ones proven delivered by the 500 itself; deferred to
       Phase 4's real pilot. Issue 016 moved to `issues/done/`.
-- [ ] **G3. alchemist-v2 Phase 3 — `wholesale-sync` stage** (submit + ingest legs;
+- [x] **G3. alchemist-v2 Phase 3 — `wholesale-sync` stage** (submit + ingest legs;
       streams Qogita's CSV straight into Supabase Storage, no new catalog-data table —
       owner explicitly ruled that out 2026-07-20). Dispatched manually via `index.js`
       only, not cron'd yet. Blockers: G1, G2.
+      *2026-07-20: landed (alchemist-v2 `a65f1de`, filed as issue 033) — submit leg
+      claims oldest `pending` request, calls `requestCatalogDownload`, marks
+      `requested`/`failed` (never stuck pending, incl. an operator-facing message on
+      `QogitaWebhookNotRegisteredError`); ingest leg claims oldest `ready` request,
+      streams `download_url` via new `qogitaApi.streamCatalogDownload` straight into
+      new `db.uploadWholesaleCatalog` (storage-js accepts a Node readable natively —
+      no buffering, issue 022's OOM lesson doesn't recur), marks `done`/`failed`.
+      Manual dispatch only (`--stage wholesale-sync`), not part of `full`, not cron'd
+      (Phase 6). Required a Storage bucket Phase 2 hadn't created —
+      `wholesale-catalogs` (private) applied live via Supabase MCP before any code
+      ran against it. 23 new tests red-first, 208/208. CONTRACTS.md updated same
+      commit as this tick: §1 ownership, §2 run_log canonical stage list
+      (+`wholesale-sync`, dashboard `KNOWN_STAGES` deliberately deferred to Phase 5 —
+      not cron'd yet, no drift risk), §2 `wholesale_sync_requests` lifecycle + new
+      Storage-ownership note. Next: G4 pilot (HITL, hand-insert one request against
+      the live Qogita account + registered webhook).*
 - [ ] **G4. Pilot** (HITL, operator) — one real request → real webhook → real Storage
       file, run by hand. Blockers: G3.
 - [ ] **G5. Alchemist_Dashboard Phase 5 — UI** ("Qogita Sync" mode on Wholesale Search,
