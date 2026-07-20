@@ -191,11 +191,21 @@ of this order.
       300-token run). Safe for 027's null-first priority via the DB's nullsFirst
       order; 023 exclusion unchanged; 5 new tests red-first, 159/159. Deploy-gated —
       server should pull before the pilot starts.*
-- [ ] **E4a. `alchemist-v2/issues/026-bug-miner-monthly-sold-completeness-treadmill.md`**
+- [x] **E4a. `alchemist-v2/issues/026-bug-miner-monthly-sold-completeness-treadmill.md`**
       (bug, major, AFK) — slotted 2026-07-17 (operator chose "prep, then full pilot"):
       ~30,445 enriched-but-`monthly_sold`-null rows sort ahead of the 742k bulk cohort
       and re-mine on a ~3-day cycle; landing this saves ~30k pilot tokens and lets the
       pilot measure the catalog, not the old pool. Blockers: none.
+      *2026-07-20: landed (alchemist-v2 `939ea0f`) — dropped `monthly_sold` from
+      `hasCompleteUkSignal` entirely (DealFinder issue 032: its absence is genuine,
+      permanent Keepa coverage for ~94% of the catalog, not a fillable gap); a
+      complete-but-`monthly_sold`-null row now respects the 30-day staleness horizon
+      instead of being an unconditional tier-0 candidate forever. `db.js`'s
+      `getBackfillCandidates` OR filter updated to match (dropped its own
+      `monthly_sold.is.null` clause) so the bounded fetch window (issue 029) isn't
+      spent on rows the in-memory selector now discards. 2 new tests red-first,
+      161/161. Criterion 2 (live tier-0 pool count drop) is deploy-gated — needs the
+      server to pull this commit before it's observable; not measured this session.*
 - [ ] **E4b. `alchemist-v2/issues/030-miner-window-env-tunable.md`** (AFK) — filed +
       slotted 2026-07-17: env-tunable miner cron window (defaults reproduce the §5
       overnight split; `start === end` = all-day) so the pilot doesn't hand-edit
