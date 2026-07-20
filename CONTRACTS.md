@@ -214,7 +214,15 @@ per table is in §3.
   same stage's ingest leg) or `failed` (submit error, or a Storage upload failure on
   ingest).
 - **Writers:** anon may only INSERT a fresh `pending` row (§3). The Edge Function and the
-  `wholesale-sync` stage both write via service_role, bypassing RLS.
+  `wholesale-sync` stage both write via service_role, bypassing RLS. **2026-07-20
+  correction:** the creation migration (`20260720130000`) never actually granted
+  `service_role` anything — this project has no default-privilege rule auto-granting
+  new public tables to `service_role` (`pg_default_acl` confirmed empty), unlike the
+  common Supabase assumption. Caught live during the G4 pilot (permission denied on
+  every real stage invocation, despite 208/208 green mocked tests); fixed with a
+  follow-up migration (`20260720140000`, `grant select, update to service_role`).
+  Check `information_schema.role_table_grants` for `service_role` before trusting any
+  new table's service-role code path.
 - **Readers:** the dashboard polls its own request's status (no push channel available to
   a static SPA).
 - **Storage:** the ingest leg streams the downloaded CSV into Storage bucket
@@ -222,7 +230,13 @@ per table is in §3.
   `apply_migration` — Phase 2 didn't create it), path `latest.csv`, overwritten each
   sync (no per-request versioning, single-user tool). Owner: `alchemist-v2` (the only
   writer, service_role). No anon read policy exists yet — Phase 5 (dashboard UI fetch)
-  decides that.
+  decides that. **Blocked as of 2026-07-20 (G4 pilot):** the real Qogita full-catalog
+  CSV is ~85MB, but this project's Supabase plan (Free) hard-caps Storage's *global*
+  file-size limit at 50MB — a project-wide setting no bucket-level override can
+  exceed. Ingest fails with "exceeded the maximum allowed size" until the plan is
+  upgraded (Pro+ allows up to 500GB) or the file is shrunk some other way (compression,
+  or Qogita filters — the latter changes the "full catalog" design, see issue 015
+  Phase 7). Operator decision pending; not worked around.
 
 ### `tracking_log_archived` — archived, read-only
 

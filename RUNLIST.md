@@ -306,6 +306,21 @@ is the coordination record)
       the live Qogita account + registered webhook).*
 - [ ] **G4. Pilot** (HITL, operator) — one real request → real webhook → real Storage
       file, run by hand. Blockers: G3.
+      *2026-07-20 attempt: submit → webhook → ready all verified real end-to-end
+      (request id 3, `d20fdac2-ad86-43e2-b6eb-b9146cc7b657`, ~3m14s round trip,
+      13:26:48Z → 13:30:00Z, real `download_url`). Two real bugs caught + fixed en
+      route: (1) `wholesale_sync_requests` was missing a `service_role` grant entirely
+      (Alchemist_Dashboard `225614c`, live migration applied) — the stage couldn't read
+      or write the table at all until this landed; (2) Qogita's own docs on "empty body
+      = full catalog" were wrong, real endpoint needs `{"payload": {}}` (alchemist-v2
+      `41ee5d0`). **Blocked at ingest, not landed**: real catalog CSV is ~85MB; this
+      Supabase project is on the Free plan, which hard-caps Storage's global file-size
+      limit at 50MB with no per-bucket override possible. Operator decision needed:
+      upgrade to Pro (raises cap to 500GB) vs. shrink the file (gzip, or Qogita filters
+      — the latter contradicts the "full catalog" design). Full trace in
+      `Alchemist_Dashboard/issues/015-qogita-catalog-sync.md` Phase 4. Request 3 left
+      `failed` (truthful terminal state, not faked `done`). Not ticked — Phase 4's
+      acceptance criterion (file lands in Storage) is unmet.*
 - [ ] **G5. Alchemist_Dashboard Phase 5 — UI** ("Qogita Sync" mode on Wholesale Search,
       reuses the existing upload-parse pipeline unmodified). Blockers: G4 (build UI on a
       proven round trip, not a guessed shape).
