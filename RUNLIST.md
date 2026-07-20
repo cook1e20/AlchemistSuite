@@ -258,7 +258,19 @@ is the coordination record)
       (issue 016 stays unresolved on this): no MCP tool sets Edge Function secrets, so
       `QOGITA_WEBHOOK_TOKEN` is unset and the deployed function fails closed; operator
       still needs to generate+set that secret and register the function URL (recorded
-      in issue 015) with Qogita's account UI before Phase 3/4 can do anything real.
+      in issue 015) with Qogita's account UI before Phase 3/4 can do anything real.*
+      *2026-07-20, same day: **auth model was wrong, not just unset.** Operator supplied
+      Qogita's real webhook docs mid-session — there is no account-UI registration step
+      (it's `POST /public/webhooks/`, alchemist-v2 `852c3f1`'s new `createWebhookEndpoint`
+      + `register-qogita-webhook.js`), and delivery auth is Qogita's own HMAC
+      (`X-Qogita-Signature`, verified against a one-time `signingSecret`), not a
+      self-invented `?token=`. Also caught: `parseWebhookEnvelope` checked `event` but
+      the real field is `type` — every genuine delivery would have silently failed to
+      parse even after auth passed. Corrected + redeployed live same session
+      (Alchemist_Dashboard `923cbb0`): 126/126 dashboard tests, 185/185 alchemist-v2
+      tests, typecheck green. **Still open, unchanged in kind:** operator runs
+      `register-qogita-webhook.js` (own terminal, secret never through an agent
+      transcript) and sets `QOGITA_WEBHOOK_SIGNING_SECRET`.
 - [ ] **G3. alchemist-v2 Phase 3 — `wholesale-sync` stage** (submit + ingest legs;
       streams Qogita's CSV straight into Supabase Storage, no new catalog-data table —
       owner explicitly ruled that out 2026-07-20). Dispatched manually via `index.js`
