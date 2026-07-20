@@ -261,10 +261,16 @@ One Keepa account (one token bucket) is shared deliberately:
   `Intl` `Europe/London` — `DealFinder/issues/done/031-overnight-pause.md`,
   `src/overnight-pause/`).
 - **alchemist-v2's miner owns that window:** cron `*/15 21-23 * * *` + `*/15 0-4 * * *`
-  (every 15 min, 21:00–04:59). Each run sizes itself from the **live** balance via
-  Keepa's free `/token` endpoint (`keepa.getTokenStatus()`); `TOKEN_LIMIT_MINER` is only
-  an optional operator ceiling. Frequent small drains, not two big bursts — the bucket
-  caps out and idles within minutes once DealFinder pauses.
+  (every 15 min, 21:00–04:59) — these are the **default** expressions, derived from
+  env-tunable `MINER_WINDOW_START_HOUR` / `MINER_WINDOW_END_HOUR` (default 21 / 5,
+  end-exclusive like DealFinder's `OVERNIGHT_PAUSE_*_HOUR` above; `start === end` means
+  all-day — `miner-schedule.js`'s `minerCronExpressions`, issue 030). Each run sizes
+  itself from the **live** balance via Keepa's free `/token` endpoint
+  (`keepa.getTokenStatus()`); `TOKEN_LIMIT_MINER` is only an optional operator ceiling.
+  Frequent small drains, not two big bursts — the bucket caps out and idles within
+  minutes once DealFinder pauses. **Widening the window beyond the default overnight
+  split is sanctioned only with DealFinder paused** (e.g. the E4 700k-catalog pilot) —
+  otherwise the two probes fight over the same token bucket.
 - **Rule: Keepa-token spend is server-side and schedule-gated only.** No dashboard action
   spends tokens live; the dashboard's only path to Keepa work is queueing a `commands`
   row that the overnight miner eventually services.

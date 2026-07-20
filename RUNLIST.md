@@ -206,10 +206,19 @@ of this order.
       spent on rows the in-memory selector now discards. 2 new tests red-first,
       161/161. Criterion 2 (live tier-0 pool count drop) is deploy-gated — needs the
       server to pull this commit before it's observable; not measured this session.*
-- [ ] **E4b. `alchemist-v2/issues/030-miner-window-env-tunable.md`** (AFK) — filed +
+- [x] **E4b. `alchemist-v2/issues/030-miner-window-env-tunable.md`** (AFK) — filed +
       slotted 2026-07-17: env-tunable miner cron window (defaults reproduce the §5
       overnight split; `start === end` = all-day) so the pilot doesn't hand-edit
       scheduler.js on the server. Blockers: none.
+      *2026-07-20: landed (alchemist-v2 `6e09d79`) — new `miner-schedule.js`'s pure
+      `minerCronExpressions(startHour, endHour)` (end-exclusive, matching DealFinder's
+      `OVERNIGHT_PAUSE_*_HOUR`); `config.js` plumbs `MINER_WINDOW_START_HOUR`/`_END_HOUR`
+      (defaults 21/5); `scheduler.js` derives its miner cron(s) from it instead of two
+      hardcoded expressions — defaults reproduce today's split exactly. 8 new tests
+      red-first, 169/169. CONTRACTS.md §5 updated same commit as this tick. Deploy-gated
+      as usual; server needs this commit before the pilot can flip to all-day via env
+      var alone. E4 now needs only the operator's deploy + go-ahead (all of E1-E3, E3b,
+      E4a, E4b are landed).
 - [ ] **E4. `Alchemist_Dashboard/issues/014-...` Phase 4 pilot** (HITL, business
       decision) — pause DealFinder, 2–3 day pilot, measure hit rate, then decide.
       Blockers: E1–E3, E4a, E4b, and the A2 dry-run fix.
