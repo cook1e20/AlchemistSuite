@@ -220,6 +220,30 @@ of this order.
       `2e8a88a`); DealFinder has 0 hits since the 032 fix, so the pause costs no
       observed deal flow but suspends the ~07-23 watch until the pilot ends.*
 
+## Phase G — Qogita catalog sync (`Alchemist_Dashboard/issues/015-qogita-catalog-sync.md`
+is the coordination record)
+
+- [ ] **G1. alchemist-v2 Phase 1 — Qogita API client** (`qogita-api.js`: login, async
+      catalog-download submit, webhook-envelope parsing; tested against stubbed HTTP).
+      Blockers: none. Per-repo issue not yet filed — file from issue 015 Phase 1 when
+      started.
+- [ ] **G2. Alchemist_Dashboard Phase 2 — request table + webhook receiver** (new
+      `wholesale_sync_requests` table; first Supabase Edge Function in this codebase,
+      `qogita-catalog-webhook`). HITL: operator must register the deployed function's
+      URL with Qogita's own webhook subscription UI before Phase 4 can run — mechanism
+      isn't documented anywhere in code. Blockers: none, can build alongside G1.
+- [ ] **G3. alchemist-v2 Phase 3 — `wholesale-sync` stage** (submit + ingest legs;
+      streams Qogita's CSV straight into Supabase Storage, no new catalog-data table —
+      owner explicitly ruled that out 2026-07-20). Dispatched manually via `index.js`
+      only, not cron'd yet. Blockers: G1, G2.
+- [ ] **G4. Pilot** (HITL, operator) — one real request → real webhook → real Storage
+      file, run by hand. Blockers: G3.
+- [ ] **G5. Alchemist_Dashboard Phase 5 — UI** ("Qogita Sync" mode on Wholesale Search,
+      reuses the existing upload-parse pipeline unmodified). Blockers: G4 (build UI on a
+      proven round trip, not a guessed shape).
+- [ ] **G6. Automate** (HITL to flip on) — cron-dispatch the stage +
+      `WHOLESALE_SYNC_ENABLED` kill switch. Blockers: G5.
+
 ## Phase F — build last
 
 - [ ] **F1. `Alchemist_Dashboard/issues/009-housekeeping-retirement.md`** (HITL) —
@@ -232,8 +256,9 @@ of this order.
 
 ## Standing notes
 
-- Deferred, not in this queue: `Alchemist_Dashboard/issues/deferred/` (hosting, Qogita
-  API).
+- Deferred, not in this queue: `Alchemist_Dashboard/issues/deferred/010-dashboard-hosting.md`.
+  The Qogita API idea (former deferred/012) is superseded and now queued as Phase G,
+  coordination record `Alchemist_Dashboard/issues/015-qogita-catalog-sync.md`.
 - Each child repo is its own git repo — implementation commits land there; runlist
   ticks commit here.
 - Deploy verified 2026-07-16: the server runs `36084f3`+ (first canonical `run_log`
