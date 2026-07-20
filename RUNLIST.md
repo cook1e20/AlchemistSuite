@@ -244,7 +244,7 @@ is the coordination record)
       gate. 14 new tests red-first (incl. the repo's first direct `loadConfig()` test),
       183/183; no real Qogita network call made. Next: Alchemist_Dashboard issue 015
       Phase 2 (request table + webhook receiver).
-- [ ] **G2. Alchemist_Dashboard Phase 2 — request table + webhook receiver** (new
+- [x] **G2. Alchemist_Dashboard Phase 2 — request table + webhook receiver** (new
       `wholesale_sync_requests` table; first Supabase Edge Function in this codebase,
       `qogita-catalog-webhook`). HITL: operator must register the deployed function's
       URL with Qogita's own webhook subscription UI before Phase 4 can run — mechanism
@@ -270,7 +270,20 @@ is the coordination record)
       (Alchemist_Dashboard `923cbb0`): 126/126 dashboard tests, 185/185 alchemist-v2
       tests, typecheck green. **Still open, unchanged in kind:** operator runs
       `register-qogita-webhook.js` (own terminal, secret never through an agent
-      transcript) and sets `QOGITA_WEBHOOK_SIGNING_SECRET`.
+      transcript) and sets `QOGITA_WEBHOOK_SIGNING_SECRET`.*
+      *2026-07-20, same day: operator ran the registration + set the secret. Verified
+      live via `GET /public/webhooks/` (one endpoint, correct url/eventTypes,
+      enabled). Triggering Qogita's own `POST /public/webhooks/test-event` caught a
+      **second real bug**: the HMAC fix used `node:crypto`, which passed all tests
+      (Node has it) but crashed every real invocation with a `500` — Supabase's Deno
+      Edge Runtime doesn't reliably support `node:crypto`. Fixed with the global Web
+      Crypto API (`crypto.subtle`, a true Deno built-in, global in Node since v19) and
+      redeployed (Alchemist_Dashboard `2969b2e`); a direct `curl` confirmed a clean
+      `403` on a bad signature (no crash). **Not independently observed:** a genuine
+      signed delivery returning `200` — this session's Supabase-logs tool showed
+      multi-minute-stale results throughout and never surfaced any test-event
+      invocation, including ones proven delivered by the 500 itself; deferred to
+      Phase 4's real pilot. Issue 016 moved to `issues/done/`.
 - [ ] **G3. alchemist-v2 Phase 3 — `wholesale-sync` stage** (submit + ingest legs;
       streams Qogita's CSV straight into Supabase Storage, no new catalog-data table —
       owner explicitly ruled that out 2026-07-20). Dispatched manually via `index.js`
