@@ -233,6 +233,16 @@ of this order.
 - Root issue 005 (2026-07-16, HITL): a 742k-row bulk load into `commands` happened
   live on 2026-07-15; operator chose purge (executed same day — queue now empty).
   Re-load waits on E1 + UPC leading-zero normalisation.
+- alchemist-v2 issue 031 (2026-07-20, bug, major, HITL): live weekend DB check found
+  scout's auto-ungate has been silently broken since ~2026-07-17 19:00 UTC — 5,681
+  attempted, 0 succeeded, 0 `ungate_log` writes over 3 days, `run_log` reporting clean
+  `errors: 0` throughout (an unguarded exception is swallowed 3 frames above the log
+  call). AFK visibility fix + HITL root-cause diagnosis (likely SP-API credential
+  issue). Not yet slotted in this queue — operator to place it. Same check confirmed
+  E1/E2/E3b are live and working as designed (`uk_not_found_at` populating, candidate
+  fetch bounded, 0 failed run_log rows all weekend) and updated E4's baseline (products
+  now 841,050; the `monthly_sold` treadmill issue 026 grew to ~45.5k rows, reinforcing
+  its E4a priority).
 - DealFinder issue 032 promoted into the queue as A5 on 2026-07-16 (operator call) and
   committed in that repo (`29b40c7`); landed same day (`49c1906`). Its investigation
   spawned DealFinder issue 033 (screen-budget ordering / drop 25–29% dark band, HITL,
