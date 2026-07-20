@@ -228,6 +228,14 @@ of this order.
       `uk_not_found_at` on 0 rows so E1/E2/E3b are NOT yet deployed (server on
       `2e8a88a`); DealFinder has 0 hits since the 032 fix, so the pause costs no
       observed deal flow but suspends the ~07-23 watch until the pilot ends.*
+      *2026-07-20: **pilot started** — operator deployed alchemist-v2 tip (`6e09d79`+),
+      set the miner window all-day, restarted the scheduler, PM2-stopped DealFinder.
+      Verified live: first all-day `mine` run 15:00:00 UTC (daytime, confirms the new
+      window is active), completed, 0 errors. Baseline: `products` 845,390 total, 461
+      `uk_not_found_at`-marked. DealFinder's stop is operator-confirmed only (no VPS
+      access this session). Measurement (sample ≥5,000 EANs from
+      `catalogue_export_2026-07-13_155814.csv` against live row state) due
+      ~2026-07-22/23 — full detail in the issue's new "Pilot started" section.*
 
 ## Phase G — Qogita catalog sync (`Alchemist_Dashboard/issues/015-qogita-catalog-sync.md`
 is the coordination record)
