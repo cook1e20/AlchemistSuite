@@ -140,11 +140,19 @@ per table is in §3.
   fixed 2026-07-16 (Alchemist_Dashboard issue 012, `8e0a820`): the card's
   `KNOWN_STAGES` mirrored the first five canonical names exactly; non-canonical
   stages render via its `known:false` fallback. **`wholesale-sync` landed
-  2026-07-20 (alchemist-v2 issue 033, Phase 3) but is dispatched manually only
-  (`node index.js --stage wholesale-sync`) — not yet on `scheduler.js`'s cron
-  (Phase 6) — so `Alchemist_Dashboard/src/pipeline-status.ts`'s `KNOWN_STAGES` was
-  deliberately left at five entries this round; a manual test run's row surfaces via
-  the existing `known:false` fallback until Phase 5 touches that file anyway.**
+  2026-07-20 (alchemist-v2 issue 033, Phase 3)** and **2026-07-20 (alchemist-v2 issue
+  034, Phase 6)** added a `scheduler.js` cron entry (every 15 min, offset from
+  `commands`), gated by `WHOLESALE_SYNC_ENABLED` (default `false` — the cron always
+  registers but no-ops until an operator flips the env var and restarts, same
+  rollback pattern as the miner window/issue 030). **`Alchemist_Dashboard/src/
+  pipeline-status.ts`'s `KNOWN_STAGES` was NOT updated as part of issue 034** — it
+  still lists five entries, not six — Phase 5 (G5, UI) landed without touching it
+  either, so the "Phase 5 touches that file anyway" assumption in this note's prior
+  revision turned out false. This is currently harmless (the switch defaults off, so
+  no cron-produced `wholesale-sync` row exists yet), but the moment an operator sets
+  `WHOLESALE_SYNC_ENABLED=true`, every 15-min cron row will render via the
+  `known:false` drift-alarm fallback instead of a proper card — add the sixth entry
+  to `KNOWN_STAGES` *before* or *at* that flip, not after.
 - **Current state:** writers landed 2026-07-15 (alchemist-v2 `7a0e170`, issue 017):
   `run-log.js`'s `withRunLog` wraps every stage run in both dispatchers (`index.js`
   CLI and `scheduler.js`, the deployed cron process). Statuses: `running` →

@@ -360,8 +360,23 @@ is the coordination record)
       click-through also unavailable this session (Chrome extension not connected).
       E4's operator decision (pause DealFinder for the 700k pilot) was raised this
       session and deferred by the operator — not yet started, still next in Phase E.*
-- [ ] **G6. Automate** (HITL to flip on) — cron-dispatch the stage +
+- [x] **G6. Automate** (HITL to flip on) — cron-dispatch the stage +
       `WHOLESALE_SYNC_ENABLED` kill switch. Blockers: G5.
+      *2026-07-20: landed (alchemist-v2 `9292af0`, issue 034) — worked ahead of E4 in
+      queue order: E4's blockers are all formally landed but its only remaining action
+      (the pilot hit-rate measurement) needs the pilot's own 2-3 day clock to elapse
+      (started today, due ~07-22/23) — nothing buildable or decidable there today, so
+      picked the next genuinely workable entry instead. `scheduler.js` gained a cron
+      entry (`2,17,32,47 * * * *`, offset from `commands` so the two don't collide on
+      one test-lookup key) that always registers but no-ops until
+      `WHOLESALE_SYNC_ENABLED=true` (default false) — same rollback shape as the miner
+      window (E4b/030). 6 new tests red-first, 212/212. CONTRACTS.md updated same
+      commit: corrected a stale note assuming Phase 5/G5 would update
+      Alchemist_Dashboard's `KNOWN_STAGES` (it didn't) and flagged that as a pre-flip
+      checklist item — flipping the switch live today would produce `known:false`
+      drift-alarm rows on the pipeline card, not a proper stage entry. Flip itself is
+      still an operator call, deferred pending that dashboard update + the E4 pilot's
+      own decision.*
 
 ## Phase F — build last
 
