@@ -232,10 +232,18 @@ of this order.
 ## Phase G — Qogita catalog sync (`Alchemist_Dashboard/issues/015-qogita-catalog-sync.md`
 is the coordination record)
 
-- [ ] **G1. alchemist-v2 Phase 1 — Qogita API client** (`qogita-api.js`: login, async
+- [x] **G1. alchemist-v2 Phase 1 — Qogita API client** (`qogita-api.js`: login, async
       catalog-download submit, webhook-envelope parsing; tested against stubbed HTTP).
       Blockers: none. Per-repo issue not yet filed — file from issue 015 Phase 1 when
       started.
+      *2026-07-20: landed (alchemist-v2 `467b137`, filed as issue 032) — `getToken`
+      (cached bearer, 50min TTL), `requestCatalogDownload` (typed
+      `QogitaWebhookNotRegisteredError` on `400 no_webhook_subscriber`),
+      `parseWebhookEnvelope` (pure, both event types). `config.js` gained
+      `qogitaEmail`/`qogitaPassword`/`qogitaApiBase`, optional, outside the required-vars
+      gate. 14 new tests red-first (incl. the repo's first direct `loadConfig()` test),
+      183/183; no real Qogita network call made. Next: Alchemist_Dashboard issue 015
+      Phase 2 (request table + webhook receiver).
 - [ ] **G2. Alchemist_Dashboard Phase 2 — request table + webhook receiver** (new
       `wholesale_sync_requests` table; first Supabase Edge Function in this codebase,
       `qogita-catalog-webhook`). HITL: operator must register the deployed function's
