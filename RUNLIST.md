@@ -334,9 +334,24 @@ is the coordination record)
       constellation removed once already (`alchemist-v2/issues/done/003`), so it
       needs its own scoped issue/`/grill-me` rather than folding into 015. Not filed
       yet; operator to place it when ready.*
-- [ ] **G5. Alchemist_Dashboard Phase 5 — UI** ("Qogita Sync" mode on Wholesale Search,
+- [x] **G5. Alchemist_Dashboard Phase 5 — UI** ("Qogita Sync" mode on Wholesale Search,
       reuses the existing upload-parse pipeline unmodified). Blockers: G4 (build UI on a
       proven round trip, not a guessed shape).
+      *2026-07-20: landed (Alchemist_Dashboard `8aa6df1`) — mode toggle on Wholesale
+      Search; `wsSyncQogitaCatalog` inserts a pending `wholesale_sync_requests` row,
+      polls to done/failed, fetches+decompresses `latest.csv.gz` from Storage, feeds
+      it through a newly-shared `parseWorkbookBuffer` (pulled out of `wsHandleFile` so
+      manual upload and Qogita Sync use the identical parser). New migration
+      `20260720150000` (applied live): the bucket had zero `storage.objects` policies,
+      so anon reads were denied — added a policy scoped to the one known object
+      (`bucket_id`+`name`), verified live via a plain anon-key `curl` against the real
+      G4 file (200, byte-for-byte match). 130/130 tests (4 new), typecheck+build
+      green. CONTRACTS.md §2/§3 updated same commit. **Not verified**: a real
+      button-click round trip — Phase 6/G6 (cron) hasn't landed, so a live click sits
+      at `pending` until an operator runs the `wholesale-sync` stage by hand; browser
+      click-through also unavailable this session (Chrome extension not connected).
+      E4's operator decision (pause DealFinder for the 700k pilot) was raised this
+      session and deferred by the operator — not yet started, still next in Phase E.*
 - [ ] **G6. Automate** (HITL to flip on) — cron-dispatch the stage +
       `WHOLESALE_SYNC_ENABLED` kill switch. Blockers: G5.
 

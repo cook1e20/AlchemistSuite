@@ -229,14 +229,18 @@ per table is in §3.
   `wholesale-catalogs` (private, created live 2026-07-20 via Supabase MCP
   `apply_migration` — Phase 2 didn't create it), path `latest.csv`, overwritten each
   sync (no per-request versioning, single-user tool). Owner: `alchemist-v2` (the only
-  writer, service_role). No anon read policy exists yet — Phase 5 (dashboard UI fetch)
-  decides that. **2026-07-20 (G4 pilot):** the real Qogita full-catalog CSV is ~85MB,
-  which exceeded this project's Free-plan Storage cap (global 50MB limit, no
+  writer, service_role). **2026-07-20 (G4 pilot):** the real Qogita full-catalog CSV is
+  ~85MB, which exceeded this project's Free-plan Storage cap (global 50MB limit, no
   bucket-level override possible). Resolved by gzip rather than a plan upgrade
   (owner's call): the ingest leg now pipes the download through `zlib.createGzip()`
   before upload — object is `latest.csv.gz`/`application/gzip`, ~76% smaller
-  (85MB → 20.6MB on the real catalog), comfortably under the cap. Any Phase 5 reader
-  must decompress (`DecompressionStream('gzip')`) before parsing.
+  (85MB → 20.6MB on the real catalog), comfortably under the cap. Any reader must
+  decompress (`DecompressionStream('gzip')`) before parsing. **2026-07-20 (Phase 5):**
+  anon SELECT granted, scoped to this one object (`storage.objects` policy
+  `USING (bucket_id = 'wholesale-catalogs' AND name = 'latest.csv.gz')`, dashboard
+  migration `20260720150000`) — `anon` already carries table-level SELECT on
+  `storage.objects` (Supabase's standard managed grant, verified live), so this
+  policy is the only gate. A write to any other path in the bucket stays private.
 
 ### `tracking_log_archived` — archived, read-only
 
@@ -258,6 +262,7 @@ verified live 2026-07-15 (grant + policy both checked):
 | `products` | SELECT only | grant: SELECT (dashboard migration `20260715120000`, fixing §6 item 3) + pre-existing `USING (true)` read policy |
 | `run_log` | SELECT only | grant + `USING (true)` read policy (dashboard migration `20260715120000`) |
 | `wholesale_sync_requests` | SELECT all; INSERT rows shaped `{status: 'pending', catalog_request_id: null}` | grant: SELECT, INSERT; policy `WITH CHECK (status = 'pending' AND catalog_request_id IS NULL)` on insert, `USING (true)` on select (dashboard migration `20260720130000`) |
+| Storage object `wholesale-catalogs/latest.csv.gz` | SELECT (GET) only | `storage.objects` policy scoped to `bucket_id = 'wholesale-catalogs' AND name = 'latest.csv.gz'` (dashboard migration `20260720150000`) |
 
 Everything else (`scout_log`, `ungate_log`, `tracking_log_archived`): **no anon
 access**.
