@@ -230,13 +230,13 @@ per table is in §3.
   `apply_migration` — Phase 2 didn't create it), path `latest.csv`, overwritten each
   sync (no per-request versioning, single-user tool). Owner: `alchemist-v2` (the only
   writer, service_role). No anon read policy exists yet — Phase 5 (dashboard UI fetch)
-  decides that. **Blocked as of 2026-07-20 (G4 pilot):** the real Qogita full-catalog
-  CSV is ~85MB, but this project's Supabase plan (Free) hard-caps Storage's *global*
-  file-size limit at 50MB — a project-wide setting no bucket-level override can
-  exceed. Ingest fails with "exceeded the maximum allowed size" until the plan is
-  upgraded (Pro+ allows up to 500GB) or the file is shrunk some other way (compression,
-  or Qogita filters — the latter changes the "full catalog" design, see issue 015
-  Phase 7). Operator decision pending; not worked around.
+  decides that. **2026-07-20 (G4 pilot):** the real Qogita full-catalog CSV is ~85MB,
+  which exceeded this project's Free-plan Storage cap (global 50MB limit, no
+  bucket-level override possible). Resolved by gzip rather than a plan upgrade
+  (owner's call): the ingest leg now pipes the download through `zlib.createGzip()`
+  before upload — object is `latest.csv.gz`/`application/gzip`, ~76% smaller
+  (85MB → 20.6MB on the real catalog), comfortably under the cap. Any Phase 5 reader
+  must decompress (`DecompressionStream('gzip')`) before parsing.
 
 ### `tracking_log_archived` — archived, read-only
 

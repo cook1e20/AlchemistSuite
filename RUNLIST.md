@@ -304,23 +304,36 @@ is the coordination record)
       not cron'd yet, no drift risk), §2 `wholesale_sync_requests` lifecycle + new
       Storage-ownership note. Next: G4 pilot (HITL, hand-insert one request against
       the live Qogita account + registered webhook).*
-- [ ] **G4. Pilot** (HITL, operator) — one real request → real webhook → real Storage
+- [x] **G4. Pilot** (HITL, operator) — one real request → real webhook → real Storage
       file, run by hand. Blockers: G3.
-      *2026-07-20 attempt: submit → webhook → ready all verified real end-to-end
+      *2026-07-20, first attempt: submit → webhook → ready all verified real end-to-end
       (request id 3, `d20fdac2-ad86-43e2-b6eb-b9146cc7b657`, ~3m14s round trip,
       13:26:48Z → 13:30:00Z, real `download_url`). Two real bugs caught + fixed en
       route: (1) `wholesale_sync_requests` was missing a `service_role` grant entirely
       (Alchemist_Dashboard `225614c`, live migration applied) — the stage couldn't read
       or write the table at all until this landed; (2) Qogita's own docs on "empty body
       = full catalog" were wrong, real endpoint needs `{"payload": {}}` (alchemist-v2
-      `41ee5d0`). **Blocked at ingest, not landed**: real catalog CSV is ~85MB; this
-      Supabase project is on the Free plan, which hard-caps Storage's global file-size
-      limit at 50MB with no per-bucket override possible. Operator decision needed:
-      upgrade to Pro (raises cap to 500GB) vs. shrink the file (gzip, or Qogita filters
-      — the latter contradicts the "full catalog" design). Full trace in
-      `Alchemist_Dashboard/issues/015-qogita-catalog-sync.md` Phase 4. Request 3 left
-      `failed` (truthful terminal state, not faked `done`). Not ticked — Phase 4's
-      acceptance criterion (file lands in Storage) is unmet.*
+      `41ee5d0`). **Blocked at ingest on first attempt**: real catalog CSV is ~85MB;
+      this Supabase project is on the Free plan, which hard-caps Storage's global
+      file-size limit at 50MB with no per-bucket override possible.*
+      *2026-07-20, same day — **done**: operator chose gzip over a Supabase Pro
+      upgrade (keeps Wholesale Search's "just like a manual upload" design, no
+      recurring cost). alchemist-v2's ingest leg now streams through
+      `zlib.createGzip()` before Storage (`41ee5d0`→`1f854bd`); a fresh real round trip
+      went all the way to `done` — 85MB raw compressed to 20,578,440 bytes (~76%
+      smaller), well under the cap. Real catalog: 333,511 rows, GBP decimal pricing
+      (conversion note for later ingestion work). Also noted: two near-identical
+      full-catalog requests ~30 min apart returned the same underlying file per
+      Qogita's own `completed_at` — may indicate Qogita caches/reuses a recent
+      snapshot rather than regenerating per request, worth knowing before any future
+      high-frequency polling. Full trace in
+      `Alchemist_Dashboard/issues/015-qogita-catalog-sync.md` Phase 4
+      (Alchemist_Dashboard `2b1987c`). Job 1 (Qogita → `products` for the miner, plus
+      rolling-average/price-drop alerting) discussed and deliberately parked as a
+      separate follow-up — it edges close to the automated Qogita polling this
+      constellation removed once already (`alchemist-v2/issues/done/003`), so it
+      needs its own scoped issue/`/grill-me` rather than folding into 015. Not filed
+      yet; operator to place it when ready.*
 - [ ] **G5. Alchemist_Dashboard Phase 5 — UI** ("Qogita Sync" mode on Wholesale Search,
       reuses the existing upload-parse pipeline unmodified). Blockers: G4 (build UI on a
       proven round trip, not a guessed shape).
