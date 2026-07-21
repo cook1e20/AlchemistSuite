@@ -457,6 +457,19 @@ is the coordination record)
       credentials) is the one open item, not observable this session (no server
       access).*
 
+## Phase H — DealFinder polish (worked ahead of E4, same pilot-clock-not-elapsed reasoning as F1-F4)
+
+- [x] **H1. `DealFinder/issues/034-bug-has-current-deal-never-cleared.md`** (bug, minor,
+      AFK) — slotted 2026-07-21 (operator call, via AskUserQuestion): `has_current_deal`
+      was write-only-true since launch, never cleared, reaching 94.7%+ stuck-true.
+      Blockers: none.
+      *2026-07-21: landed (DealFinder `d419811`) — semantics: true only while the ASIN
+      has a new/notified deals row on some market. Two clearing paths added (dismissed/
+      expired ASIN resurfacing in-feed; post-expireDeals ASIN-wide re-check via
+      reduceAsinState, so a live sibling market isn't clobbered). Live backfill applied
+      matching the new predicate: 100,435 -> 12,780 true rows, zero remaining stale.
+      8 new tests red-first, 253/253. CONTRACTS.md Sec 2 updated same session.*
+
 ## Standing notes
 
 - Deferred, not in this queue: `Alchemist_Dashboard/issues/deferred/010-dashboard-hosting.md`.

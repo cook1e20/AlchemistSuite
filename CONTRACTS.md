@@ -110,6 +110,15 @@ per table is in §3.
     DealFinder's write-through column list does not include it and must leave it
     untouched.
   - `de/fr/it/es_360day_min` (default `-1`) — legacy EU-scan minima; `-1` = never scanned.
+  - `has_current_deal` (boolean, default `false`, written by DealFinder only) — **true
+    only while the ASIN has a `new`/`notified` `deals` row on some market; false
+    otherwise.** Was write-only-true from launch through 2026-07-20 (never cleared,
+    94.7%+ of rows stuck true, DealFinder issue 034) — fixed 2026-07-21: DealFinder now
+    clears it both when a dismissed/expired ASIN resurfaces in-feed and via a
+    post-`expireDeals` re-check (an ASIN with a still-live sibling market is not
+    cleared). Corrective one-off backfill applied live the same day: 100,435 → 12,780
+    true rows. Readers (e.g. alchemist-v2's backfill miner tie-break) can now trust
+    "true" as a genuine current-deal signal.
 
 ### `commands` — dashboard→server command queue. Owner: `alchemist-v2` (consumer); payload shape co-owned with dashboard
 
@@ -263,15 +272,25 @@ per table is in §3.
 - **Scope, settled by a pre-build grill (2026-07-21, root RUNLIST F2 — see
   alchemist-v2 `analytics.js`'s header for the full reasoning):** `fba_stock` is
   **API-only, deliberately partial** — live SP-API inventory units (available +
-  reserved + the inbound-to-Amazon pipeline) valued at a per-ASIN cost price
-  averaged from the `alchemist-v2`/`Alchemist_Dashboard` shared BuySheet (matched by
-  ASIN, no per-batch lot tracking). Stock still sitting at a 3PL/prep centre **before**
-  it ships to Amazon is invisible to every SP-API endpoint and is **not estimated** —
-  a DB-inferred ledger (comparing FBA-unit deltas run over run) was considered and
-  rejected as it would silently drift on returns/removals with no self-correction.
-  `next_disbursement` is likewise an estimate (the currently-open finance period's
-  running total), not a true Amazon forward projection — no such SP-API endpoint
-  exists.
+  reserved + the inbound-to-Amazon pipeline + researching + unfulfillable) valued at
+  a per-ASIN cost price averaged from the `alchemist-v2`/`Alchemist_Dashboard` shared
+  BuySheet (matched by ASIN, no per-batch lot tracking). Stock still sitting at a 3PL/
+  prep centre **before** it ships to Amazon is invisible to every SP-API endpoint and
+  is **not estimated** — a DB-inferred ledger (comparing FBA-unit deltas run over run)
+  was considered and rejected as it would silently drift on returns/removals with no
+  self-correction. `next_disbursement` is likewise an estimate (the currently-open
+  finance period's running total), not a true Amazon forward projection — no such
+  SP-API endpoint exists.
+  **`fba_stock.perAsin` never drops a row (fixed same day, DealFinder-adjacent bug
+  spotted via a live Seller Fuse export comparison):** every ASIN SP-API's inventory
+  summaries endpoint reports gets a `perAsin` entry, even at `units: 0` — a prior
+  version silently discarded any item whose narrower unit formula computed to `<=0`,
+  which is how real FBA stock (units sitting in the `researchingQuantity`/
+  `unfulfillableQuantity` buckets, not summed at all before this fix) vanished from the
+  Inventory tab with no trace and no BuySheet-cost-basis nudge. `unmatchedAsins` still
+  only counts `units > 0` rows with no BuySheet match, so its count/note text stays
+  accurate to "has real stock, needs a cost row" — a true zero-unit ASIN is shown but
+  not counted there.
 - **Writers:** `alchemist-v2`'s `analytics` stage (service_role) only, `insertAnalyticsSnapshot` (`db.js`).
   **Manual dispatch only** (`node index.js --stage analytics`) — no cron for v1
   (owner's call: "on request"). Because it's never cron'd, a run's `run_log` row is
