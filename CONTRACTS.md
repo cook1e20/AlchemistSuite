@@ -41,6 +41,7 @@ is a snapshot, refreshed when re-verified.
 | Deal review actions (buy/dismiss), wholesale matching, command insertion, status rendering | `Alchemist_Dashboard` |
 | `wholesale_sync_requests` (schema); `qogita-catalog-webhook` Edge Function | `Alchemist_Dashboard` |
 | Qogita catalog-download submit/ingest (`wholesale-sync` stage, Phase 3) | `alchemist-v2` |
+| SP-API `analytics` stage (`analytics_cache` snapshot) | `alchemist-v2` |
 
 Code and schema changes are implemented in the owning repo. A system issue may name
 several repos, but the work is split so one iteration owns one task in one repo.
@@ -133,8 +134,8 @@ per table is in §3.
 - **PK:** `id`. Columns: `stage`, `status` (default `'running'`), `stats` (jsonb),
   `started_at` (default `now()`), `finished_at`.
 - **Canonical stage names (the published contract):** `mine`, `import`, `scout`,
-  `commands`, `housekeeping`, `wholesale-sync`. The dashboard renders exactly these
-  names — no aliases. Known drift hazards this contract settles: the scheduler's
+  `commands`, `housekeeping`, `wholesale-sync`, `analytics`. The dashboard renders
+  exactly these names — no aliases. Known drift hazards this contract settles: the scheduler's
   internal console label `miner` (cosmetic, must not leak into `run_log.stage`) and
   the dashboard's legacy `ungating` card key (real stage is `scout`) — the latter
   fixed 2026-07-16 (Alchemist_Dashboard issue 012, `8e0a820`): the card's
@@ -250,6 +251,39 @@ per table is in §3.
   `storage.objects` (Supabase's standard managed grant, verified live), so this
   policy is the only gate. A write to any other path in the bucket stays private.
 
+### `analytics_cache` — SP-API snapshot for the dashboard. Owner: `alchemist-v2`
+
+- **PK:** `id` (bigint identity). Columns: `snapshot_at` (default `now()`), `fba_stock`
+  (jsonb), `recent_orders` (jsonb), `next_disbursement` (jsonb). Created live
+  2026-07-21 (alchemist-v2 issue 024, migration `2026-07-21-create-analytics-cache.sql`).
+- **Contract:** one wide row per stage run (never updated); the dashboard reads only
+  the latest row (`order by snapshot_at desc limit 1`). Money in `fba_stock`/
+  `recent_orders`/`next_disbursement` is integer pence (§4), computed at the
+  read-from-Sheets/SP-API boundary.
+- **Scope, settled by a pre-build grill (2026-07-21, root RUNLIST F2 — see
+  alchemist-v2 `analytics.js`'s header for the full reasoning):** `fba_stock` is
+  **API-only, deliberately partial** — live SP-API inventory units (available +
+  reserved + the inbound-to-Amazon pipeline) valued at a per-ASIN cost price
+  averaged from the `alchemist-v2`/`Alchemist_Dashboard` shared BuySheet (matched by
+  ASIN, no per-batch lot tracking). Stock still sitting at a 3PL/prep centre **before**
+  it ships to Amazon is invisible to every SP-API endpoint and is **not estimated** —
+  a DB-inferred ledger (comparing FBA-unit deltas run over run) was considered and
+  rejected as it would silently drift on returns/removals with no self-correction.
+  `next_disbursement` is likewise an estimate (the currently-open finance period's
+  running total), not a true Amazon forward projection — no such SP-API endpoint
+  exists.
+- **Writers:** `alchemist-v2`'s `analytics` stage (service_role) only, `insertAnalyticsSnapshot` (`db.js`).
+  **Manual dispatch only** (`node index.js --stage analytics`) — no cron for v1
+  (owner's call: "on request"). Because it's never cron'd, a run's `run_log` row is
+  the only regular producer of the `analytics` stage name; `Alchemist_Dashboard`'s
+  `KNOWN_STAGES` was deliberately not updated for this — same reasoning as
+  `wholesale-sync`'s pre-cron phase (safe to render via the `known:false` drift-alarm
+  fallback until/unless this ever gets a cron entry).
+- **Readers:** intended for the dashboard's Finance tab (capital-invested check), not
+  necessarily the stubbed Inventory tab as `Alchemist_Dashboard/issues/008` originally
+  assumed — that's `Alchemist_Dashboard`'s call to make when it builds the read side
+  (not yet built as of this table landing).
+
 ### `tracking_log_archived` — archived, read-only
 
 Frozen history of retired sniper Keepa trackings (0 rows live). No live writer; not a
@@ -271,6 +305,7 @@ verified live 2026-07-15 (grant + policy both checked):
 | `run_log` | SELECT only | grant + `USING (true)` read policy (dashboard migration `20260715120000`) |
 | `wholesale_sync_requests` | SELECT all; INSERT rows shaped `{status: 'pending', catalog_request_id: null}` | grant: SELECT, INSERT; policy `WITH CHECK (status = 'pending' AND catalog_request_id IS NULL)` on insert, `USING (true)` on select (dashboard migration `20260720130000`) |
 | Storage object `wholesale-catalogs/latest.csv.gz` | SELECT (GET) only | `storage.objects` policy scoped to `bucket_id = 'wholesale-catalogs' AND name = 'latest.csv.gz'` (dashboard migration `20260720150000`) |
+| `analytics_cache` | SELECT only | grant: SELECT + `USING (true)` read policy (alchemist-v2 migration `2026-07-21-create-analytics-cache.sql`) |
 
 Everything else (`scout_log`, `ungate_log`, `tracking_log_archived`): **no anon
 access**.

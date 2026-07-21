@@ -396,8 +396,24 @@ is the coordination record)
       alchemist-v2's live-balance `getTokenStatus`/`TokenBudget` approach — nothing
       left to port. Deletions were the HITL step; operator approved via
       AskUserQuestion before they ran. 130/130 tests, typecheck + build clean.*
-- [ ] **F2. `alchemist-v2/issues/024-sp-api-analytics-stage.md`** (HITL) — scheduled
+- [x] **F2. `alchemist-v2/issues/024-sp-api-analytics-stage.md`** (HITL) — scheduled
       SP-API `analytics_cache` snapshot stage. Blockers: A1; grill the scope first.
+      *2026-07-21: landed (alchemist-v2 `4f9aec7`) — E4's pilot clock hadn't elapsed
+      yet (started 2026-07-20, measurement due ~07-22/23), so worked the next
+      genuinely workable entry instead, same reasoning F1 used. The written issue's
+      scope was substantially off: a live grill with the operator found the real ask
+      is a Finance-page capital-invested check (BuySheet cost basis x live FBA units),
+      not the Inventory-tab FBA/orders/disbursement dump as written — settled to
+      API-only partial stock value (no 3PL/prep-centre estimate: SP-API can't see it,
+      and a DB-inferred ledger would drift with no self-correction), BuySheet stays
+      import-only (no new status column), manual/on-request dispatch (no cron),
+      single wide `analytics_cache` row per run. `analytics_cache` applied live via
+      Supabase MCP (service_role + anon-SELECT grants verified live, no new advisor
+      findings). 234/234 tests (22 new). CONTRACTS.md §1/§2/§3 updated same commit.
+      Not yet verified: real SP-API/BuySheet response shapes, since no live SP-API
+      credentials were exercised this session — flagged as the open step in the
+      issue. Dashboard-side read (which tab, Finance vs Inventory) is
+      Alchemist_Dashboard's own follow-up, not built here.*
 - [ ] **F3. `Alchemist_Dashboard/issues/008-inventory-tab.md`** (HITL) — reads what F2
       writes; explicitly "built last". Blockers: F2 (verified writing live data).
 
