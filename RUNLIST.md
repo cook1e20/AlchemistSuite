@@ -482,12 +482,22 @@ is the coordination record)
       gone. Docs-only, 239/239 tests. Side finding logged, not fixed: the same section
       is also missing `analytics_cache` (F2, 2026-07-21) and `wholesale_sync_requests`
       (G2, 2026-07-20) — filed alchemist-v2 issue 035 for the follow-up.*
-- [ ] **I2. `Alchemist_Dashboard/issues/017-finance-tab-autofill-from-analytics-cache.md`**
+- [x] **I2. `Alchemist_Dashboard/issues/017-finance-tab-autofill-from-analytics-cache.md`**
       (AFK) — Finance tab's FBA/Amazon balance boxes should prefill from the latest
       `analytics_cache` row (already anon-SELECT, already fetched) instead of requiring
       manual entry each time; stays editable, auto-fill never overwrites a typed value.
       Blockers: none — `analytics_cache` is live and populated (F2/F3 landed
       2026-07-21).
+      *2026-07-21: landed (Alchemist_Dashboard `120f951`) — E4's pilot clock (due
+      ~07-22/23) still hadn't elapsed, so worked the next unblocked entry, same
+      reasoning as G6/F1-F4/H1/I1. New `trySeedBalanceInputs`, gated on both
+      `business_snapshots` and `analytics_cache` having resolved so whichever load
+      wins the race never seeds `d-fba`/`d-amazon` before the other (preferred)
+      source has had its say; new pure `pickBalanceFieldSeed` (4 new tests
+      red-first) picks analytics over snapshot per-field. Auto-filled fields get a
+      "snapshot Nh ago" label that clears on manual edit. One-line PRD addition
+      (story 6a). 143/143 tests, typecheck+build clean. Not verified via browser
+      click-through (Chrome extension unavailable this session).*
 
 ## Standing notes
 
