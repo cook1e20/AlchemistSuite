@@ -433,7 +433,7 @@ is the coordination record)
       already-ISO with a colon offset, contradicting the 2026-07-16 "every timestamptz
       column arrives space-separated/colonless" note — corrected in
       Alchemist_Dashboard's CLAUDE.md.*
-- [ ] **F4. `alchemist-v2/issues/031-bug-scout-auto-ungate-silently-broken.md`**
+- [x] **F4. `alchemist-v2/issues/031-bug-scout-auto-ungate-silently-broken.md`**
       (bug, major, HITL) — slotted 2026-07-21 (operator call, prompted by F3's side
       finding): scout's auto-ungate has produced zero successes since ~2026-07-17,
       root_log silently reporting clean. Blockers: none — the HITL diagnosis half
@@ -445,6 +445,17 @@ is the coordination record)
       write a `ungate_log` row for the failed attempt) so a future break like this
       surfaces immediately instead of silently, then confirm live once the server
       redeploys and runs scout with the refreshed credentials.
+      *2026-07-21: landed (alchemist-v2 `b18bcec`) — AFK visibility fix built:
+      `maybeAttemptAutoUngate` catches the thrown restriction-check error itself
+      (moved from `checkSample`'s bare swallow, now removed), counts it in
+      `stats.errors` (drives `withRunLog`'s `completed_with_errors`), and writes
+      an `ungate_log` row (`result: 'error'`, `reason_code: err.message` — no
+      schema change, no CHECK constraint on `result`). 1 new test, red first,
+      235/235. Issue moved to `issues/done/` per this repo's established
+      deploy-gated-close pattern; criterion 3 (live confirmation on a real scout
+      run once the server pulls this commit with the refreshed SP-API
+      credentials) is the one open item, not observable this session (no server
+      access).*
 
 ## Standing notes
 
