@@ -470,6 +470,25 @@ is the coordination record)
       matching the new predicate: 100,435 -> 12,780 true rows, zero remaining stale.
       8 new tests red-first, 253/253. CONTRACTS.md Sec 2 updated same session.*
 
+## Phase I — new AFK work (queued 2026-07-21, found scanning child repos for unslotted issues)
+
+- [x] **I1. `alchemist-v2/issues/025-bug-architecture-md-commands-table-stale.md`**
+      (bug, minor, AFK) — ARCHITECTURE.md's "Shared Supabase" section omits `commands`
+      from the live table list and implies it's still dropped; docs-only fix.
+      Blockers: none.
+      *2026-07-21: landed (alchemist-v2 `cf9cf64`) — E4's pilot clock (due ~07-22/23)
+      still hadn't elapsed, so worked the next unblocked entry. `commands` added to the
+      live table list; dropped-tables sentence now notes it was recreated, not still
+      gone. Docs-only, 239/239 tests. Side finding logged, not fixed: the same section
+      is also missing `analytics_cache` (F2, 2026-07-21) and `wholesale_sync_requests`
+      (G2, 2026-07-20) — filed alchemist-v2 issue 035 for the follow-up.*
+- [ ] **I2. `Alchemist_Dashboard/issues/017-finance-tab-autofill-from-analytics-cache.md`**
+      (AFK) — Finance tab's FBA/Amazon balance boxes should prefill from the latest
+      `analytics_cache` row (already anon-SELECT, already fetched) instead of requiring
+      manual entry each time; stays editable, auto-fill never overwrites a typed value.
+      Blockers: none — `analytics_cache` is live and populated (F2/F3 landed
+      2026-07-21).
+
 ## Standing notes
 
 - Deferred, not in this queue: `Alchemist_Dashboard/issues/deferred/010-dashboard-hosting.md`.
