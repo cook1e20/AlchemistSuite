@@ -279,10 +279,12 @@ per table is in §3.
   `KNOWN_STAGES` was deliberately not updated for this — same reasoning as
   `wholesale-sync`'s pre-cron phase (safe to render via the `known:false` drift-alarm
   fallback until/unless this ever gets a cron entry).
-- **Readers:** intended for the dashboard's Finance tab (capital-invested check), not
-  necessarily the stubbed Inventory tab as `Alchemist_Dashboard/issues/008` originally
-  assumed — that's `Alchemist_Dashboard`'s call to make when it builds the read side
-  (not yet built as of this table landing).
+- **Readers:** `Alchemist_Dashboard` (issue 008, landed 2026-07-21) built both — a
+  "Live check" line on the Finance tab (the capital-invested check this table was
+  actually built for) plus the full stock/orders/disbursement breakdown on the
+  Inventory tab (the originally-stubbed scope). Both read the latest row only
+  (`order=snapshot_at.desc&limit=1`) over the existing anon SELECT grant, no new
+  grant/policy needed.
 
 ### `tracking_log_archived` — archived, read-only
 

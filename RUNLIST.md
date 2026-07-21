@@ -414,8 +414,25 @@ is the coordination record)
       credentials were exercised this session — flagged as the open step in the
       issue. Dashboard-side read (which tab, Finance vs Inventory) is
       Alchemist_Dashboard's own follow-up, not built here.*
-- [ ] **F3. `Alchemist_Dashboard/issues/008-inventory-tab.md`** (HITL) — reads what F2
+- [x] **F3. `Alchemist_Dashboard/issues/008-inventory-tab.md`** (HITL) — reads what F2
       writes; explicitly "built last". Blockers: F2 (verified writing live data).
+      *2026-07-21: landed (Alchemist_Dashboard `2738f37`) — F2's blocker was stale on
+      inspection (its "verified against live data" criterion wasn't actually true
+      yet); ran the live SP-API/BuySheet verification first (alchemist-v2 `9e64cc8`),
+      catching two local-env credential gaps and confirming a real SP-API auth
+      failure — very likely the same root cause as alchemist-v2 issue 031 (scout
+      auto-ungate), flagged there for the operator. Scope grill matched CONTRACTS.md's
+      flagged Finance-vs-Inventory ambiguity — operator chose both: a "Live check"
+      line on Finance (the capital-invested ask) plus the full stock/orders/
+      disbursement breakdown on Inventory (the originally-stubbed scope). 138/138
+      tests, typecheck+build clean. CONTRACTS.md `analytics_cache` readers note
+      updated same commit (root). Not verified via browser click-through (Chrome
+      extension unavailable this session) — verified via a live anon-key curl against
+      the real `analytics_cache` row instead. Side finding: `run_log`/
+      `ungating_opportunities`/`analytics_cache` timestamps all now arrive from REST
+      already-ISO with a colon offset, contradicting the 2026-07-16 "every timestamptz
+      column arrives space-separated/colonless" note — corrected in
+      Alchemist_Dashboard's CLAUDE.md.*
 
 ## Standing notes
 
