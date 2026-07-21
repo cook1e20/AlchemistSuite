@@ -433,6 +433,18 @@ is the coordination record)
       already-ISO with a colon offset, contradicting the 2026-07-16 "every timestamptz
       column arrives space-separated/colonless" note — corrected in
       Alchemist_Dashboard's CLAUDE.md.*
+- [ ] **F4. `alchemist-v2/issues/031-bug-scout-auto-ungate-silently-broken.md`**
+      (bug, major, HITL) — slotted 2026-07-21 (operator call, prompted by F3's side
+      finding): scout's auto-ungate has produced zero successes since ~2026-07-17,
+      root_log silently reporting clean. Blockers: none — the HITL diagnosis half
+      is now substantially done (F3 confirmed live SP-API auth was broken with
+      `invalid_client` and the operator refreshed `LWA_CLIENT_SECRET`/
+      `SP_API_REFRESH_TOKEN`, the same credential path `checkRestriction` uses).
+      Remaining work: land the AFK visibility fix (stop swallowing the exception
+      blind in `checkSample`/`maybeAttemptAutoUngate`, count it in `stats.errors`,
+      write a `ungate_log` row for the failed attempt) so a future break like this
+      surfaces immediately instead of silently, then confirm live once the server
+      redeploys and runs scout with the refreshed credentials.
 
 ## Standing notes
 
@@ -453,7 +465,8 @@ is the coordination record)
   attempted, 0 succeeded, 0 `ungate_log` writes over 3 days, `run_log` reporting clean
   `errors: 0` throughout (an unguarded exception is swallowed 3 frames above the log
   call). AFK visibility fix + HITL root-cause diagnosis (likely SP-API credential
-  issue). Not yet slotted in this queue — operator to place it. Same check confirmed
+  issue). Slotted 2026-07-21 as **F4** — root cause confirmed live during F3, credentials
+  refreshed; AFK visibility fix still unbuilt. Same check confirmed
   E1/E2/E3b are live and working as designed (`uk_not_found_at` populating, candidate
   fetch bounded, 0 failed run_log rows all weekend) and updated E4's baseline (products
   now 841,050; the `monthly_sold` treadmill issue 026 grew to ~45.5k rows, reinforcing
