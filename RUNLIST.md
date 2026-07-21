@@ -380,9 +380,22 @@ is the coordination record)
 
 ## Phase F — build last
 
-- [ ] **F1. `Alchemist_Dashboard/issues/009-housekeeping-retirement.md`** (HITL) —
+- [x] **F1. `Alchemist_Dashboard/issues/009-housekeeping-retirement.md`** (HITL) —
       retire the old matcher, `reference/old-refactor/`, `project-memory/`,
       `alchemist-server-side/`. Blockers: C3.
+      *2026-07-21: done (Alchemist_Dashboard `4f7e156`+`2aed16f`; external matcher
+      retired in its own TableSearch repo, `8ef88ce`, not pushed) — E4's pilot clock
+      hadn't elapsed yet (same situation G6 hit on 2026-07-20), so worked the next
+      genuinely workable entry instead. TableSearch matcher's Phase 1 (upload/map/
+      match/filter/export) had full parity; one real gap found and ported (a "UK
+      current price" column the dashboard fetched but never displayed/exported).
+      Phase 2 ("Brand search," direct browser→Keepa) explicitly declined — this
+      repo's own PRD already rules that out; the sanctioned equivalent is the
+      existing commands-table backfill queue. Token-pacing lessons from the old
+      refactor's `scan-eans.js` captured in CLAUDE.md, confirmed superseded by
+      alchemist-v2's live-balance `getTokenStatus`/`TokenBudget` approach — nothing
+      left to port. Deletions were the HITL step; operator approved via
+      AskUserQuestion before they ran. 130/130 tests, typecheck + build clean.*
 - [ ] **F2. `alchemist-v2/issues/024-sp-api-analytics-stage.md`** (HITL) — scheduled
       SP-API `analytics_cache` snapshot stage. Blockers: A1; grill the scope first.
 - [ ] **F3. `Alchemist_Dashboard/issues/008-inventory-tab.md`** (HITL) — reads what F2
