@@ -498,8 +498,14 @@ is the coordination record)
       "snapshot Nh ago" label that clears on manual edit. One-line PRD addition
       (story 6a). 143/143 tests, typecheck+build clean. Not verified via browser
       click-through (Chrome extension unavailable this session).*
-
-## Standing notes
+- [ ] **I3. `Alchemist_Dashboard/issues/018-inventory-shipped-vs-not-shipped-reconciliation.md`**
+      (HITL, needs `/grill-me` first) — filed 2026-07-21: owner's description of the
+      desired `d-fba`/`d-waiting` auto-fill (pull Amazon inventory, cross-reference a
+      spreadsheet, split shipped vs not-shipped, auto-total) doesn't match what I2
+      built or anything else in this codebase. Scope unknown (which spreadsheet, what
+      "shipped" means, whether it replaces or supplements I2's fields) — do not build
+      from the issue's Context section alone. Blockers: none, but do the grill session
+      before any implementation. Operator wants this picked up tomorrow (2026-07-22).
 
 - Deferred, not in this queue: `Alchemist_Dashboard/issues/deferred/010-dashboard-hosting.md`.
   The Qogita API idea (former deferred/012) is superseded and now queued as Phase G,
