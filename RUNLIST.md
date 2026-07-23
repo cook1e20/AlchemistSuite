@@ -236,6 +236,14 @@ of this order.
       access this session). Measurement (sample ≥5,000 EANs from
       `catalogue_export_2026-07-13_155814.csv` against live row state) due
       ~2026-07-22/23 — full detail in the issue's new "Pilot started" section.*
+      *2026-07-23: measurement done (Alchemist_Dashboard `1e2c2ff`) — exact full-
+      population read via the Supabase REST API (read-only, service-role key): 83,082
+      EANs attempted since pilot start out of 847,274 total rows (~2.8 elapsed days),
+      **70.3% hit rate** (58,430 hits; 12.0% genuine not-found, 17.7% validation-fail).
+      Cross-checked against a 5,500-EAN sample from the root catalogue CSV (consistent).
+      At the ~29.9k/day pace, the remaining ~764k rows would take ~25.6 more days.
+      **Operator decision: continue the pilot, reassess Monday 2026-07-27.** Not ticked
+      done yet — pilot still running, no go/no-go finalised.*
 
 ## Phase G — Qogita catalog sync (`Alchemist_Dashboard/issues/015-qogita-catalog-sync.md`
 is the coordination record)
