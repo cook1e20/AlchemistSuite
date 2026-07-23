@@ -263,8 +263,28 @@ per table is in §3.
 ### `analytics_cache` — SP-API snapshot for the dashboard. Owner: `alchemist-v2`
 
 - **PK:** `id` (bigint identity). Columns: `snapshot_at` (default `now()`), `fba_stock`
-  (jsonb), `recent_orders` (jsonb), `next_disbursement` (jsonb). Created live
-  2026-07-21 (alchemist-v2 issue 024, migration `2026-07-21-create-analytics-cache.sql`).
+  (jsonb), `recent_orders` (jsonb), `next_disbursement` (jsonb), `lot_inventory` (jsonb,
+  nullable). Created live 2026-07-21 (alchemist-v2 issue 024, migration
+  `2026-07-21-create-analytics-cache.sql`); `lot_inventory` added live 2026-07-23
+  (alchemist-v2 issue 036, root RUNLIST I3a, migration
+  `2026-07-23-add-analytics-cache-lot-inventory.sql`) — additive, no grant change
+  (existing service_role INSERT + anon SELECT already cover new columns).
+- **`lot_inventory` shape (issue 036, Phase 1 of Alchemist_Dashboard issue 018):** array
+  of per-lot records, one per BuySheet row carrying a real Amazon Seller SKU (going
+  forward only — legacy rows sharing one SKU across historical batches have no `sku`
+  value and stay in the existing ASIN-blended `fba_stock` cost basis, not retrofitted).
+  Each record: `{ sku, asin, qtyPurchased, unitCostPence, purchaseDate, qtyAtAmazon,
+  shipped, qtySoldInferred, avgSalePricePence, mismatch }`. `qtyAtAmazon` sums every
+  SP-API inventory bucket for that SKU (self-correcting for returns run-over-run, no
+  separate return tracking); `shipped` is true when `qtyAtAmazon > 0` **or** the SKU has
+  ever appeared in Orders history (disambiguates a fully-sold-out lot from one never
+  shipped); `qtySoldInferred = qtyPurchased - qtyAtAmazon`; `avgSalePricePence` is sourced
+  from real Orders/Finance order-item history for that SKU (never
+  `products.uk_current_price`), null with no matching order items; `mismatch` is true
+  only when `qtyAtAmazon > qtyPurchased` (operator-confirmed rule, 2026-07-23 — the one
+  unambiguous data error, not a broader reconciliation check). `analytics.js`'s
+  `buildLots`/`shapeLots` is the shaping logic; `sp-api.js`'s `getOrderItemsForSku` is the
+  new SP-API surface (Orders v0 API + per-order Order Items, filtered to one SellerSKU).
 - **Contract:** one wide row per stage run (never updated); the dashboard reads only
   the latest row (`order by snapshot_at desc limit 1`). Money in `fba_stock`/
   `recent_orders`/`next_disbursement` is integer pence (§4), computed at the
@@ -303,7 +323,9 @@ per table is in §3.
   actually built for) plus the full stock/orders/disbursement breakdown on the
   Inventory tab (the originally-stubbed scope). Both read the latest row only
   (`order=snapshot_at.desc&limit=1`) over the existing anon SELECT grant, no new
-  grant/policy needed.
+  grant/policy needed. `lot_inventory` has no dashboard reader yet — that's
+  Alchemist_Dashboard issue 018 Phase 2 (root RUNLIST I3b), blocked on this landing
+  first; don't build against a guessed lot shape.
 
 ### `tracking_log_archived` — archived, read-only
 

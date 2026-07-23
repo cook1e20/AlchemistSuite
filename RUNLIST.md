@@ -529,13 +529,29 @@ is the coordination record)
       issue's Phase 2 (Inventory-tab lot table; `d-fba`/`d-waiting` re-sourced to sum
       over lot data, `d-waiting` auto-filling for the first time). Not built this
       iteration — the grill session was the single task. Split into I3a/I3b below.*
-- [ ] **I3a. `alchemist-v2/issues/036-buysheet-per-lot-sku-tracking.md`** (HITL, AFK-
+- [x] **I3a. `alchemist-v2/issues/036-buysheet-per-lot-sku-tracking.md`** (HITL, AFK-
       buildable) — Phase 1 of I3's grilled scope: BuySheet SKU-column parsing, per-lot
       SP-API matching (shipped/waiting, sold-qty inference, mismatch flag), real
       Orders/Finance-sourced sale price, new `analytics_cache` lot field. Build can
       proceed against stubbed SP-API responses; real verification needs the operator to
       start assigning real Seller SKUs to new BuySheet purchases (their own action).
       Blockers: none structurally.
+      *2026-07-23: landed (alchemist-v2 `ef06dee`) — E4's pilot decision is parked until
+      Monday 2026-07-27, so this was the next workable entry. Built the full pipeline
+      against stubbed SP-API responses: `sheets.js` reads new SKU/Purchase Date BuySheet
+      columns (legacy rows untouched); `analytics.js` gained `buildLots`,
+      `indexInventoryBySku` (reuses the existing `inventorySummaries` fetch, no extra
+      SP-API call), `shapeAvgSalePrice`, `shapeLot`/`shapeLots`; `sp-api.js` gained
+      `getOrdersCreatedAfter`/`getOrderItems`/`getOrderItemsForSku` (Orders API's
+      order-level GET has no line items — `SellerSKU` only exists on the separate Order
+      Items endpoint, a real gotcha recorded in alchemist-v2 CLAUDE.md). Mismatch rule
+      confirmed with the operator before building: `qtyAtAmazon > qtyPurchased` only, the
+      issue's own candidate. `analytics_cache.lot_inventory` (jsonb, nullable) applied
+      LIVE via Supabase MCP, verified. 34 new tests red-first, 263/263. CONTRACTS.md §2
+      updated same commit with the full shape. **Not verified live** — no real BuySheet
+      SKU exists yet (operator's own action) and no real SP-API Orders call was made;
+      first real verification awaits that plus a live `--stage analytics` run. Unblocks
+      I3b (Alchemist_Dashboard issue 018 Phase 2).*
 - [ ] **I3b. `Alchemist_Dashboard/issues/018-inventory-shipped-vs-not-shipped-reconciliation.md`**
       (Phase 2) — Inventory-tab per-lot table over I3a's real `analytics_cache` shape;
       re-source `d-fba`/`d-waiting` Finance auto-fill to sum over lot data (`d-waiting`
