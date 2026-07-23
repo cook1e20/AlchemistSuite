@@ -506,7 +506,7 @@ is the coordination record)
       "snapshot Nh ago" label that clears on manual edit. One-line PRD addition
       (story 6a). 143/143 tests, typecheck+build clean. Not verified via browser
       click-through (Chrome extension unavailable this session).*
-- [ ] **I3. `Alchemist_Dashboard/issues/018-inventory-shipped-vs-not-shipped-reconciliation.md`**
+- [x] **I3. `Alchemist_Dashboard/issues/018-inventory-shipped-vs-not-shipped-reconciliation.md`**
       (HITL, needs `/grill-me` first) — filed 2026-07-21: owner's description of the
       desired `d-fba`/`d-waiting` auto-fill (pull Amazon inventory, cross-reference a
       spreadsheet, split shipped vs not-shipped, auto-total) doesn't match what I2
@@ -528,8 +528,19 @@ is the coordination record)
       parsing + per-lot SP-API matching + `analytics_cache` lot field) now blocks this
       issue's Phase 2 (Inventory-tab lot table; `d-fba`/`d-waiting` re-sourced to sum
       over lot data, `d-waiting` auto-filling for the first time). Not built this
-      iteration — the grill session was the single task. Not yet slotted into this
-      queue as its own entries; do that before either phase is picked up next.*
+      iteration — the grill session was the single task. Split into I3a/I3b below.*
+- [ ] **I3a. `alchemist-v2/issues/036-buysheet-per-lot-sku-tracking.md`** (HITL, AFK-
+      buildable) — Phase 1 of I3's grilled scope: BuySheet SKU-column parsing, per-lot
+      SP-API matching (shipped/waiting, sold-qty inference, mismatch flag), real
+      Orders/Finance-sourced sale price, new `analytics_cache` lot field. Build can
+      proceed against stubbed SP-API responses; real verification needs the operator to
+      start assigning real Seller SKUs to new BuySheet purchases (their own action).
+      Blockers: none structurally.
+- [ ] **I3b. `Alchemist_Dashboard/issues/018-inventory-shipped-vs-not-shipped-reconciliation.md`**
+      (Phase 2) — Inventory-tab per-lot table over I3a's real `analytics_cache` shape;
+      re-source `d-fba`/`d-waiting` Finance auto-fill to sum over lot data (`d-waiting`
+      auto-fills for the first time). Blockers: I3a — do not build against a guessed
+      lot shape.
 
 - Deferred, not in this queue: `Alchemist_Dashboard/issues/deferred/010-dashboard-hosting.md`.
   The Qogita API idea (former deferred/012) is superseded and now queued as Phase G,
