@@ -514,6 +514,22 @@ is the coordination record)
       "shipped" means, whether it replaces or supplements I2's fields) — do not build
       from the issue's Context section alone. Blockers: none, but do the grill session
       before any implementation. Operator wants this picked up tomorrow (2026-07-22).
+      *2026-07-23: grill session held (E4's pilot decision is parked until Monday
+      2026-07-27, so this was the next workable entry). Real scope is much bigger than
+      a two-box auto-fill: BuySheet gains a real Amazon Seller SKU per purchase batch
+      going forward (legacy shared-SKU rows stay blended, not retrofitted); SP-API
+      already reports per-SKU quantities so "shipped" = any nonzero bucket for that SKU
+      (sold-out lots disambiguated via Orders-history presence); cost matching is
+      direct by SKU, no FIFO; sold-qty inferred as purchased minus live Amazon
+      quantity, self-correcting for returns; ROI's sale price must come from real
+      Orders/Finance history, not `products.uk_current_price` (flagged as the biggest
+      remaining unknown); no new Supabase table. Split into a two-repo phased feature
+      like Qogita's G1–G6: **alchemist-v2 issue 036** (Phase 1, data side — BuySheet SKU
+      parsing + per-lot SP-API matching + `analytics_cache` lot field) now blocks this
+      issue's Phase 2 (Inventory-tab lot table; `d-fba`/`d-waiting` re-sourced to sum
+      over lot data, `d-waiting` auto-filling for the first time). Not built this
+      iteration — the grill session was the single task. Not yet slotted into this
+      queue as its own entries; do that before either phase is picked up next.*
 
 - Deferred, not in this queue: `Alchemist_Dashboard/issues/deferred/010-dashboard-hosting.md`.
   The Qogita API idea (former deferred/012) is superseded and now queued as Phase G,
