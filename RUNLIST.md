@@ -587,6 +587,25 @@ is the coordination record)
       SKU/lot data exists yet either, so empty-state paths are what a live check would
       show today regardless. Issue moved to `issues/done/`.*
 
+## Phase J — new AFK work (queued 2026-07-27, found during the E4 Monday reassessment)
+
+- [x] **J1. `alchemist-v2/issues/038-bug-miner-eanlist-mismatch-phantom-rows.md`** (bug,
+      major, AFK) — slotted 2026-07-27: E4's rotation just started (operator VPS TODO
+      not yet done, needs rotation days to elapse before the next reassessment), so this
+      was the next genuinely workable entry, same reasoning as E3b/E4a/H1/I1/I2. Miner
+      upserted on Keepa's `eanList[0]` instead of the queried row's own `ean`, creating
+      phantom duplicate rows and leaving the real candidate stuck un-marked forever.
+      Blockers: none.
+      *2026-07-27: landed (alchemist-v2 `0c16de5`) — `stage-miner.js` now upserts
+      against `row.ean` always; 1 new test red-first, 267/267. Live backfill repair
+      (operator go-ahead, "repair live now"): 4,671 of 5,071 live duplicate `uk_asin`
+      groups matched the exact bug signature and were merged+deduped via a live Supabase
+      SQL transaction (verified safe first — zero groups where a non-phantom row held
+      both real signal and a newer timestamp); `products` 850,510 -> 845,861 (4,713 rows
+      removed). Remaining 400 groups are a pre-existing, unrelated wholesale-catalog
+      barcode-duplication quirk, left untouched. No CONTRACTS.md change (local
+      implementation detail, not a contract).*
+
 - Deferred, not in this queue: `Alchemist_Dashboard/issues/deferred/010-dashboard-hosting.md`.
   The Qogita API idea (former deferred/012) is superseded and now queued as Phase G,
   coordination record `Alchemist_Dashboard/issues/015-qogita-catalog-sync.md`.
