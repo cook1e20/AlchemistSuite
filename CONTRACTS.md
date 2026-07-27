@@ -323,9 +323,14 @@ per table is in §3.
   actually built for) plus the full stock/orders/disbursement breakdown on the
   Inventory tab (the originally-stubbed scope). Both read the latest row only
   (`order=snapshot_at.desc&limit=1`) over the existing anon SELECT grant, no new
-  grant/policy needed. `lot_inventory` has no dashboard reader yet — that's
-  Alchemist_Dashboard issue 018 Phase 2 (root RUNLIST I3b), blocked on this landing
-  first; don't build against a guessed lot shape.
+  grant/policy needed. `lot_inventory` gained its dashboard reader 2026-07-27
+  (Alchemist_Dashboard issue 018 Phase 2, root RUNLIST I3b, `42e62ba`): a per-lot
+  table on the Inventory tab, plus Finance tab's `d-fba`/`d-waiting` re-sourced to
+  sum `lot_inventory` (`sumLotFbaValuePence`/`sumLotWaitingValuePence`) instead of
+  `fba_stock.totalValuePence` / the manual snapshot — SKU-tracked lots only, so those
+  two Finance fields now read lower than the Inventory tab's own (unchanged) ASIN-
+  blended summary box until lot coverage grows. Deliberate, not a bug — see
+  Alchemist_Dashboard CLAUDE.md.
 
 ### `tracking_log_archived` — archived, read-only
 

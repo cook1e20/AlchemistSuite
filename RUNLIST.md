@@ -566,11 +566,26 @@ is the coordination record)
       SKU exists yet (operator's own action) and no real SP-API Orders call was made;
       first real verification awaits that plus a live `--stage analytics` run. Unblocks
       I3b (Alchemist_Dashboard issue 018 Phase 2).*
-- [ ] **I3b. `Alchemist_Dashboard/issues/018-inventory-shipped-vs-not-shipped-reconciliation.md`**
+- [x] **I3b. `Alchemist_Dashboard/issues/018-inventory-shipped-vs-not-shipped-reconciliation.md`**
       (Phase 2) — Inventory-tab per-lot table over I3a's real `analytics_cache` shape;
       re-source `d-fba`/`d-waiting` Finance auto-fill to sum over lot data (`d-waiting`
       auto-fills for the first time). Blockers: I3a — do not build against a guessed
       lot shape.
+      *2026-07-27: landed (Alchemist_Dashboard `42e62ba`) — E4's rotation just started
+      (operator TODO on the VPS, not yet done, needs rotation days to elapse before the
+      next reassessment), so this was the next genuinely workable entry. Built against
+      I3a's real, live `analytics_cache.lot_inventory` shape: new per-lot Inventory-tab
+      table (SKU, ASIN, qty purchased/at-Amazon, shipped/waiting + mismatch badges,
+      cost/unit, actual-cost ROI); Finance `d-fba`/`d-waiting` re-sourced to
+      `sumLotFbaValuePence`/`sumLotWaitingValuePence` (SKU-tracked lots only — a
+      deliberate coverage narrowing vs the old ASIN-blended `fba_stock.totalValuePence`,
+      the criterion-10-specified tradeoff, documented in that repo's CLAUDE.md so it's
+      not mistaken for a bug later); `d-waiting` gains issue-017-style auto-fill for the
+      first time. 12 new tests red-first, 155/155, typecheck+build clean.
+      CONTRACTS.md §2 updated same commit as this tick. Not verified via browser
+      click-through (Chrome extension unavailable this session) — no real BuySheet
+      SKU/lot data exists yet either, so empty-state paths are what a live check would
+      show today regardless. Issue moved to `issues/done/`.*
 
 - Deferred, not in this queue: `Alchemist_Dashboard/issues/deferred/010-dashboard-hosting.md`.
   The Qogita API idea (former deferred/012) is superseded and now queued as Phase G,
