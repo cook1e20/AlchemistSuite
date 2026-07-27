@@ -244,6 +244,20 @@ of this order.
       At the ~29.9k/day pace, the remaining ~764k rows would take ~25.6 more days.
       **Operator decision: continue the pilot, reassess Monday 2026-07-27.** Not ticked
       done yet — pilot still running, no go/no-go finalised.*
+      *2026-07-27 (Monday reassessment): live re-check found hit rate declining —
+      59.5% cumulative (214,395/850,510 attempted), ~52.7% marginal over the last 4
+      days, down from 70.3%. Side finding: `products`' row growth since 07-23 traced
+      to a real bug (alchemist-v2 issue 038, logged not fixed — miner writes Keepa's
+      `eanList[0]` instead of the queried EAN, producing phantom duplicate rows and
+      leaving the original candidate stuck un-marked). **Operator decision: switch to
+      a 12-hour miner/DealFinder rotation** (miner 20:00–08:00 UK, DealFinder
+      08:00–20:00 UK) rather than fully stopping or continuing the full pause — both
+      repos' existing env-tunable windows (alchemist-v2 030, DealFinder 031) already
+      support this with no code changes. Operator TODO on the VPS (not done this
+      session, no VPS access): set `MINER_WINDOW_START_HOUR=20`/`_END_HOUR=8` in
+      alchemist-v2, `OVERNIGHT_PAUSE_START_HOUR=20`/`_END_HOUR=8` in DealFinder,
+      `pm2 start` DealFinder + restart both. Still not ticked done — pilot continues
+      under the new rotation; next reassessment once a few rotation days have run.*
 
 ## Phase G — Qogita catalog sync (`Alchemist_Dashboard/issues/015-qogita-catalog-sync.md`
 is the coordination record)
