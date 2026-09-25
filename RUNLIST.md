@@ -606,6 +606,32 @@ is the coordination record)
       barcode-duplication quirk, left untouched. No CONTRACTS.md change (local
       implementation detail, not a contract).*
 
+## Phase L — Keepa token and `products` size (queued 2026-09-25)
+
+Context: DB at 472 MB of the 500 MB free cap (live 2026-09-25). Only 16,680 of 890,691
+enriched `products` rows carry `monthly_sold` (all >= 50 — it is Amazon's badge), so
+velocity needs `salesRankDrops30` as a fallback, which `products` does not store yet.
+
+- [ ] **L1. `alchemist-v2/issues/039-store-sales-rank-drops30-on-products.md`** (AFK) —
+      add nullable `products.uk_sales_rank_drops30`, written by `upsertProduct`. Already
+      parsed by `keepa.js`, currently discarded; no extra tokens. Blockers: none.
+- [ ] **L2. `alchemist-v2/issues/040-sp-api-pre-screen-before-keepa-mine.md`** (AFK) —
+      free SP-API check ahead of the miner's Keepa lookups. Phase 1: EAN with no UK ASIN
+      → `markNotFound`, no token (~12% of pilot spend). Phase 2 (buy box / fees) only
+      if a sample shows it catches enough of the 17.7% validation-fails. Not an ROI
+      gate — the miner has no buy cost. Blockers: none.
+- [ ] **L3. `alchemist-v2/issues/038-products-growth-and-bulk-load-cohort.md`** (HITL,
+      operator decision) — Pro plan vs retire the bulk-load cohort vs cap DealFinder's
+      `products-upsert` intake (~4.9k rows/day, the real growth source). Blockers: none.
+- [ ] **L4. `alchemist-v2/issues/041-slim-records-for-low-velocity-products.md`** (HITL)
+      — below-bar rows keep a narrow record and a 90–180 day re-check instead of the
+      full row and 30-day re-mine. Operator picks the rank-drops threshold (calibrated
+      from L1 data) and the interval. Blockers: L1 (plus one mine cycle of data), L3.
+- [ ] **L5. `DealFinder/issues/047-velocity-floor-shared-across-signals.md`** (HITL,
+      investigation) — one `VELOCITY_FLOOR` of 50 applies to both `monthlySold` and
+      `salesRankDrops30`; only 79 of 229k deals clear 50 on rank drops. Check issue 005
+      first; reuse L4's threshold. Optional `products` write blocked by L1.
+
 - Deferred, not in this queue: `Alchemist_Dashboard/issues/deferred/010-dashboard-hosting.md`.
   The Qogita API idea (former deferred/012) is superseded and now queued as Phase G,
   coordination record `Alchemist_Dashboard/issues/015-qogita-catalog-sync.md`.
