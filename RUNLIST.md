@@ -9,6 +9,134 @@ Priorities set 2026-07-15 (constellation review). Reorder freely — this file i
 queue, not a contract. `severity: critical` bugs in any repo jump the queue regardless
 of this order.
 
+## Run order (reset 2026-09-25) — work from here
+
+Rebuilt 2026-09-25 from a review of all five repos (root, alchemist-v2, DealFinder,
+Alchemist_Dashboard, KeepaCompanion), every open issue, and a live read of the shared
+DB. **This section is the queue.** Phases A–L below are history; their still-open
+entries are folded in here and marked `[→ Rn]` where they stand.
+
+Live state at the reset: DB **472 MB of the 500 MB free cap** (read-only mode on breach);
+`products` 1,151,126 rows / 304 MB; `deals` 454k / 128 MB; `gating_status` 305 verdicts,
+`asin_tracker` 67 rows (so the Gate column is live); `run_log` shows `mine`, `scout`,
+`commands` running, no `wholesale-sync`.
+
+### Now — risk and hygiene
+
+- [ ] **R1. Decide the DB-size path** (HITL, operator, **urgent**) —
+      `alchemist-v2/issues/038-products-growth-and-bulk-load-cohort.md` (was L3).
+      Pro plan vs retire the not-found bulk cohort vs cap DealFinder's
+      `products-upsert` intake (~4.9k rows/day, the real growth source). At current
+      intake (~1.1 MB/day into `products`, per 038) the 28 MB of headroom lasts
+      roughly 3–4 weeks — less if `deals` grows faster than its 30-day retention trims. Blockers: none.
+- [x] **R2. Commit the in-flight gating work** (HITL, housekeeping) — git is behind
+      the live system in four places. Check no other session is mid-edit first.
+      - root: Phase K RUNLIST section, `CONTRACTS.md` §1–3, `README.md`,
+        `.gitignore`, `issues/007` (all from 2026-09-19).
+      - alchemist-v2: `migrations/2026-09-19-create-gating-status.sql`, `supabase/`
+        (the `gating-check` function), `test/gating-check-logic.test.mjs`,
+        `package.json`, `issues/038`.
+      - Alchemist_Dashboard: `src/gating*.ts`, `src/main.ts`, `index.html`, and
+        migration `20260925120000_gating_status_anon_read.sql` — **already applied
+        live** (policy `anon read gating_status` exists), so the repo lags the DB.
+      - KeepaCompanion: **no commits at all** on `master`; the whole repo is
+        untracked. Needs an initial commit (and a remote, if wanted).
+      Blockers: none.
+      *2026-10-06: done on operator go-ahead, all suites green first. alchemist-v2 gating
+      work was already in c8a76d5; issue 038 committed (2b77e64). Alchemist_Dashboard was
+      already clean (43fa6fe/e4abaa9 + migration tracked). KeepaCompanion initial commit
+      45a8787 (36/36, typecheck clean, secret scan clean; no remote). Root: this commit.*
+- [ ] **R3. Tick K2 after confirming** (HITL, 2-minute check) — `gating_status` has
+      305 completed verdicts (latest 2026-09-24), so the secrets are set and the
+      function runs. Operator confirms the KeepaCompanion columns render on the live
+      Product Finder, then tick K2. Blockers: none.
+
+### Next — token savings
+
+- [ ] **R4. DealFinder 041: shadow → enforce** (HITL, operator) —
+      `DealFinder/issues/041-sp-api-roi-pre-screen-in-funnel.md`. Code complete; the
+      only open box is the operator switch after ≥24h of shadow with zero false
+      rejects, then raising `FEED_PAGE_CAP`. Record both in the issue, move it to
+      `done/`. Blockers: none (shadow began 2026-09-24).
+      *2026-09-28: enforce live since 09-25 (passes ~0.5/day → 3–5/day); operator
+      raised `FEED_PAGE_CAP=6`, `SP_API_PRESCREEN_MAX_ASINS=3200`. Remaining: review
+      funnel log after ~a day at 6 pages (see issue), then close. Parked follow-ups:
+      UK→UK "price recovery" source market (needs its own sell-basis model, not a
+      config flip), `uk_fba_offer_count` null on every pass (competition blind),
+      purchases not being marked bought (1 ever recorded).*
+- [ ] **R5. `alchemist-v2/issues/039-store-sales-rank-drops30-on-products.md`** (AFK,
+      small) — was L1. Nullable column + one upsert field; data already parsed.
+      Start early: R10 needs a full mine cycle of this data. Blockers: none.
+      *2026-10-05: code landed (alchemist-v2 34c3227, reviewed/approved) — also fixed
+      miner + import dropping the field before upsert. **Open (HITL): apply migration
+      `2026-10-05-add-products-uk-sales-rank-drops30.sql` live BEFORE deploying, then
+      deploy, then one overnight read-only check.** CONTRACTS.md §2 entry added.*
+- [ ] **R6. `alchemist-v2/issues/040-sp-api-pre-screen-before-keepa-mine.md`** (AFK) —
+      was L2. Phase 1 (EAN with no UK ASIN → no token) first; Phase 2 only on
+      measured evidence. Blockers: none.
+      *2026-10-06 blocked: Phase 1 is built and review-fixed (dark, `MINER_SP_PRESCREEN_MODE`
+      default off) but sits uncommitted in alchemist-v2 since 2026-10-05 21:18. The overseer
+      won't adopt another session's dirty work: operator confirms it's finished, then land it.*
+      *2026-10-06: tests run on operator request — 379/379 green. Commit not made (outside
+      what was asked; the commit was blocked by a permission check). Operator: say "commit R6"
+      to land it, then set `MINER_SP_PRESCREEN_MODE=shadow` on the server.*
+- [ ] **R7. Close out the E4 pilot** (HITL, operator) — was E4, last touched
+      2026-07-27. Confirm the 12-hour rotation env vars went live on the VPS in
+      both repos, record the final hit rate, and tick E4 with the standing
+      decision. `Alchemist_Dashboard/issues/014` closes with it. Blockers: none.
+
+### Then — decisions and features
+
+- [ ] **R8. Arbisource export gating** (HITL) — was K3, root `issues/006`. Now
+      unblocked: `gating_status` has data and the dashboard reads it anon (R2).
+      Remaining question: filter the export on `gating_status`, and what to do with
+      ASINs that have no row. Blockers: R2.
+- [ ] **R9. `DealFinder/issues/047-velocity-floor-shared-across-signals.md`** (HITL,
+      investigation) — was L5. Read issue 005's floor-tuning outcome first.
+      Blockers: none; its optional `products` write needs R5.
+      *2026-10-06: investigated (DealFinder 3e4fe26) — 005 never tuned the floor; the 50 is
+      the untuned PRD default and the rank-drops branch passes 79/229k. Recommends a
+      separate `VELOCITY_FLOOR_RANK_DROPS` defaulting to 50. Awaiting operator decision.*
+- [ ] **R10. `alchemist-v2/issues/041-slim-records-for-low-velocity-products.md`**
+      (HITL) — was L4. Operator picks the rank-drops threshold and the re-check
+      interval. Blockers: R5 plus one mine cycle of data, and R1 (on Pro this
+      shrinks to the re-check-interval half).
+- [ ] **R11. `alchemist-v2/issues/028-requeue-does-not-clear-not-found-marker.md`**
+      (HITL, product call) — should a deliberate dashboard re-queue override the
+      90-day not-found marker? Cheap once decided. Blockers: none.
+- [ ] **R12. Qogita auto-sync flip** (HITL, operator) —
+      `Alchemist_Dashboard/issues/015` Phase 6 (G6's deferred flip). Pre-flip:
+      add `wholesale-sync` to the dashboard's `KNOWN_STAGES`
+      (`src/pipeline-status.ts`; `analytics` is missing there too). Hold if R1 lands
+      on "stay free" — each sync grows the DB. Blockers: R1.
+
+- [ ] **R16. `DealFinder/issues/048-uk-to-uk-price-recovery-source-market.md`** (HITL) —
+      UK→UK price-recovery scanner (UK buy, sell basis = 90-day buy-box average − 10%).
+      Operator asked 2026-10-06 (Prime Day); agreed a slower, sliced build.
+      *2026-10-06: slices 1–3 of 4 landed (DealFinder 08aae31, 7f24b01, a841977; slices 2–3
+      reviewed, 456/456). UK now runs in shadow if `UK_SOURCE_MODE=shadow` + `uk` in
+      MARKETPLACES, but never notifies in any mode yet. Slice 4 left: UK Discord format,
+      products-upsert, dashboard £, CONTRACTS.md §4 units. Then HITL: live UK feed
+      recording to confirm avg[3][18], ≥3 days shadow, operator economics decisions.*
+
+### Anytime — cheap AFK filler
+
+- [x] **R13. `alchemist-v2/issues/035-bug-architecture-md-missing-analytics-wholesale-tables.md`**
+      (AFK, docs) — also add `gating_status` while in there. Blockers: none.
+      *2026-10-05: landed (alchemist-v2 51bd874, cf817be) — added `analytics_cache`,
+      `wholesale_sync_requests`, `gating_status`, `asin_tracker`. ARCHITECTURE.md's
+      Module map is also stale (stage list) — noted in the commit, not filed.*
+- [ ] **R14. `alchemist-v2/issues/037-lot-order-history-incremental-cache.md`** (AFK) —
+      analytics run time grows with lot age; not urgent until lots age.
+      Blockers: none.
+      *2026-10-05: landed (alchemist-v2 22111c9) — per-lot monotonic watermark + overlap
+      dedupe; reviewed 2 rounds (fixed a reproduced double count and Pending-order
+      undercount). CONTRACTS.md §2 fields added. Follow-ups: alchemist-v2 issue 042.
+      Deploy is ordinary (no migration); first run after deploy full-scans every lot once.*
+- [ ] **R15. Close root `issues/005`** (HITL, operator) — only open thread is
+      "who ran the 2026-07-15 load"; accept as unknown and move to `done/`.
+      Blockers: none.
+
 ## Phase A — keystone bugs and safety (all AFK)
 
 - [x] **A1. `alchemist-v2/issues/017-bug-run-log-not-written.md`** (bug, major) —
@@ -219,7 +347,7 @@ of this order.
       as usual; server needs this commit before the pilot can flip to all-day via env
       var alone. E4 now needs only the operator's deploy + go-ahead (all of E1-E3, E3b,
       E4a, E4b are landed).
-- [ ] **E4. `Alchemist_Dashboard/issues/014-...` Phase 4 pilot** (HITL, business
+- [→ R7] **E4. `Alchemist_Dashboard/issues/014-...` Phase 4 pilot** (HITL, business
       decision) — pause DealFinder, 2–3 day pilot, measure hit rate, then decide.
       Blockers: E1–E3, E4a, E4b, and the A2 dry-run fix.
       *2026-07-17 prep decision (operator): full pilot after E4a/E4b land + operator
@@ -606,28 +734,63 @@ is the coordination record)
       barcode-duplication quirk, left untouched. No CONTRACTS.md change (local
       implementation detail, not a contract).*
 
+## Phase K — Keepa Companion (new repo, queued 2026-09-19)
+
+- [x] **K1. `KeepaCompanion/issues/done/001-finder-columns-vertical-slice.md`** (HITL) —
+      new fourth repo: Chrome extension adding Track / Searched / Gate columns to the
+      Keepa Product Finder, plus `asin_tracker` (this repo) and alchemist-v2's
+      `gating-check` edge function + `gating_status` cache. Blockers: none.
+      *2026-09-19: built. Columns are real ag-Grid column defs injected by proxying
+      `agGrid.Grid`'s constructor (Keepa keeps `gridOptions` in module scope — no
+      global handle), and `api.setColumnDefs` is wrapped so Keepa's own column
+      reconfigures re-append ours. Verified in a harness reproducing Keepa's exact load
+      pattern: columns inject, survive a full column-set replacement without
+      duplicating, toggle/stamp/clear correct and per-ASIN. 36 tests here + 19 in
+      alchemist-v2 (284/284 there), typecheck green. `asin_tracker` and `gating_status`
+      created live; anon contract verified against the real key (upsert ok, bad status
+      rejected by CHECK, `gating_status` permission denied, DELETE 401). CONTRACTS.md
+      §1/§2/§3 amended — including the first sanctioned synchronous browser→server
+      SP-API path, and a plain statement of why `ungate_log` cannot serve as a gating
+      cache. Coordination record: root `issues/007`.*
+
+- [→ R3] **K2. Operator: enable the Gate column** (HITL, operator-only) — set the
+      `gating-check` secrets (`LWA_APP_ID`, `LWA_CLIENT_SECRET`, `SP_API_REFRESH_TOKEN`,
+      `SP_API_MERCHANT_ID` from alchemist-v2's server `.env`, plus a chosen
+      `KC_SHARED_SECRET`), put the same shared secret in the extension options, load the
+      unpacked `dist/`, and confirm the three columns against the live Product Finder.
+      Until this is done the function fails closed (HTTP 500) and Gate stays blank.
+      Blockers: none — the secrets simply are not in the build environment.
+      Detail: root `issues/007`.
+
+- [→ R8] **K3. Re-read `issues/006` against `gating_status`** (HITL) — 006 asked how to
+      expose gating ground truth to the browser; its option 2 (service-role edge
+      function) is now built, with a purpose-built cache behind it. The open part is
+      narrower: should the Arbisource export read `gating_status`, and what does it do
+      about ASINs with no row yet? Blocked by K2 (the table stays empty until the
+      function can run).
+
 ## Phase L — Keepa token and `products` size (queued 2026-09-25)
 
 Context: DB at 472 MB of the 500 MB free cap (live 2026-09-25). Only 16,680 of 890,691
 enriched `products` rows carry `monthly_sold` (all >= 50 — it is Amazon's badge), so
 velocity needs `salesRankDrops30` as a fallback, which `products` does not store yet.
 
-- [ ] **L1. `alchemist-v2/issues/039-store-sales-rank-drops30-on-products.md`** (AFK) —
+- [→ R5] **L1. `alchemist-v2/issues/039-store-sales-rank-drops30-on-products.md`** (AFK) —
       add nullable `products.uk_sales_rank_drops30`, written by `upsertProduct`. Already
       parsed by `keepa.js`, currently discarded; no extra tokens. Blockers: none.
-- [ ] **L2. `alchemist-v2/issues/040-sp-api-pre-screen-before-keepa-mine.md`** (AFK) —
+- [→ R6] **L2. `alchemist-v2/issues/040-sp-api-pre-screen-before-keepa-mine.md`** (AFK) —
       free SP-API check ahead of the miner's Keepa lookups. Phase 1: EAN with no UK ASIN
       → `markNotFound`, no token (~12% of pilot spend). Phase 2 (buy box / fees) only
       if a sample shows it catches enough of the 17.7% validation-fails. Not an ROI
       gate — the miner has no buy cost. Blockers: none.
-- [ ] **L3. `alchemist-v2/issues/038-products-growth-and-bulk-load-cohort.md`** (HITL,
+- [→ R1] **L3. `alchemist-v2/issues/038-products-growth-and-bulk-load-cohort.md`** (HITL,
       operator decision) — Pro plan vs retire the bulk-load cohort vs cap DealFinder's
       `products-upsert` intake (~4.9k rows/day, the real growth source). Blockers: none.
-- [ ] **L4. `alchemist-v2/issues/041-slim-records-for-low-velocity-products.md`** (HITL)
+- [→ R10] **L4. `alchemist-v2/issues/041-slim-records-for-low-velocity-products.md`** (HITL)
       — below-bar rows keep a narrow record and a 90–180 day re-check instead of the
       full row and 30-day re-mine. Operator picks the rank-drops threshold (calibrated
       from L1 data) and the interval. Blockers: L1 (plus one mine cycle of data), L3.
-- [ ] **L5. `DealFinder/issues/047-velocity-floor-shared-across-signals.md`** (HITL,
+- [→ R9] **L5. `DealFinder/issues/047-velocity-floor-shared-across-signals.md`** (HITL,
       investigation) — one `VELOCITY_FLOOR` of 50 applies to both `monthlySold` and
       `salesRankDrops30`; only 79 of 229k deals clear 50 on rank drops. Check issue 005
       first; reuse L4's threshold. Optional `products` write blocked by L1.

@@ -1,14 +1,15 @@
 # Alchemist Suite — Constellation Contracts
 
-The single contract map for the three-repo constellation (`alchemist-v2`, `DealFinder`,
-`Alchemist_Dashboard`). **This document owns cross-repo semantics only** — which repo
-owns what, what each shared Supabase table promises its consumers, what the browser's
-anon key may do, what units money is in, and how the shared Keepa account is split.
-Implementation detail stays in each repo's local PRD:
+The single contract map for the four-repo constellation (`alchemist-v2`, `DealFinder`,
+`Alchemist_Dashboard`, `KeepaCompanion`). **This document owns cross-repo semantics
+only** — which repo owns what, what each shared Supabase table promises its consumers,
+what the browser's anon key may do, what units money is in, and how the shared Keepa
+account is split. Implementation detail stays in each repo's local PRD:
 
 - `alchemist-v2/issues/prd.md`
 - `DealFinder/issues/prd.md`
 - `Alchemist_Dashboard/issues/prd.md`
+- `KeepaCompanion/issues/prd.md`
 
 Parent PRD: `issues/constellation-prd.md`. Per the root `README.md`: if this document
 conflicts with a child repo on a *cross-repo contract*, this document wins; on *local
@@ -42,6 +43,8 @@ is a snapshot, refreshed when re-verified.
 | `wholesale_sync_requests` (schema); `qogita-catalog-webhook` Edge Function | `Alchemist_Dashboard` |
 | Qogita catalog-download submit/ingest (`wholesale-sync` stage, Phase 3) | `alchemist-v2` |
 | SP-API `analytics` stage (`analytics_cache` snapshot) | `alchemist-v2` |
+| `gating_status` (schema + semantics); `gating-check` Edge Function | `alchemist-v2` |
+| Keepa Product Finder browser columns; `asin_tracker` (schema + semantics) | `KeepaCompanion` |
 
 Code and schema changes are implemented in the owning repo. A system issue may name
 several repos, but the work is split so one iteration owns one task in one repo.
@@ -95,12 +98,24 @@ per table is in §3.
     miner enriches never-attempted rows first (deploy-gated: inert until the server
     pulls that commit). Either way, consumers must not read `last_mined_at` as "has
     signal"; the dashboard uses `title IS NOT NULL` to tell enriched from queued.
+  - `uk_sales_rank_drops30` (integer, nullable, no default, no index — alchemist-v2
+    issue 039, migration `2026-10-05-add-products-uk-sales-rank-drops30.sql`; **code
+    landed 2026-10-05, migration not yet applied live — apply before deploying that
+    commit or every `upsertProduct` fails**) — Keepa `salesRankDrops30` (UK sales-rank
+    drops in the last 30 days), written by the alchemist-v2 miner/import on every full
+    enrichment (explicit `null` when Keepa omits it). A velocity *proxy*, never
+    sales/month: it must not be read as or merged into `monthly_sold`. Same field as
+    DealFinder's `deals.uk_sales_rank_drops30`; DealFinder's `products-upsert` does
+    not write it (DealFinder issue 047). Consumer: alchemist-v2 issue 041.
   - `last_evaluated_at` — stamped only when a full economics/gating verdict was computed
     (DealFinder); not yet read by any gating logic.
   - `uk_not_found_at` (timestamptz, nullable, no default — added live 2026-07-17,
     alchemist-v2 issue 023, migration `add_products_uk_not_found_at`) — last time a
-    Keepa UK lookup found **no product at all** for this EAN/ASIN. Written only by the
-    alchemist-v2 miner (service_role); cleared by successful enrichment
+    UK lookup found **no product at all** for this EAN/ASIN: either a Keepa product
+    lookup returned nothing, or (alchemist-v2 issue 040, only when
+    `MINER_SP_PRESCREEN_MODE=enforce`) an SP-API `searchCatalogItems` lookup of a
+    13-digit EAN returned a confident empty UK result (no Keepa token spent; `shadow`
+    mode never writes it). Written only by the alchemist-v2 miner (service_role); cleared by successful enrichment
     (`upsertProduct` sends an explicit `null`). The miner excludes marked rows from
     the backfill pool for 90 days (`NOT_FOUND_RETRY_DAYS`), after which they re-enter
     at the lowest priority. No grant change was needed (anon's table-level SELECT
@@ -215,8 +230,56 @@ per table is in §3.
   `attempted_at`, `marketplace` default `'de'`). DealFinder reads gating **live from
   `ungate_log`** rather than from any denormalized column on `products` (none exists —
   deliberate, see DealFinder issue 028).
-- Both are service-role-only in practice. (`ungate_log`'s over-broad legacy anon grants
-  are a logged discrepancy, §6.)
+- `scout_log` is service-role-only. `ungate_log` is anon **SELECT-only** since
+  2026-09-24 (dashboard migration `20260924120000`) — Wholesale Search's Gate column reads
+  it; writes stay service-role. (Its over-broad legacy anon grants were revoked by
+  alchemist-v2 issue 019, §6.)
+- **`ungate_log` is an ungating-*attempt* log. It cannot answer "is this ASIN listable
+  right now" — `gating_status` is the table for that** (added 2026-09-19). Three
+  properties get in the way, all verified live on 2026-09-19:
+  - **Absence is ambiguous.** `stage-import.js` writes a row only when an ASIN is *not*
+    listable (`result: 'failed'`); a clean UK restrictions check writes nothing. So "no
+    row" means either "never checked" or "checked and fine", with no way to tell.
+  - **Failures and errors are conflated.** That same path records a genuine restriction
+    and an SP-API error as the same `result: 'failed'`, separated only by
+    `reason_code = 'API_ERROR'` — so a transient outage is indistinguishable from a real
+    verdict without parsing the reason code.
+  - **`marketplace` does not mean what it says.** `checkRestriction()` always queries
+    **UK** (`A1F83G8C2ARO7P`), but rows land on the column's `'de'` default; live values
+    are `de`/`es`/`it`/`fr` only, with no `uk` rows at all, because the column actually
+    records the EU marketplace a *deal* came from.
+  Also, the PK is `asin` alone, so writing restriction checks here would overwrite the
+  cooldown data `getRecentUngateAttempts()` depends on. Leave it as the attempt log it
+  is. (This is the ground-truth gap `issues/006` is open on — `gating_status` plus the
+  `gating-check` function is option 2 of that issue's three, now built.)
+
+### `gating_status` — SP-API listing-restriction cache. Owner: `alchemist-v2`
+
+- **PK:** (`asin`, `marketplace`). Columns: `gated` (boolean, **nullable**),
+  `reason_code`, `approval_links` (jsonb), `checked_at` (default `now()`),
+  `marketplace` (default `'uk'`). Created live 2026-09-19 (migration
+  `alchemist-v2/migrations/2026-09-19-create-gating-status.sql`).
+- **Contract:** `gated = true` restricted for our seller account, `false` listable,
+  **`null` = the check did not complete** (auth failure, throttle, HTTP error). A null
+  row is never a verdict and must never be treated as fresh — retry it. The
+  `gating-check` edge function only persists completed checks.
+- Writes are service-role only (the `gating-check` edge function). Anon is
+  **SELECT-only** since 2026-09-25 (dashboard migration `20260925120000`): Wholesale
+  Search's Gate column reads cached verdicts directly, preferring them over `ungate_log`,
+  so scans cost no SP-API calls. New checks still go only through `gating-check` (§3),
+  which holds the SP-API credentials — the dashboard's "Check gating" button calls it for
+  deals with no verdict.
+
+### `asin_tracker` — manual per-ASIN triage state. Owner: `KeepaCompanion`
+
+- **PK:** `asin`. Columns: `status` (`checked` / `bought` / `near_miss` / `pass`,
+  CHECK-constrained, nullable), `status_at`, `last_searched_at`, `note`, `updated_at`.
+  Created live 2026-09-19 (migration
+  `KeepaCompanion/supabase/migrations/20260919220000_create_asin_tracker.sql`).
+- **Contract:** deliberately filter-agnostic — one row per ASIN, so a verdict reached
+  under one Keepa Product Finder filter is still visible under the next. No other repo
+  reads or writes it today. Anon read/insert/update, no delete (clearing a status is an
+  UPDATE to null); the CHECK constraint, not the policy, is what bounds the values.
 
 ### `wholesale_sync_requests` — Qogita catalog-sync request bookkeeping. Owner: `Alchemist_Dashboard`
 
@@ -285,6 +348,24 @@ per table is in §3.
   unambiguous data error, not a broader reconciliation check). `analytics.js`'s
   `buildLots`/`shapeLots` is the shaping logic; `sp-api.js`'s `getOrderItemsForSku` is the
   new SP-API surface (Orders v0 API + per-order Order Items, filtered to one SellerSKU).
+- **Incremental order-history cache (alchemist-v2 issue 037, 22111c9, 2026-10-05):** each
+  lot record also carries (additive; existing field names unchanged):
+  `cumulativeSoldQtyFromOrders` (int — units across matched Orders lines with a valid qty
+  and price; each order counted once, at first sight, deduped by `AmazonOrderId`; counts
+  from epoch when the lot has no `purchaseDate`), `cumulativeSaleRevenuePence` (int — sum
+  of round(`ItemPrice.Amount` x 100); `Amount` is the line total, excludes shipping),
+  `cumulativeOrderLines` (int — matched lines ever seen, including unpriced ones),
+  `ordersCheckedThrough` (ISO or null — the Orders `CreatedBefore` bound this lot is fully
+  checked through; null = next run full-scans; **never moves earlier than its previous
+  value**; lags the window end while an order is `Pending` or its items failed to load)
+  and `recentOrders` (`[{orderId, createdAt}]` — internal dedupe bookkeeping; consumers
+  ignore it). `avgSalePricePence` is now `round(revenue / qty)` (null at qty 0) and
+  `shipped = qtyAtAmazon > 0 || cumulativeOrderLines > 0`; on a lot lookup failure both
+  carry forward from the prior record instead of going null / live-qty-only. `Pending`
+  orders are not counted until they leave Pending; an order cancelled after being counted
+  stays counted; an order arriving >2h behind the watermark is missed (accepted limits).
+  A prior record is reused only if its `purchaseDate` matches the BuySheet and its
+  accumulators are valid; otherwise that lot full-scans.
 - **Contract:** one wide row per stage run (never updated); the dashboard reads only
   the latest row (`order by snapshot_at desc limit 1`). Money in `fba_stock`/
   `recent_orders`/`next_disbursement` is integer pence (§4), computed at the
@@ -339,8 +420,9 @@ contract surface. Listed only so nobody "rediscovers" it.
 
 ## 3. Anon write surface (the browser key)
 
-The dashboard is the only anon-key client. The **complete** sanctioned anon surface,
-verified live 2026-07-15 (grant + policy both checked):
+The dashboard and the KeepaCompanion extension are the anon-key clients. The
+**complete** sanctioned anon surface, verified live 2026-07-15 (grant + policy both
+checked), with `asin_tracker` added and verified live 2026-09-19:
 
 | Table | Anon may | Enforced by |
 |---|---|---|
@@ -354,14 +436,28 @@ verified live 2026-07-15 (grant + policy both checked):
 | `wholesale_sync_requests` | SELECT all; INSERT rows shaped `{status: 'pending', catalog_request_id: null}` | grant: SELECT, INSERT; policy `WITH CHECK (status = 'pending' AND catalog_request_id IS NULL)` on insert, `USING (true)` on select (dashboard migration `20260720130000`) |
 | Storage object `wholesale-catalogs/latest.csv.gz` | SELECT (GET) only | `storage.objects` policy scoped to `bucket_id = 'wholesale-catalogs' AND name = 'latest.csv.gz'` (dashboard migration `20260720150000`) |
 | `analytics_cache` | SELECT only | grant: SELECT + `USING (true)` read policy (alchemist-v2 migration `2026-07-21-create-analytics-cache.sql`) |
+| `ungate_log` | SELECT only | grant: SELECT + `USING (true)` read policy (dashboard migration `20260924120000`) — Wholesale Search Gate column |
+| `gating_status` | SELECT only | grant: SELECT + `USING (true)` read policy (dashboard migration `20260925120000`) — Wholesale Search Gate column; writes only via `gating-check` |
+| `asin_tracker` | SELECT / INSERT / UPDATE (no DELETE) | grants + permissive `using(true)` policies (KeepaCompanion migration `20260919220000`); the `status` CHECK constraint is what bounds the values. Accepted for single-user triage data, same call as `business_snapshots`. |
 
-Everything else (`scout_log`, `ungate_log`, `tracking_log_archived`): **no anon
-access**.
+Everything else (`scout_log`, `tracking_log_archived`):
+**no anon access**.
 
 Rules:
 
 - The browser never writes `products`, and never triggers Keepa or SP-API work directly —
   it queues a `commands` row and waits for the server (user stories 6, 9, 11).
+- **The one sanctioned synchronous exception is the `gating-check` edge function**
+  (added 2026-09-19 for KeepaCompanion's Gate column; since 2026-09-25 also called by the
+  dashboard's Wholesale Search "Check gating" button, which needed the function's CORS
+  preflight support, added in v10). The browser still holds no SP-API
+  credentials: the function owns them, runs with the service role, serves the
+  `gating_status` cache first, caps a request at 50 ASINs, and is gated on a shared
+  secret (`KC_SHARED_SECRET`) on top of the anon JWT. The `commands` queue stays the
+  path for anything unbounded or long-running — a 15-minute worker cannot back a live
+  grid column, which is why this exists at all. Any further "browser asks the server to
+  spend money now" path needs the same shape: server-held credentials, a bounded batch,
+  a cache in front, and an entry here.
 - Any new anon capability is a **contract change**: it needs a dashboard-owned migration
   (grant *and* narrow policy, `deals`-style — not `using(true)` unless genuinely
   single-user/low-stakes) and an update to this table.

@@ -2,11 +2,12 @@
 
 Coordination repo for the Alchemist constellation.
 
-The application code lives in three separate sibling repos:
+The application code lives in four separate sibling repos:
 
 - `alchemist-v2` - catalog feeder, backfill miner, buy-sheet import, command worker, ungating, scheduler.
 - `DealFinder` - EU-to-UK deal probe, deal lifecycle, Discord notifications, DealFinder-owned tables.
 - `Alchemist_Dashboard` - browser UI over finance, deals, wholesale search, command queueing, and status.
+- `KeepaCompanion` - Chrome extension adding per-ASIN triage and UK gating columns to the Keepa Product Finder.
 
 This root repo tracks only cross-repo contracts, PRDs, and coordination issues. The child
 repos stay independent and are intentionally ignored by this repo.
