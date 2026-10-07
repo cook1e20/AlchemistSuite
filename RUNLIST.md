@@ -29,6 +29,13 @@ Live state at the reset: DB **472 MB of the 500 MB free cap** (read-only mode on
       `products-upsert` intake (~4.9k rows/day, the real growth source). At current
       intake (~1.1 MB/day into `products`, per 038) the 28 MB of headroom lasts
       roughly 3–4 weeks — less if `deals` grows faster than its 30-day retention trims. Blockers: none.
+      *2026-10-07: DB was 552 MB (over cap, not yet read-only). Operator decision: stay on
+      free for 1–2 months while the model proves cashflow, then Pro. Done live: deleted
+      331,532 expired no-outcome `deals` rows (purge rule at 7 days), `VACUUM FULL deals`
+      → DB 435 MB (deals 167 → 49 MB). **Open (operator):** set `EXPIRED_RETENTION_DAYS=7` in
+      DealFinder's VPS `.env` + `pm2 restart dealfinder`, or deals regrows ~100 MB in 3 weeks.
+      Still available if needed: drop the ~260k not-found/no-ASIN `products` rows (~45–70 MB)
+      and `VACUUM FULL products` (~25–30 MB bloat; needs headroom for a temp copy).*
 - [x] **R2. Commit the in-flight gating work** (HITL, housekeeping) — git is behind
       the live system in four places. Check no other session is mid-edit first.
       - root: Phase K RUNLIST section, `CONTRACTS.md` §1–3, `README.md`,
