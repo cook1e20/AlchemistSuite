@@ -78,6 +78,8 @@ Live state at the reset: DB **472 MB of the 500 MB free cap** (read-only mode on
       miner + import dropping the field before upsert. **Open (HITL): apply migration
       `2026-10-05-add-products-uk-sales-rank-drops30.sql` live BEFORE deploying, then
       deploy, then one overnight read-only check.** CONTRACTS.md §2 entry added.*
+      *2026-10-07: migration confirmed live; code deployed (VPS alchemist-v2 6f32a15, was
+      467b137 — 21+ commits behind, incl. the 038 eanList fix). Remaining: overnight check.*
 - [ ] **R6. `alchemist-v2/issues/040-sp-api-pre-screen-before-keepa-mine.md`** (AFK) —
       was L2. Phase 1 (EAN with no UK ASIN → no token) first; Phase 2 only on
       measured evidence. Blockers: none.
@@ -87,10 +89,14 @@ Live state at the reset: DB **472 MB of the 500 MB free cap** (read-only mode on
       *2026-10-06: tests run on operator request — 379/379 green. Commit not made (outside
       what was asked; the commit was blocked by a permission check). Operator: say "commit R6"
       to land it, then set `MINER_SP_PRESCREEN_MODE=shadow` on the server.*
+      *2026-10-07: committed (alchemist-v2 6f32a15), pushed, deployed by operator (dark).
+      Operator: set `MINER_SP_PRESCREEN_MODE=shadow`, restart, review a night's stats.*
 - [ ] **R7. Close out the E4 pilot** (HITL, operator) — was E4, last touched
       2026-07-27. Confirm the 12-hour rotation env vars went live on the VPS in
       both repos, record the final hit rate, and tick E4 with the standing
       decision. `Alchemist_Dashboard/issues/014` closes with it. Blockers: none.
+      *2026-10-07: rotation env confirmed live on the VPS in both repos (miner 20–08,
+      DealFinder pause 20–08). Remaining: record the final hit rate, close.*
 
 ### Then — decisions and features
 
@@ -125,6 +131,13 @@ Live state at the reset: DB **472 MB of the 500 MB free cap** (read-only mode on
       MARKETPLACES, but never notifies in any mode yet. Slice 4 left: UK Discord format,
       products-upsert, dashboard £, CONTRACTS.md §4 units. Then HITL: live UK feed
       recording to confirm avg[3][18], ≥3 days shadow, operator economics decisions.*
+      *2026-10-07: slice 4 landed (DealFinder 385d63c, reviewed APPROVE, 503/503): UK notify
+      (on only), dashboard £, recovery-guard pre-gate, `PRICE_BAND_*_UK`, shipping config
+      validation; CONTRACTS.md §4 amended. Build complete on branch `free-first-funnel`
+      (pushed); VPS runs `main`. **Next (operator):** merge to main + deploy with
+      `UK_SOURCE_MODE=shadow` and `uk` in MARKETPLACES (suggest `FEED_PAGE_CAP_UK=2`); one live
+      UK feed check of avg[3][18]; ≥3 days shadow review; economics calls; DealFinder 049
+      (per-market notify baseline / dismiss scope) before `on`.*
 
 ### Anytime — cheap AFK filler
 

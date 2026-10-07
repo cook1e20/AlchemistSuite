@@ -206,7 +206,8 @@ per table is in §3.
 
 ### `deal_notifications` — notification dedupe. Owner: `DealFinder`
 
-- **PK:** `asin`. Columns: `notified_price_cents` (EUR cents), `notified_at`,
+- **PK:** `asin`. Columns: `notified_price_cents` (source-market minor unit of
+  `notified_marketplace`: EUR cents, or GBP pence for `uk` — §4), `notified_at`,
   `notified_marketplace`, `updated_at`. Written by DealFinder only; anon read-only.
 
 ### `ungating_opportunities` — gated-but-attractive deals. Owner: `DealFinder`
@@ -474,13 +475,20 @@ edge only.
 | `products` | `uk_current_price`, `uk_avg30_price`, `uk_breakeven_ex_vat`, `uk_breakeven_inc_vat`, `target_gb_price`, `target_gb_price_high`, `fba_pick_pack` | GBP **pence** (integer) |
 | `products` | `referral_pct` | numeric percentage |
 | `products` | `de/fr/it/es_360day_min` | EUR **cents** (legacy EU scan; `-1` = never scanned) |
-| `deals` | `eu_price_cents`, `avg30_price_cents`, `notified_price_cents`, `bought_price_cents` | EUR **cents** (buy side) |
+| `deals` | `eu_price_cents`, `avg30_price_cents`, `notified_price_cents`, `bought_price_cents` | **source-market minor unit, keyed by `marketplace`**: EUR **cents** for `de/fr/it/es`, GBP **pence** for `uk` (buy side) |
 | `deals` | `uk_*_pence`, all `eval_*_pence` | GBP **pence** (sell side) |
 | `deals` | `eval_roi`, `eval_per_seller_monthly_share` | fractions (×100 for %) |
-| `deal_notifications` | `notified_price_cents` | EUR **cents** |
-| `ungating_opportunities` | `eu_price_cents` | EUR **cents**; `uk_*_pence` GBP **pence** |
+| `deal_notifications` | `notified_price_cents` | unit of the row's `notified_marketplace` (EUR **cents**, or GBP **pence** for `uk`) |
+| `ungating_opportunities` | `eu_price_cents` | EUR **cents** (`uk`-sourced deals are never parked); `uk_*_pence` GBP **pence** |
 | `business_snapshots` | `bank`, `amazon_balance`, `fba_inventory`, `waiting_to_ship`, `amex_balance`, `cot_balance`, `net_invested`, `capital_injected`, `capital_withdrawn`, `total_cash`, `total_inventory`, `total_liabilities`, `total_capital`, `pnl` | GBP **pence** (integer, since dashboard migration `20260709150000`) |
 | `business_snapshots` | `roic_pct`, `inv_pct` | `numeric(6,2)` percentages |
+
+**UK→UK source market (DealFinder issue 048, 2026-10-07).** A `deals` row with
+`marketplace = 'uk'` is a UK Amazon price dip bought on amazon.co.uk: its buy-side price
+columns are GBP pence despite the `_cents`/`eu_` names. No schema change — consumers must
+read the unit off `marketplace`, never assume EUR (the dashboard formats via
+`formatMinor(marketplace, minor)`). `uk`-sourced rows never write `products` and never
+set `products.has_current_deal`.
 
 **Channel-neutral target price** (`products.target_gb_price`): the maximum **landed
 cost** at a **20% ROI floor** — `netUkProceeds / 1.20` — with **zero postage or
