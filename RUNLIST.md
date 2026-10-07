@@ -139,6 +139,14 @@ Live state at the reset: DB **472 MB of the 500 MB free cap** (read-only mode on
       UK feed check of avg[3][18]; ≥3 days shadow review; economics calls; DealFinder 049
       (per-market notify baseline / dismiss scope) before `on`.*
 
+- [ ] **R17. Clothing/footwear exclusion trial** (HITL, review ~2026-10-14) — operator call
+      2026-10-07: sized items passed on a variation family's shared sales rank, plus return
+      risk. `EXCLUDE_CATEGORIES_<M>` (83 de / 75 fr / 62 it / 71 es / 83 uk leaf nodes) live on
+      the VPS since 17:54 UTC; variation-child label in Discord + `variationPasses` funnel
+      count deployed (DealFinder 8706ca9). Review: passes/notifications per day vs 10-07,
+      residual apparel, non-apparel winners filling the gap; then keep/revert and decide
+      DealFinder issue 050 (reject unproven variation velocity). Blockers: a week of data.
+
 ### Anytime — cheap AFK filler
 
 - [x] **R13. `alchemist-v2/issues/035-bug-architecture-md-missing-analytics-wholesale-tables.md`**
