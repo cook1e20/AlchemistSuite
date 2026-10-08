@@ -152,12 +152,15 @@ Live state at the reset: DB **472 MB of the 500 MB free cap** (read-only mode on
       (alchemist-v2 f81375a, deployed) — it had run 21:00–08:45 UK, colliding with
       DealFinder 08:00–09:00 and idling 20:00–21:00.*
 
-- [ ] **R18. Turn UK Discord alerts on** (HITL, operator) — `UK_SOURCE_MODE=on` in
+- [x] **R18. Turn UK Discord alerts on** (HITL, operator) — `UK_SOURCE_MODE=on` in
       DealFinder's VPS `.env`, then restart. Operator call 2026-10-08 (don't wait the full 3
       days of shadow; first shadow pass, Glorious GMMK 3 Pro keyboard £69.99 → basis £151.56,
       38% ROI, looked right). Accepted risk: DealFinder 049 (shared per-ASIN notify
       baseline). Optional `ROI_FLOOR_UK` (per-market override exists) if 30% proves too
       strict — ~90 shadow pre-screen rejects sat at 1–29%.
+      *2026-10-08: done — `UK_SOURCE_MODE=on` 08:54 UTC, plus `DEDUCT_UK_INPUT_VAT=true` 09:13
+      (operator is VAT-registered). First UK alert 09:22: DYMO LabelWriter labels £102.29 →
+      basis £173.62, 30% ROI. Stage-1 UK screens rose 3–6 → 18/run.*
 - [ ] **R19. KeepaCompanion 002 + 003** (HITL) — Google search button per Product Finder
       row (EAN-first query, stamps Searched), then Google in a reused popup docked beside
       Keepa (can't be iframed). Blockers: none (003 after 002).
@@ -165,6 +168,13 @@ Live state at the reset: DB **472 MB of the 500 MB free cap** (read-only mode on
       realised net ROI per lot from the SP-API Finances API (fees, refunds, VAT), then a
       dashboard "how am I getting on" view. Today's lot ROI is gross and analytics hasn't
       run live since 2026-07-21. Blockers: BuySheet SKUs on real purchases; after 042.
+
+- [ ] **R21. Repricer (replace SellerFuse's)** (HITL, grill first) — root `issues/008-repricer.md`.
+      Rules engine: ROI floor ladder by days in stock (e.g. 30% to day 60, then 15%),
+      compete with other sellers not Amazon, manual "sell all" for old stock; ex-VAT ROI;
+      polling `getItemOffersBatch` (<100 SKUs), `patchListingsItem` writes, full decision
+      log, shadow → per-SKU handover. New sibling repo `Repricer`. Blockers: grill; cost
+      basis from R20 (043) ideally first.
 
 ### Anytime — cheap AFK filler
 
