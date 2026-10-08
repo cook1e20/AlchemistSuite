@@ -82,6 +82,11 @@ Live state at the reset: DB **472 MB of the 500 MB free cap** (read-only mode on
       alerts never show the FBA seller count or per-seller share. The SP-API offers
       batch already fetches it for ROI passers; persist it and show it on the embed.
       No new token or SP-API spend. Blockers: none.
+- [ ] **R23. `DealFinder/issues/052-roi-gap-vs-selleramp.md`** (HITL) — DealFinder's
+      ROI runs below SellerAmp's for the same deal (B01MSVHZTT: 43% vs 56%, £3.17 more
+      deducted). Reconcile against SAS's fee breakdown (operator supplies it), explain why
+      44/92 recent passes used the 300p FBA-fee default, then the operator picks the VAT
+      treatment to model. Blockers: none.
 - [ ] **R5. `alchemist-v2/issues/039-store-sales-rank-drops30-on-products.md`** (AFK,
       small) — was L1. Nullable column + one upsert field; data already parsed.
       Start early: R10 needs a full mine cycle of this data. Blockers: none.
