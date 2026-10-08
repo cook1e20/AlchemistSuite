@@ -62,7 +62,7 @@ Live state at the reset: DB **472 MB of the 500 MB free cap** (read-only mode on
 
 ### Next — token savings
 
-- [ ] **R4. DealFinder 041: shadow → enforce** (HITL, operator) —
+- [x] **R4. DealFinder 041: shadow → enforce** (HITL, operator) —
       `DealFinder/issues/041-sp-api-roi-pre-screen-in-funnel.md`. Code complete; the
       only open box is the operator switch after ≥24h of shadow with zero false
       rejects, then raising `FEED_PAGE_CAP`. Record both in the issue, move it to
@@ -73,6 +73,15 @@ Live state at the reset: DB **472 MB of the 500 MB free cap** (read-only mode on
       UK→UK "price recovery" source market (needs its own sell-basis model, not a
       config flip), `uk_fba_offer_count` null on every pass (competition blind),
       purchases not being marked bought (1 ever recorded).*
+      *2026-10-08: closed (DealFinder `c18c2cf`). Live `deals` since the 6-page raise:
+      ~11–13k/day pre-screen rejects, passes 1–13/day (33 on 10-07). Follow-ups:
+      UK→UK → DealFinder 048 (built); marked-bought → alchemist-v2 043 (R20);
+      competition blind spot → DealFinder 051 (R22).*
+- [ ] **R22. `DealFinder/issues/051-bug-fba-offer-count-never-persisted.md`** (auto,
+      bug, major) — `uk_fba_offer_count` has never been written on any `deals` row, so
+      alerts never show the FBA seller count or per-seller share. The SP-API offers
+      batch already fetches it for ROI passers; persist it and show it on the embed.
+      No new token or SP-API spend. Blockers: none.
 - [ ] **R5. `alchemist-v2/issues/039-store-sales-rank-drops30-on-products.md`** (AFK,
       small) — was L1. Nullable column + one upsert field; data already parsed.
       Start early: R10 needs a full mine cycle of this data. Blockers: none.
