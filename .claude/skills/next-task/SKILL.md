@@ -1,76 +1,134 @@
 ---
 name: next-task
-description: Pick and complete the next issue from the constellation RUNLIST.md (one interactive ralph iteration, executed in whichever child repo owns the issue). Use when the user says "next task" or wants to work the next queued issue with fresh context.
+description: Take over the session as the constellation overseer and work the RUNLIST.md queue — delegating implementation to the coder subagent (Sonnet) and QA to the reviewer subagent (Opus) — issue after issue until a blocker needs the user. Use when the user says "next task" or wants to work the queued issues.
+effort: medium
 ---
 
-# Next Task (constellation)
+# Next Task — constellation overseer
 
-Work exactly one issue from the constellation run list, inside the current session.
-This is the root-level variant of the child repos' `/next-task`: the queue lives in
-`RUNLIST.md` here, but implementation happens in the repo that owns the issue
-(`alchemist-v2/`, `DealFinder/`, `Alchemist_Dashboard/` — each its own git repo — or
-this root repo for root-owned issues).
+You are now the **overseer** for this session. You hold the context; subagents do the
+heavy lifting. Work the queue in `RUNLIST.md` issue after issue until you hit a blocker
+that needs the user, then stop and ask.
 
-## 1. Context check (do this first)
+The queue lives here at root, but implementation happens in the repo that owns each issue
+(`alchemist-v2/`, `DealFinder/`, `Alchemist_Dashboard/`, `KeepaCompanion/` — each its own
+git repo — or this root repo for root-owned issues).
 
-If this session already contains a completed `/next-task` iteration, or is otherwise
-long with unrelated work, do NOT start the task. Instead tell the user:
+## Your team
 
-> Context is carrying over from earlier work — run `/clear`, then `/next-task` again for
-> a fresh iteration.
+- **`coder`** (Sonnet) — implements one issue test-first in its owning repo, runs the
+  feedback loop, never commits. Also use it for smaller self-contained jobs: a spike, a
+  failing-test repro, a doc update, a bug-issue write-up.
+- **`reviewer`** (Opus) — read-only QA of uncommitted work against the issue and the
+  conventions; returns `VERDICT: APPROVE` or `CHANGES_REQUESTED` with numbered blocking
+  findings.
+- **`Explore`** — read-only sweeps when you need a fact from across many files.
 
-Fresh context per task is the point of the ralph loop; only proceed in a long session if
-the user explicitly says to.
+Keep your own context lean: delegate reading and coding, keep the decisions. Subagents
+start cold, so every brief must be self-contained (see step 3). Independent jobs (e.g.
+an investigation in one repo while the coder works in another) can run in parallel.
 
-## 2. Gather context
+## 1. Pick the next issue
 
-Run/read these fresh — do not rely on stale context:
+Read fresh each time — don't trust what you remember from earlier in the session:
 
-- `RUNLIST.md` — the ordered queue. The next task is the **topmost unchecked entry
-  whose blockers have landed**.
-- The chosen issue file itself, in full.
-- The owning repo's `CLAUDE.md` and (if present) `ralph/prompt.md` — its conventions
-  and loop govern the implementation.
-- `git log -n 5 --format="%H%n%ad%n%B---" --date=short` **in the owning repo** —
-  recent work and notes left for this iteration.
-- Root `CONTRACTS.md` if the issue touches any shared table, anon grant, stage name,
-  or money unit — cross-repo contracts are owned there.
+- `RUNLIST.md` — the "Run order" section is the queue. The next task is the **topmost
+  unchecked entry whose blockers have landed** and which has no `blocked:` note.
+- The chosen issue file, in full.
+- The owning repo's `CLAUDE.md` and (if present) `ralph/prompt.md` — conventions, feedback
+  loop, bug template.
+- `git -C <repo> log -n 5 --format="%H%n%ad%n%B---" --date=short` — recent notes.
+- Root `CONTRACTS.md` if the issue touches a shared table, anon grant, stage name or
+  money unit.
 
-Blocker check: don't just look at whether a blocking issue's file moved to `done/` —
-check whether the blocker's *stated reason* still holds against what actually got built
-(see alchemist-v2 `CLAUDE.md`; RUNLIST entry D1 is a live example of a stale blocker).
+Blocker check: don't just look at whether a blocker's file moved to `done/` — check
+whether its *stated reason* still holds against what was actually built (RUNLIST entry
+D1 is a live example of a stale blocker).
 
 Exception to queue order: a `severity: critical` bug in any repo's `issues/` jumps the
 queue.
 
-## 3. Run scope
+## 2. Pre-flight
 
-RUN SCOPE: interactive supervised run — AFK and HITL entries are both workable. For a
-HITL entry, surface the human-gated step (live grant change, token spend, business
-decision) to the user and get an explicit go-ahead **before** executing that step;
-build/test work around it can proceed normally.
+- `git -C <repo> status --porcelain` — record dirty paths as the **baseline**. That is
+  someone else's in-flight work: never stage, edit, revert or stash it. If it overlaps the
+  issue's files, that's a blocker — ask the user.
+- **HITL entries:** build/test work around the human-gated step can proceed. The gated
+  step itself (live grant change, migration apply, token spend, VPS/env change, business
+  decision) is a blocker: stop and ask for an explicit go-ahead before doing it.
+- **Root-owned issues** (this repo's `issues/*.md`) are coordination/docs only — no app
+  source or scripts at root. Do these yourself or via a small coder brief.
 
-Standing safety rule: never run alchemist-v2's `mine` or `import` stages as a "check" —
-`--dry-run` still spends real Keepa tokens until `alchemist-v2/issues/020` lands
-(CONTRACTS.md §5).
+Standing safety rules (pass them on in every brief):
 
-## 4. Execute (in the owning repo)
+- Never run alchemist-v2's `mine`, `import`, `full`, `commands`, `start` or `scheduler`
+  stages, nor DealFinder's `probe` — real Keepa tokens / production. alchemist-v2's
+  `--dry-run` has been spend-free since issue 020, but running a stage is still the
+  user's call, not a subagent's.
+- No live DB writes, no applying migrations, no `git push`, no history rewrites, no
+  committing `.env` or credentials — all of these need the user.
 
-- **Child-repo issue:** `cd` into that repo and follow its `ralph/prompt.md` exactly —
-  implement with `/tdd`, run its stated feedback loop (`npm test`, plus
-  `npm run typecheck` where the repo has one), commit **in that repo** with key
-  decisions / files changed / blockers, move the issue to its `issues/done/`, and do
-  the RECAP step (durable learnings into that repo's `CLAUDE.md`).
-- **Root-owned issue** (this repo's `issues/*.md`): coordination/docs only — no app
-  source or scripts belong at root. Complete the doc work, move the issue to
-  `issues/done/`, commit here.
+## 3. Delegate the build
 
-## 5. Close out
+Brief the `coder` with: owning repo path, issue path, acceptance criteria **quoted
+verbatim**, feedback-loop commands (`npm test`, plus `npm run typecheck` where the repo
+has one), the relevant `CLAUDE.md` / `CONTRACTS.md` rules **quoted, not pointed at**,
+baseline paths to leave alone, what is out of scope, and the safety rules. For large
+issues, split into slices and brief one slice at a time.
 
-- Tick the entry in `RUNLIST.md` and append a one-line result note (date + outcome or
-  follow-up issue filed); commit the runlist change in this root repo.
-- If the iteration changed a cross-repo contract (table shape, grant, stage name,
-  unit), update `CONTRACTS.md` in the same root commit or log a root issue for it.
+## 4. QA — when required
 
-ONLY WORK ON A SINGLE TASK. When done, remind the user to `/clear` before the next
-`/next-task`.
+The test suite proves the code does what the coder intended; review proves that's what
+the issue asked for. The reviewer (Opus, high effort) is the only QA beyond tests, so
+spend it where a miss is expensive:
+
+- **Always review:** money/pricing/ROI/VAT logic, shared contracts (`CONTRACTS.md`
+  tables, grants, stage names, units), migrations, and anything touching what gets
+  bought, sold or repriced.
+- **Overseer reads the diff instead:** UI-only, plumbing/wiring, refactors with no
+  behaviour change, docs, and mechanical changes. Read the full diff plus the tests
+  added; if anything looks off, escalate to the reviewer.
+- **When unsure, review.**
+
+Reviewer brief: repo, issue, acceptance criteria, conventions, baseline paths, and the
+coder's report. On `CHANGES_REQUESTED`, pass the blocking findings verbatim back to the
+coder (SendMessage to the same coder if still available), then re-review. Up to 3
+rounds. You arbitrate: overrule a finding that contradicts the issue or a documented
+convention, and record why in the commit. If it won't converge after 3 rounds, that's a
+blocker.
+
+## 5. Land it
+
+In the owning repo:
+
+1. Run the feedback loop yourself — don't trust reported results.
+2. Stage **only** the paths for this issue (never `git add -A` / `git add .`). Include the
+   issue's move to `issues/done/` (or a progress note in it if incomplete) and any
+   `CLAUDE.md` recap the coder made.
+3. Commit with key decisions, files changed, review rounds/overruled findings, blockers
+   or notes for next time, and any bug issues logged.
+
+In root:
+
+4. Tick the RUNLIST entry and append a one-line result note (date + outcome or follow-up
+   issue filed). If a cross-repo contract changed, update `CONTRACTS.md` in the same
+   commit. Commit only those files — root may have unrelated dirty files.
+
+Then give the user a one-paragraph status line and **go straight back to step 1**.
+
+## 6. When to stop
+
+Stop and ask the user — clearly stating what you need and your recommendation — when:
+
+- a HITL gate is reached (decision, live change, token spend);
+- the tree is dirty in a way that overlaps the work;
+- review won't converge, or the feedback loop can't be made green;
+- a blocker's reason still holds for every remaining entry;
+- nothing unchecked and unblocked is left in Run order.
+
+If a blocked entry has others workable below it, mark it in RUNLIST
+(`*YYYY-MM-DD blocked: <reason>*`), mention it, and move on to the next — only stop when
+nothing workable remains, or when the blocker is one the user should see now.
+
+If your own context is getting heavy, say so at the end of an issue and suggest `/clear`
+then `/next-task` to resume with a fresh overseer.
