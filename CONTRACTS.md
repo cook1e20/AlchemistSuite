@@ -477,7 +477,7 @@ edge only.
 | `products` | `de/fr/it/es_360day_min` | EUR **cents** (legacy EU scan; `-1` = never scanned) |
 | `deals` | `eu_price_cents`, `avg30_price_cents`, `notified_price_cents`, `bought_price_cents` | **source-market minor unit, keyed by `marketplace`**: EUR **cents** for `de/fr/it/es`, GBP **pence** for `uk` (buy side) |
 | `deals` | `uk_*_pence`, all `eval_*_pence` | GBP **pence** (sell side) |
-| `deals` | `eval_roi` | fraction (×100 for %) |
+| `deals` | `eval_roi` | fraction (×100 for %); profit ÷ **gross** cash cost (see VAT note below) |
 | `deals` | `eval_per_seller_monthly_share` | units/month per UK FBA seller (`monthly_sold / uk_fba_offer_count`; not ×100) |
 | `deal_notifications` | `notified_price_cents` | unit of the row's `notified_marketplace` (EUR **cents**, or GBP **pence** for `uk`) |
 | `ungating_opportunities` | `eu_price_cents` | EUR **cents** (`uk`-sourced deals are never parked); `uk_*_pence` GBP **pence** |
@@ -491,10 +491,29 @@ read the unit off `marketplace`, never assume EUR (the dashboard formats via
 `formatMinor(marketplace, minor)`). `uk`-sourced rows never write `products` and never
 set `products.has_current_deal`.
 
+**DealFinder VAT model (issue 052, 2026-10-08; DealFinder `b5344fb`).** One setting,
+`VAT_REGISTERED` (default true), drives both sides. No schema change, but the meanings of
+these `deals` columns change for rows evaluated after that deploy (older rows keep the old
+meanings until they are re-evaluated):
+- `eval_buy_cost_pence`: the checkout price, **gross** of any reclaim. For EU sources this
+  is listing × FX ÷ (1 + source VAT) × 1.2 (Amazon swaps to UK 20% for UK delivery). For
+  `uk` it is the listed price (no longer ÷ 1.2).
+- `eval_shipping_pence`: a VAT-inclusive quote.
+- `eval_landed_cost_pence`: **net** of the UK VAT reclaimed when registered, i.e. buy +
+  shipping + prep − reclaim. It is no longer the sum of its parts. The reclaim has no
+  column: derive it as buy + shipping + prep − landed (±1p).
+- `eval_net_proceeds_pence`: output VAT is deducted only when registered. It also carries
+  the SP-API closing/other fees (slice 1, no column; see DealFinder issue 054).
+- `eval_roi`: profit (`eval_net_proceeds_pence − eval_landed_cost_pence`) ÷ **gross** cash
+  cost (`eval_landed_cost_pence` + reclaim). This matches SellerAmp.
+Readers that show landed cost beside ROI must show the gross figure. Alchemist_Dashboard
+issue 019 tracks its deals view.
+
 **Channel-neutral target price** (`products.target_gb_price`): the maximum **landed
 cost** at a **20% ROI floor** — `netUkProceeds / 1.20` — with **zero postage or
-channel-specific cost baked in**. Server-computed only (alchemist-v2 miner, aligned with
-DealFinder's economics model). Each consumer (DealFinder EU probe, OA reverse sourcing,
+channel-specific cost baked in**. Server-computed only (alchemist-v2 miner; was aligned with
+DealFinder's economics model before DealFinder 052 moved its ROI to gross cost with a
+buy-side VAT reclaim, so the alignment needs re-checking). Each consumer (DealFinder EU probe, OA reverse sourcing,
 manual wholesale) subtracts its *own* costs downstream. Never bake one channel's cost
 into the stored price, and never recompute/"adjust" it in the UI.
 

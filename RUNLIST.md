@@ -86,12 +86,30 @@ Live state at the reset: DB **472 MB of the 500 MB free cap** (read-only mode on
       count + per-seller share persisted for priced passers and shown on the embed's FBA
       line. UK-source rows stay null (would need extra slow SP-API calls). Deploy-gated.
       Follow-up noted in the issue: re-screen can null the count but leave a stale share.*
-- [ ] **R23. `DealFinder/issues/052-roi-gap-vs-selleramp.md`** (auto; VAT decision made 2026-10-08) — DealFinder's
+- [x] **R23. `DealFinder/issues/052-roi-gap-vs-selleramp.md`** (auto; VAT decision made 2026-10-08) — DealFinder's
       ROI runs below SellerAmp's for the same deal (B01MSVHZTT: 43% vs 56%, £3.17 more
       deducted). Reconcile against SAS's fee breakdown (operator supplies it), explain why
       44/92 recent passes used the 300p FBA-fee default, then the operator picks the VAT
       treatment to model. Blockers: none.
       *2026-10-08: reconciled -- SAS reclaims input VAT (+3.90), DealFinder omits closing + digital services fees (-0.74). Operator is VAT-registered: reclaim UK VAT on EU item + shipping, add the missing fees. Ready to build.*
+      *2026-10-08: landed (DealFinder `526a0d4` fees, `b5344fb` VAT; both reviewed APPROVE, 557/557).
+      SP-API closing/other fees are now charged. `VAT_REGISTERED` (default true) drives sale +
+      buy VAT. ROI is on **gross** cash cost (overseer call: matches SAS and keeps the 30%
+      floor's meaning). B01MSVHZTT: 43% → 58% vs SAS 56%. **Deploy (operator):** remove
+      `DEDUCT_UK_INPUT_VAT` and any `DEDUCT_EU_VAT*` lines from the VPS `.env`; `=false` on the
+      UK flag would stop startup. Expect more EU alerts (a deal at 30% before reads ~45% now)
+      and UK-source ROI ~1/6 stricter. Follow-ups: R24 (053), R25 (054), R26 (Dashboard 019).*
+- [ ] **R24. `DealFinder/issues/053-bug-fee-fallback-no-sp-api-buy-box.md`** (auto, bug,
+      major) — 45 of 96 passes since 09-26 evaluated on the 300p FBA default, because fees
+      are only requested for ASINs with an SP-API buy box. Add a post-stage-2 `getUkFees`
+      batch for evaluated ASINs that lack fees, plus a `feeFallback` counter. It is extra
+      SP-API calls but no Keepa tokens. Blockers: none.
+- [ ] **R25. `DealFinder/issues/054-eval-other-fees-column-and-dst.md`** (HITL, minor) —
+      `deals.eval_other_fees_pence` migration (operator applies it) plus the digital services
+      fee knob decision. Blockers: operator migration.
+- [ ] **R26. `Alchemist_Dashboard/issues/019-bug-deals-landed-cost-net-beside-gross-roi.md`**
+      (auto, bug, minor) — show gross cost beside ROI after DealFinder 052. Blockers: none
+      (real effect only after the 052 deploy).
 - [ ] **R5. `alchemist-v2/issues/039-store-sales-rank-drops30-on-products.md`** (AFK,
       small) — was L1. Nullable column + one upsert field; data already parsed.
       Start early: R10 needs a full mine cycle of this data. Blockers: none.
