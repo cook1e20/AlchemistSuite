@@ -119,6 +119,11 @@ Live state at the reset: DB **472 MB of the 500 MB free cap** (read-only mode on
       deploy, then one overnight read-only check.** CONTRACTS.md §2 entry added.*
       *2026-10-07: migration confirmed live; code deployed (VPS alchemist-v2 6f32a15, was
       467b137 — 21+ commits behind, incl. the 038 eanList fix). Remaining: overnight check.*
+      *2026-10-08: overnight check FAILED — thousands of rows priced since deploy, 0 with
+      `uk_sales_rank_drops30`. Cause: `extractUkProduct` read the top level, Keepa nests it in
+      `stats`. Fixed as alchemist-v2 bug 044 (`3dbdba7`, 384/384). **Operator: deploy
+      alchemist-v2 `3dbdba7`, then re-run the overnight check.** R10's mine cycle of data
+      starts from that deploy.*
 - [ ] **R6. `alchemist-v2/issues/040-sp-api-pre-screen-before-keepa-mine.md`** (AFK) —
       was L2. Phase 1 (EAN with no UK ASIN → no token) first; Phase 2 only on
       measured evidence. Blockers: none.
