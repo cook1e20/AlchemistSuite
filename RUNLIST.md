@@ -146,6 +146,25 @@ Live state at the reset: DB **472 MB of the 500 MB free cap** (read-only mode on
       count deployed (DealFinder 8706ca9). Review: passes/notifications per day vs 10-07,
       residual apparel, non-apparel winners filling the gap; then keep/revert and decide
       DealFinder issue 050 (reject unproven variation velocity). Blockers: a week of data.
+      *2026-10-08: first runs — zero apparel among EU passes; but 5 of 7 passes at 18:14
+      were variation children that were good buys (shavers, headsets, watch, luggage), which
+      argues against 050's reject rule. Same day: miner cron fixed to Europe/London
+      (alchemist-v2 f81375a, deployed) — it had run 21:00–08:45 UK, colliding with
+      DealFinder 08:00–09:00 and idling 20:00–21:00.*
+
+- [ ] **R18. Turn UK Discord alerts on** (HITL, operator) — `UK_SOURCE_MODE=on` in
+      DealFinder's VPS `.env`, then restart. Operator call 2026-10-08 (don't wait the full 3
+      days of shadow; first shadow pass, Glorious GMMK 3 Pro keyboard £69.99 → basis £151.56,
+      38% ROI, looked right). Accepted risk: DealFinder 049 (shared per-ASIN notify
+      baseline). Optional `ROI_FLOOR_UK` (per-market override exists) if 30% proves too
+      strict — ~90 shadow pre-screen rejects sat at 1–29%.
+- [ ] **R19. KeepaCompanion 002 + 003** (HITL) — Google search button per Product Finder
+      row (EAN-first query, stamps Searched), then Google in a reused popup docked beside
+      Keepa (can't be iframed). Blockers: none (003 after 002).
+- [ ] **R20. `alchemist-v2/issues/043-realised-net-roi-per-lot.md`** (HITL, grill first) —
+      realised net ROI per lot from the SP-API Finances API (fees, refunds, VAT), then a
+      dashboard "how am I getting on" view. Today's lot ROI is gross and analytics hasn't
+      run live since 2026-07-21. Blockers: BuySheet SKUs on real purchases; after 042.
 
 ### Anytime — cheap AFK filler
 
