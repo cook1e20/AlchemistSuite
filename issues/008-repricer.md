@@ -90,7 +90,28 @@ on the VPS under PM2.
 - It is not part of alchemist-v2 (a catalog feeder) or DealFinder (a buy-side scanner),
   because repricing writes live prices and deserves its own process, kill switch and logs.
 
-## Open questions (grill before the PRD)
+## Grill answers (2026-10-08, operator)
+
+- **Amazon on the listing:** a per-rule-set setting. Default:
+  - ignore Amazon and target the next FBA seller;
+  - if there are no other sellers, and matching Amazon's price is within the rule's ROI
+    range, match Amazon;
+  - otherwise hold at the floor.
+- **Days in stock:** counted from when the units **arrived at FBA** (receive date / FBA
+  inventory age), not from the BuySheet purchase date. Mixed-age stock for one SKU: age the
+  oldest units first. Confirm the SP-API source in the PRD: the FBA Inventory
+  Summaries `inventoryDetails` doesn't carry receive dates, so this probably needs the
+  Inventory Ledger or the FBA inventory-age report.
+- **"Sell all":** floor = **lowest competitor**, i.e. clear the stock, triggered manually
+  per SKU. The global max/kill switch still applies. Open item: whether to keep an
+  optional per-SKU "never below £X" safety, given that lowest competitor can be below
+  cost.
+- **SellerFuse handover:** SellerFuse can exclude individual SKUs, so after shadow, hand
+  over SKU by SKU.
+
+## Open questions (still to settle in the PRD)
+
+Questions 1–3 and 6 below are answered above.
 
 1. **"Not with Amazon":** when Amazon retail is on the listing, should we
    - ignore Amazon and price against the other sellers only (we'll rarely win the buy box
