@@ -77,11 +77,15 @@ Live state at the reset: DB **472 MB of the 500 MB free cap** (read-only mode on
       ~11–13k/day pre-screen rejects, passes 1–13/day (33 on 10-07). Follow-ups:
       UK→UK → DealFinder 048 (built); marked-bought → alchemist-v2 043 (R20);
       competition blind spot → DealFinder 051 (R22).*
-- [ ] **R22. `DealFinder/issues/051-bug-fba-offer-count-never-persisted.md`** (auto,
+- [x] **R22. `DealFinder/issues/051-bug-fba-offer-count-never-persisted.md`** (auto,
       bug, major) — `uk_fba_offer_count` has never been written on any `deals` row, so
       alerts never show the FBA seller count or per-seller share. The SP-API offers
       batch already fetches it for ROI passers; persist it and show it on the embed.
       No new token or SP-API spend. Blockers: none.
+      *2026-10-08: landed (DealFinder `f160cd4`, reviewed APPROVE, 518/518) — offers-batch
+      count + per-seller share persisted for priced passers and shown on the embed's FBA
+      line. UK-source rows stay null (would need extra slow SP-API calls). Deploy-gated.
+      Follow-up noted in the issue: re-screen can null the count but leave a stale share.*
 - [ ] **R23. `DealFinder/issues/052-roi-gap-vs-selleramp.md`** (auto; VAT decision made 2026-10-08) — DealFinder's
       ROI runs below SellerAmp's for the same deal (B01MSVHZTT: 43% vs 56%, £3.17 more
       deducted). Reconcile against SAS's fee breakdown (operator supplies it), explain why

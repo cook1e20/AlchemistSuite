@@ -477,7 +477,8 @@ edge only.
 | `products` | `de/fr/it/es_360day_min` | EUR **cents** (legacy EU scan; `-1` = never scanned) |
 | `deals` | `eu_price_cents`, `avg30_price_cents`, `notified_price_cents`, `bought_price_cents` | **source-market minor unit, keyed by `marketplace`**: EUR **cents** for `de/fr/it/es`, GBP **pence** for `uk` (buy side) |
 | `deals` | `uk_*_pence`, all `eval_*_pence` | GBP **pence** (sell side) |
-| `deals` | `eval_roi`, `eval_per_seller_monthly_share` | fractions (×100 for %) |
+| `deals` | `eval_roi` | fraction (×100 for %) |
+| `deals` | `eval_per_seller_monthly_share` | units/month per UK FBA seller (`monthly_sold / uk_fba_offer_count`; not ×100) |
 | `deal_notifications` | `notified_price_cents` | unit of the row's `notified_marketplace` (EUR **cents**, or GBP **pence** for `uk`) |
 | `ungating_opportunities` | `eu_price_cents` | EUR **cents** (`uk`-sourced deals are never parked); `uk_*_pence` GBP **pence** |
 | `business_snapshots` | `bank`, `amazon_balance`, `fba_inventory`, `waiting_to_ship`, `amex_balance`, `cot_balance`, `net_invested`, `capital_injected`, `capital_withdrawn`, `total_cash`, `total_inventory`, `total_liabilities`, `total_capital`, `pnl` | GBP **pence** (integer, since dashboard migration `20260709150000`) |
