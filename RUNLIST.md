@@ -1,8 +1,10 @@
 # Constellation run list
 
 Ordered queue for working the open issues across the constellation, one per fresh
-session. Usage: `/next-task` from this root directory works the **topmost unchecked,
-unblocked entry**, in the repo that owns it; `/clear` between iterations. Tick the box
+session. Usage, from this root directory: `/next-task` works the **topmost unchecked,
+unblocked entry** in the repo that owns it (`/clear` between entries);
+`/next-task-overseer` works entries in a row via coder/reviewer subagents until a
+blocker needs you. Labels: `auto` (no human gate; older entries say AFK) or `HITL`. Tick the box
 (and add a one-line result note) when the issue lands.
 
 Priorities set 2026-07-15 (constellation review). Reorder freely — this file is the

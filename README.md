@@ -19,14 +19,16 @@ repos stay independent and are intentionally ignored by this repo.
   before touching anything shared.
 - **`issues/constellation-prd.md`** — system-level intent behind the constellation.
 - **`RUNLIST.md`** — the ordered work queue across all three repos (`/next-task` works
-  the topmost unblocked entry).
+  the topmost unblocked entry; `/next-task-overseer` works several in a row).
 - **`VERIFICATION.md`** — the live-service check runbook.
 - Each child repo's `CLAUDE.md` has a Constellation section stating its ownership
   boundary and pointing back here.
 
 ## Workflow
 
-Use the same Claude/Ralph method as the child projects:
+Use the same starter-kit method as the child projects (synced from
+`../Project starter kit` with its `sync.sh`; root-specific overrides in
+`.claude/kit-exclude`):
 
 1. Capture cross-repo intent in `issues/constellation-prd.md`.
 2. Break system work into coordination issues under `issues/`.

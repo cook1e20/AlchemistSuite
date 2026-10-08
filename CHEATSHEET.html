@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Starter Kit Flow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root {
+  --bg: #f4f6f5;
+  --surface: #ffffff;
+  --ink: #1b2124;
+  --muted: #5b6669;
+  --line: #d9dfdd;
+  --accent: #23577f;
+  --accent-soft: #e3edf5;
+  --code-bg: #eaefed;
+  --auto: #2c7352;
+  --auto-soft: #e1f0e8;
+  --hitl: #9a5c12;
+  --hitl-soft: #f7ebda;
+  --warn: #a3392b;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121618; --surface: #1a1f22; --ink: #e4e9e8; --muted: #98a3a5; --line: #2c3437;
+    --accent: #7fb3dc; --accent-soft: #1d2d3a; --code-bg: #232a2d;
+    --auto: #7cc9a3; --auto-soft: #18291f; --hitl: #e0aa63; --hitl-soft: #2e2416; --warn: #e5826f;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121618; --surface: #1a1f22; --ink: #e4e9e8; --muted: #98a3a5; --line: #2c3437;
+  --accent: #7fb3dc; --accent-soft: #1d2d3a; --code-bg: #232a2d;
+  --auto: #7cc9a3; --auto-soft: #18291f; --hitl: #e0aa63; --hitl-soft: #2e2416; --warn: #e5826f;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 15px/1.55 "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  padding: 0 16px;
+}
+.wrap { max-width: 1080px; margin: 0 auto; padding-block: 40px 64px; display: grid; gap: 44px; }
+h1, h2, h3 { text-wrap: balance; margin: 0; line-height: 1.2; }
+h1 { font-size: clamp(1.7rem, 4vw, 2.3rem); font-weight: 700; letter-spacing: -0.01em; }
+h2 { font-size: 1.25rem; font-weight: 600; }
+h3 { font-size: 1rem; font-weight: 600; }
+p { margin: 0; }
+.eyebrow { font: 500 0.75rem/1 "IBM Plex Mono", ui-monospace, monospace; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+header { display: grid; gap: 10px; }
+header p { color: var(--muted); max-width: 64ch; }
+section { display: grid; gap: 16px; }
+.section-head { display: grid; gap: 4px; }
+.section-head p { color: var(--muted); max-width: 70ch; }
+
+code, .cmd {
+  font-family: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: 0.86em;
+}
+code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+.cmd {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--accent-soft); color: var(--accent);
+  border: 1px solid transparent; border-radius: 5px;
+  padding: 2px 8px; font-weight: 500; cursor: pointer; white-space: nowrap;
+}
+.cmd:hover { border-color: var(--accent); }
+.cmd:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.cmd.copied::after { content: "copied"; font-size: 0.75em; color: var(--muted); }
+
+/* Main flow */
+.flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.phase {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+  padding: 18px; display: grid; gap: 12px; align-content: start;
+}
+.phase-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.phase .when { font-size: 0.8rem; color: var(--muted); }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.steps li { display: grid; gap: 3px; }
+.steps .out { font-size: 0.85rem; color: var(--muted); }
+.rule {
+  font-size: 0.82rem; color: var(--ink); background: var(--code-bg);
+  border-radius: 6px; padding: 8px 10px;
+}
+.rule strong { font-weight: 600; }
+.arrow { color: var(--muted); font-size: 0.8rem; }
+
+/* Situation table */
+.table-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+table { width: 100%; border-collapse: collapse; min-width: 560px; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+th { font: 500 0.72rem/1.2 "IBM Plex Mono", monospace; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); background: var(--bg); }
+td:first-child { width: 34%; }
+td:nth-child(2) { width: 22%; }
+td .note { color: var(--muted); font-size: 0.88rem; }
+
+/* Two-column lower area */
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 18px; display: grid; gap: 12px; align-content: start; }
+.panel ul, .panel ol { margin: 0; padding-left: 1.2em; display: grid; gap: 8px; }
+.panel li { padding-left: 2px; }
+.tag { font: 500 0.72rem/1 "IBM Plex Mono", monospace; padding: 3px 6px; border-radius: 4px; letter-spacing: 0.04em; }
+.tag.auto { background: var(--auto-soft); color: var(--auto); }
+.tag.hitl { background: var(--hitl-soft); color: var(--hitl); }
+.tag.crit { background: var(--hitl-soft); color: var(--warn); }
+
+.tree {
+  font: 0.84rem/1.6 "IBM Plex Mono", ui-monospace, monospace;
+  background: var(--code-bg); border-radius: 6px; padding: 12px 14px; margin: 0;
+  overflow-x: auto; white-space: pre;
+}
+.tree .c { color: var(--muted); }
+
+footer { color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--line); padding-top: 16px; }
+
+@media (max-width: 900px) { .flow { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 640px) { .flow, .cols { grid-template-columns: 1fr; } .wrap { padding-block: 24px 48px; gap: 36px; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">project-starter-kit &middot; cheat sheet</span>
+  <h1>Idea to live site, in order</h1>
+  <p>Planning happens in one unbroken session. Building happens one ticket per fresh context. Shipping is always your call. Click any command to copy it.</p>
+</header>
+
+<section aria-labelledby="flow-h">
+  <div class="section-head">
+    <h2 id="flow-h">The main flow</h2>
+    <p>Four stages, run in this order for every feature.</p>
+  </div>
+  <div class="flow">
+    <article class="phase">
+      <div class="phase-top"><h3>1. Plan</h3><span class="when">one session</span></div>
+      <ol class="steps">
+        <li><span><button class="cmd">/grill-with-docs</button></span><span class="out">Answer rounds of questions until nothing is assumed. Writes <code>GLOSSARY.md</code> and <code>docs/adr/</code> as terms and decisions settle.</span></li>
+        <li><span><button class="cmd">/to-spec</button></span><span class="out">Writes <code>issues/spec.md</code> from the grilling. Confirms the test seams with you first.</span></li>
+        <li><span><button class="cmd">/to-tickets</button></span><span class="out">Splits the spec into <code>issues/NNN-*.md</code>, each marked auto or HITL with its blockers. Approve the breakdown.</span></li>
+      </ol>
+      <p class="rule"><strong>Don't /clear</strong> between these three. If context gets heavy, <code>/compact</code> after a step finishes.</p>
+    </article>
+
+    <article class="phase">
+      <div class="phase-top"><h3>2. Build</h3><span class="when">one ticket, or the queue</span></div>
+      <ol class="steps">
+        <li><span><button class="cmd">/clear</button> <span class="arrow">then</span> <button class="cmd">/next-task</button></span><span class="out">You build one ticket directly, commit, stop. Repeat per ticket.</span></li>
+        <li><span><button class="cmd">/next-task-overseer</button></span><span class="out">Works the queue: Sonnet <code>coder</code> builds, Opus <code>reviewer</code> checks risky changes. Stops at HITL gates and blockers. Run <code>/triage-bugs</code> first.</span></li>
+      </ol>
+      <p class="rule">Each ticket: <code>/tdd</code> at the agreed seams, tests and typecheck, commit, move the ticket to <code>issues/done/</code>, note anything durable in <code>CLAUDE.md</code>.</p>
+    </article>
+
+    <article class="phase">
+      <div class="phase-top"><h3>3. Ship</h3><span class="when">when you say so</span></div>
+      <ol class="steps">
+        <li><span><button class="cmd">/ship</button></span><span class="out">Typecheck, tests, build and a secrets scan; then push to <code>main</code>, wait for the Vercel build, and check the production URL in Chrome.</span></li>
+      </ol>
+      <p class="rule"><strong>Pushing is deploying.</strong> The build skills only commit locally; nothing reaches Vercel until you run <code>/ship</code>.</p>
+    </article>
+
+    <article class="phase">
+      <div class="phase-top"><h3>4. Look back</h3><span class="when">same session</span></div>
+      <ol class="steps">
+        <li><span><button class="cmd">/retro</button></span><span class="out">Suggests fixes to the setup, not the code: missing checks, CLAUDE.md pointers, skill tweaks. Most severe first.</span></li>
+      </ol>
+      <p class="rule">Run it before you <code>/clear</code>, especially after a session that went sideways.</p>
+    </article>
+  </div>
+</section>
+
+<section aria-labelledby="sit-h">
+  <div class="section-head">
+    <h2 id="sit-h">When this happens, run this</h2>
+    <p>Everything outside the main flow.</p>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Situation</th><th>Run</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td>Stress-testing an idea with no repo, or not about code</td><td><button class="cmd">/grill-me</button></td><td>Same grilling rounds, no glossary or ADRs written.</td></tr>
+        <tr><td>Can't decide until you see it or click through it</td><td><button class="cmd">/prototype</button></td><td>Throwaway code: several UI variants on one route, or one HTML file to drive the logic. Fold the verdict back into the grilling.</td></tr>
+        <tr><td>Spotted a bug mid-task</td><td><button class="cmd">/log-bug</button></td><td>Files <code>issues/NNN-bug-*.md</code> with a severity and goes back to work. Doesn't fix it.</td></tr>
+        <tr><td>Bug backlog building up, or about to run <code>/next-task-overseer</code></td><td><button class="cmd">/triage-bugs</button></td><td>Dedupes, checks each bug still reproduces, sets honest severities.</td></tr>
+        <tr><td>A hard, flaky, or slow bug</td><td><button class="cmd">/diagnosing-bugs</button></td><td>Builds a command that fails on this exact bug before forming any theory, then fixes it with a regression test.</td></tr>
+        <tr><td>Third-party keys, accounts, or Vercel env vars to set up</td><td><button class="cmd">/wizard</button></td><td>Generates a step-by-step script that opens each page, captures values, writes <code>.env</code> and runs <code>vercel env add</code>.</td></tr>
+        <tr><td>Codebase getting hard to change</td><td><button class="cmd">/improve-codebase-architecture</button></td><td>Finds places to deepen modules. Take a candidate into <code>/grill-with-docs</code>.</td></tr>
+        <tr><td>Designing a module's interface</td><td><button class="cmd">/codebase-design</button></td><td>Reference for deep modules, seams and "design it twice". Also used by <code>/tdd</code>.</td></tr>
+        <tr><td>Changing project vocabulary or recording a decision</td><td><button class="cmd">/domain-modeling</button></td><td>Updates <code>GLOSSARY.md</code>; offers an ADR only when hard to reverse, surprising, and a real trade-off.</td></tr>
+        <tr><td>Writing a skill or editing <code>CLAUDE.md</code></td><td><button class="cmd">/writing-for-agents</button></td><td>Style guide for anything an agent will read.</td></tr>
+        <tr><td><code>NODE_MODULE_VERSION</code> or better-sqlite3 binding errors</td><td><button class="cmd">/better-sqlite3-rebuild</button></td><td>Rebuilds the native module for the current Node.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section aria-labelledby="rules-h">
+  <div class="section-head"><h2 id="rules-h">Rules of thumb</h2></div>
+  <div class="cols">
+    <div class="panel">
+      <h3>Tickets and the loop</h3>
+      <ul>
+        <li><span class="tag auto">auto</span> builds with no human input. <span class="tag hitl">HITL</span> has a gated step the build stops at: a decision, a review, or a manual step such as creating an account.</li>
+        <li><span class="tag crit">critical</span> bugs jump the queue. Major and minor wait in the polish tier. When in doubt, minor.</li>
+        <li>One ticket per commit. Bugs found along the way get logged, never fixed in passing.</li>
+        <li>A ticket that won't fit in one fresh context is too big: split it in <code>/to-tickets</code>.</li>
+        <li>Tests go only at the seams agreed in the spec.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Vercel</h3>
+      <ul>
+        <li>Push to <code>main</code> deploys production; any other branch gets a preview.</li>
+        <li>Set env vars with the value piped in: <code>printf '%s' "$V" | vercel env add NAME production</code>. Pasting into the dashboard can store empty values that look correct.</li>
+        <li>Every env var goes in <code>.env.example</code> with a placeholder. Only that env file is committed.</li>
+        <li>Check the production alias, not the generated URL. On Hobby the generated URLs show an SSO page.</li>
+        <li>The alias can serve the old build for a few seconds after the deploy. Retry once before calling it broken.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="setup-h">
+  <div class="section-head"><h2 id="setup-h">New project, first time</h2></div>
+  <div class="cols">
+    <div class="panel">
+      <ol>
+        <li><button class="cmd">./bootstrap.sh ~/codeProjects/my-app</button> from the kit folder. Never overwrites existing files.</li>
+        <li>Fill in the one-paragraph description at the top of <code>CLAUDE.md</code>.</li>
+        <li>Create the GitHub repo and push the first commit.</li>
+        <li><button class="cmd">vercel link</button>, then connect the repo under Settings &rarr; Git. Private repos need the Vercel GitHub App granted access.</li>
+        <li>Env vars through <code>/wizard</code> or <code>vercel env add</code>; then <code>vercel env pull</code> for local dev.</li>
+        <li>Start the main flow at <code>/grill-with-docs</code>.</li>
+      </ol>
+    </div>
+    <div class="panel">
+      <h3>Where things live</h3>
+<pre class="tree">CLAUDE.md          <span class="c">workflow + learned gotchas</span>
+GLOSSARY.md        <span class="c">domain vocabulary (lazy)</span>
+docs/adr/          <span class="c">decisions not to revisit (lazy)</span>
+issues/spec.md     <span class="c">the current spec</span>
+issues/NNN-*.md    <span class="c">open tickets and bugs</span>
+issues/done/       <span class="c">finished tickets</span>
+.claude/agents/    <span class="c">coder + reviewer subagents</span>
+.claude/skills/    <span class="c">every slash command here</span>
+.env.example       <span class="c">every env var, placeholders</span></pre>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Planning skills adapted from mattpocock/skills v1.3 (MIT) for local issues and Vercel. Source of truth for the flow: <code>CLAUDE.md</code>.
+</footer>
+</div>
+
+<script>
+document.querySelectorAll('.cmd').forEach(function (el) {
+  el.type = 'button';
+  el.addEventListener('click', function () {
+    var text = el.textContent.trim();
+    var done = function () { el.classList.add('copied'); setTimeout(function () { el.classList.remove('copied'); }, 1200); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(function () { selectText(el); });
+    } else { selectText(el); }
+  });
+});
+function selectText(el) {
+  var r = document.createRange(); r.selectNodeContents(el);
+  var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+}
+</script>
+</body>
+</html>

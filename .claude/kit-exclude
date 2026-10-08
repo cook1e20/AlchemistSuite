@@ -1,0 +1,15 @@
+# Constellation root: coordination only, no app code. Keep the RUNLIST-based
+# build skills and agents; skip skills that only make sense inside an app repo
+# (the child repos' skills are picked up there when working in them).
+next-task
+next-task-overseer
+coder
+reviewer
+ship
+wizard
+tdd
+prototype
+diagnosing-bugs
+codebase-design
+improve-codebase-architecture
+better-sqlite3-rebuild

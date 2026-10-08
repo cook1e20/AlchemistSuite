@@ -1,134 +1,53 @@
 ---
 name: next-task
-description: Take over the session as the constellation overseer and work the RUNLIST.md queue — delegating implementation to the coder subagent (Sonnet) and QA to the reviewer subagent (Opus) — issue after issue until a blocker needs the user. Use when the user says "next task" or wants to work the queued issues.
-effort: medium
+description: Pick the next RUNLIST.md entry and complete it directly in this session — one issue, in the repo that owns it, then stop. Use when the user says "next task" or wants one queued issue worked. For working several in a row with coder/reviewer subagents, use /next-task-overseer.
 ---
 
-# Next Task — constellation overseer
+# Next Task (constellation)
 
-You are now the **overseer** for this session. You hold the context; subagents do the
-heavy lifting. Work the queue in `RUNLIST.md` issue after issue until you hit a blocker
-that needs the user, then stop and ask.
+Work exactly one entry from `RUNLIST.md`, yourself. The queue lives here at root, but
+implementation happens in the repo that owns the issue (`alchemist-v2/`, `DealFinder/`,
+`Alchemist_Dashboard/`, `KeepaCompanion/` — each its own git repo — or this root repo for
+root-owned issues).
 
-The queue lives here at root, but implementation happens in the repo that owns each issue
-(`alchemist-v2/`, `DealFinder/`, `Alchemist_Dashboard/`, `KeepaCompanion/` — each its own
-git repo — or this root repo for root-owned issues).
+## 1. Context check (do this first)
 
-## Your team
+If this session already contains a completed `/next-task` iteration, or is otherwise long
+with unrelated work, do NOT start. Tell the user:
 
-- **`coder`** (Sonnet) — implements one issue test-first in its owning repo, runs the
-  feedback loop, never commits. Also use it for smaller self-contained jobs: a spike, a
-  failing-test repro, a doc update, a bug-issue write-up.
-- **`reviewer`** (Opus) — read-only QA of uncommitted work against the issue and the
-  conventions; returns `VERDICT: APPROVE` or `CHANGES_REQUESTED` with numbered blocking
-  findings.
-- **`Explore`** — read-only sweeps when you need a fact from across many files.
+> Context is carrying over from earlier work — run `/clear`, then `/next-task` again for
+> a fresh iteration.
 
-Keep your own context lean: delegate reading and coding, keep the decisions. Subagents
-start cold, so every brief must be self-contained (see step 3). Independent jobs (e.g.
-an investigation in one repo while the coder works in another) can run in parallel.
+## 2. Pick the issue
 
-## 1. Pick the next issue
+Follow step 1 ("Pick the next issue") of `.claude/skills/next-task-overseer/SKILL.md` —
+read it fresh. It covers RUNLIST order, blocker checks against what was actually built,
+the critical-bug exception, and what to read in the owning repo.
 
-Read fresh each time — don't trust what you remember from earlier in the session:
+## 3. Pre-flight
 
-- `RUNLIST.md` — the "Run order" section is the queue. The next task is the **topmost
-  unchecked entry whose blockers have landed** and which has no `blocked:` note.
-- The chosen issue file, in full.
-- The owning repo's `CLAUDE.md` and (if present) `ralph/prompt.md` — conventions, feedback
-  loop, bug template.
-- `git -C <repo> log -n 5 --format="%H%n%ad%n%B---" --date=short` — recent notes.
-- Root `CONTRACTS.md` if the issue touches a shared table, anon grant, stage name or
-  money unit.
+- `git -C <repo> status --porcelain` — dirty paths are someone else's in-flight work:
+  never stage, edit, revert or stash them. If they overlap the issue's files, ask.
+- **HITL entries:** build/test work around the gated step can proceed. The gated step
+  itself (live grant change, migration apply, token spend, VPS/env change, business
+  decision) needs an explicit go-ahead first.
+- **Safety:** never run alchemist-v2's `mine`, `import`, `full`, `commands`, `start` or
+  `scheduler` stages, nor DealFinder's `probe` — real Keepa tokens / production. No live
+  DB writes, no applying migrations, no `git push`, no committing `.env` or credentials.
+- **Root-owned issues** are coordination/docs only — no app source or scripts at root.
 
-Blocker check: don't just look at whether a blocker's file moved to `done/` — check
-whether its *stated reason* still holds against what was actually built (RUNLIST entry
-D1 is a live example of a stale blocker).
+## 4. Build (in the owning repo)
 
-Exception to queue order: a `severity: critical` bug in any repo's `issues/` jumps the
-queue.
+Follow that repo's `/next-task` skill (`<repo>/.claude/skills/next-task/SKILL.md`)
+sections 4–6: `/tdd` (or `/diagnosing-bugs` for a bug), its feedback loop from its
+`CLAUDE.md`, bugs logged not fixed, issue to `issues/done/`, `CLAUDE.md` recap, and a
+commit in that repo staging only this issue's paths.
 
-## 2. Pre-flight
+## 5. Close out at root
 
-- `git -C <repo> status --porcelain` — record dirty paths as the **baseline**. That is
-  someone else's in-flight work: never stage, edit, revert or stash it. If it overlaps the
-  issue's files, that's a blocker — ask the user.
-- **HITL entries:** build/test work around the human-gated step can proceed. The gated
-  step itself (live grant change, migration apply, token spend, VPS/env change, business
-  decision) is a blocker: stop and ask for an explicit go-ahead before doing it.
-- **Root-owned issues** (this repo's `issues/*.md`) are coordination/docs only — no app
-  source or scripts at root. Do these yourself or via a small coder brief.
+Tick the RUNLIST entry and append a one-line result note (date + outcome or follow-up
+issue filed). If a cross-repo contract changed, update `CONTRACTS.md` in the same commit.
+Commit only those files.
 
-Standing safety rules (pass them on in every brief):
-
-- Never run alchemist-v2's `mine`, `import`, `full`, `commands`, `start` or `scheduler`
-  stages, nor DealFinder's `probe` — real Keepa tokens / production. alchemist-v2's
-  `--dry-run` has been spend-free since issue 020, but running a stage is still the
-  user's call, not a subagent's.
-- No live DB writes, no applying migrations, no `git push`, no history rewrites, no
-  committing `.env` or credentials — all of these need the user.
-
-## 3. Delegate the build
-
-Brief the `coder` with: owning repo path, issue path, acceptance criteria **quoted
-verbatim**, feedback-loop commands (`npm test`, plus `npm run typecheck` where the repo
-has one), the relevant `CLAUDE.md` / `CONTRACTS.md` rules **quoted, not pointed at**,
-baseline paths to leave alone, what is out of scope, and the safety rules. For large
-issues, split into slices and brief one slice at a time.
-
-## 4. QA — when required
-
-The test suite proves the code does what the coder intended; review proves that's what
-the issue asked for. The reviewer (Opus, high effort) is the only QA beyond tests, so
-spend it where a miss is expensive:
-
-- **Always review:** money/pricing/ROI/VAT logic, shared contracts (`CONTRACTS.md`
-  tables, grants, stage names, units), migrations, and anything touching what gets
-  bought, sold or repriced.
-- **Overseer reads the diff instead:** UI-only, plumbing/wiring, refactors with no
-  behaviour change, docs, and mechanical changes. Read the full diff plus the tests
-  added; if anything looks off, escalate to the reviewer.
-- **When unsure, review.**
-
-Reviewer brief: repo, issue, acceptance criteria, conventions, baseline paths, and the
-coder's report. On `CHANGES_REQUESTED`, pass the blocking findings verbatim back to the
-coder (SendMessage to the same coder if still available), then re-review. Up to 3
-rounds. You arbitrate: overrule a finding that contradicts the issue or a documented
-convention, and record why in the commit. If it won't converge after 3 rounds, that's a
-blocker.
-
-## 5. Land it
-
-In the owning repo:
-
-1. Run the feedback loop yourself — don't trust reported results.
-2. Stage **only** the paths for this issue (never `git add -A` / `git add .`). Include the
-   issue's move to `issues/done/` (or a progress note in it if incomplete) and any
-   `CLAUDE.md` recap the coder made.
-3. Commit with key decisions, files changed, review rounds/overruled findings, blockers
-   or notes for next time, and any bug issues logged.
-
-In root:
-
-4. Tick the RUNLIST entry and append a one-line result note (date + outcome or follow-up
-   issue filed). If a cross-repo contract changed, update `CONTRACTS.md` in the same
-   commit. Commit only those files — root may have unrelated dirty files.
-
-Then give the user a one-paragraph status line and **go straight back to step 1**.
-
-## 6. When to stop
-
-Stop and ask the user — clearly stating what you need and your recommendation — when:
-
-- a HITL gate is reached (decision, live change, token spend);
-- the tree is dirty in a way that overlaps the work;
-- review won't converge, or the feedback loop can't be made green;
-- a blocker's reason still holds for every remaining entry;
-- nothing unchecked and unblocked is left in Run order.
-
-If a blocked entry has others workable below it, mark it in RUNLIST
-(`*YYYY-MM-DD blocked: <reason>*`), mention it, and move on to the next — only stop when
-nothing workable remains, or when the blocker is one the user should see now.
-
-If your own context is getting heavy, say so at the end of an issue and suggest `/clear`
-then `/next-task` to resume with a fresh overseer.
+ONLY WORK ON A SINGLE ENTRY. When done, remind the user to `/clear` before the next
+`/next-task`.

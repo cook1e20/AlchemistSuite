@@ -1,6 +1,6 @@
 ---
 name: reviewer
-description: Read-only QA reviewer for the constellation /next-task overseer. Reviews the coder's uncommitted changes in the owning repo against the issue's acceptance criteria and repo conventions, and returns APPROVE or CHANGES_REQUESTED.
+description: Read-only QA reviewer for the constellation /next-task-overseer. Reviews the coder's uncommitted changes in the owning repo against the issue's acceptance criteria and repo conventions, and returns APPROVE or CHANGES_REQUESTED.
 model: opus
 effort: high
 tools: Read, Glob, Grep, Bash
