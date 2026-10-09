@@ -112,9 +112,12 @@ Live state at the reset: DB **472 MB of the 500 MB free cap** (read-only mode on
 - [ ] **R25. `DealFinder/issues/054-eval-other-fees-column-and-dst.md`** (HITL, minor) —
       `deals.eval_other_fees_pence` migration (operator applies it) plus the digital services
       fee knob decision. Blockers: operator migration.
-- [ ] **R26. `Alchemist_Dashboard/issues/019-bug-deals-landed-cost-net-beside-gross-roi.md`**
+- [x] **R26. `Alchemist_Dashboard/issues/019-bug-deals-landed-cost-net-beside-gross-roi.md`**
       (auto, bug, minor) — show gross cost beside ROI after DealFinder 052. Blockers: none
       (real effect only after the 052 deploy).
+      *2026-10-09: landed (Alchemist_Dashboard 5d9ec28, 187/187). `grossCostPence` = buy +
+      shipping + prep (falls back to landed) on the deal view model; the deals table renders
+      no landed column today, so any future cost-beside-ROI display must use it.*
 - [ ] **R5. `alchemist-v2/issues/039-store-sales-rank-drops30-on-products.md`** (AFK,
       small) — was L1. Nullable column + one upsert field; data already parsed.
       Start early: R10 needs a full mine cycle of this data. Blockers: none.
