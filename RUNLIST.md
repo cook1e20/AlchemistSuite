@@ -150,6 +150,53 @@ Live state at the reset: DB **472 MB of the 500 MB free cap** (read-only mode on
       *2026-10-07: rotation env confirmed live on the VPS in both repos (miner 20–08,
       DealFinder pause 20–08). Remaining: record the final hit rate, close.*
 
+### Wholesale pre-screen (queued 2026-10-09)
+
+Spec: `issues/spec-wholesale-prescreen.md` (grilled Q1–Q16). Terms: `GLOSSARY.md`. SP-API
+window split: `docs/adr/0001-sp-api-pricing-window-split.md`. Goal: a free SP-API pass over
+supplier stock lists so Keepa tokens go only on a shortlist, without touching DealFinder's
+SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
+
+- [ ] **R27. `Alchemist_Dashboard/issues/020-bug-wholesale-ean-normalisation.md`** (auto,
+      bug, major) — 11-digit barcodes are dropped and 12-digit ones are never padded (Bliss:
+      205 dropped, 31 missed). Blockers: none.
+- [ ] **R28. `alchemist-v2/issues/045-wholesale-prescreen-catalog-stage.md`** (auto) —
+      job and line tables, the `wholesale_prescreen` command and the catalog stage
+      (barcode → ≤3 ASINs, BSR cut). No pricing calls. Blockers: none.
+- [ ] **R29. `Alchemist_Dashboard/issues/021-wholesale-prescreen-button-and-results.md`**
+      (auto) — narrow anon `commands` policy, the Pre-screen button and the results view.
+      Blockers: R28.
+- [ ] **R30. `alchemist-v2/issues/046-wholesale-prescreen-night-pricing-and-shortlist.md`**
+      (auto) — 20–08 window, competitivePrice and fees, ROI under the VAT model, shortlist →
+      `queue_backfill_ean`. Blockers: R28.
+- [ ] **R31. `alchemist-v2/issues/047-wholesale-prescreen-gating-and-discord-summary.md`**
+      (auto, minor) — night gating check on the shortlist, plus a Discord funnel message.
+      Blockers: R30.
+- [ ] **R32. `Alchemist_Dashboard/issues/022-wholesale-prescreen-morning-view-and-stop-auto-queue.md`**
+      (auto) — morning merge with `products`; the scan stops auto-queueing and gets a
+      "queue all" override. Blockers: R29, R30.
+- [ ] **R33. `alchemist-v2/issues/048-wholesale-prescreen-reuse-and-purge.md`** (auto,
+      minor) — reuse on re-upload, 14-day purge. Blockers: R30.
+- [ ] **R34. `alchemist-v2/issues/049-bug-not-found-spike-2026-10-08.md`** (auto, bug,
+      major) — 10-08 mine: 13,581 not-found vs 2,239 enriched. Possibly false 90-day
+      parking. Blockers: none.
+- [ ] **R35. Wholesale pre-screen go-live** (HITL, operator):
+      - Apply the alchemist-v2 table migration, then the dashboard anon-policy migration,
+        live. Check `service_role` grants (see the dashboard CLAUDE.md).
+      - Deploy alchemist-v2.
+      - Confirm whether DealFinder and alchemist-v2 use the same LWA client id on the VPS
+        (ADR 0001).
+      - Run the Bliss list end to end: daytime funnel, then the 20:30 Discord message,
+        then the morning view.
+      - Check that DealFinder's `run_log` shows no 429 spike.
+
+      Blockers: R27–R33.
+- [ ] **R36. Keepa plan decision** (HITL, operator) — measure the shortlist token use over
+      2–3 stock lists, then decide whether to put the cancelled-subscription money
+      (£50–90/month) into a bigger Keepa plan. If shortlists are a few hundred lines,
+      21 tokens/min already clears them, and extra tokens would only speed up the ~906k
+      backlog (~65 nights at 2026-10-09 rates). Blockers: R35.
+
 ### Then — decisions and features
 
 - [ ] **R8. Arbisource export gating** (HITL) — was K3, root `issues/006`. Now
