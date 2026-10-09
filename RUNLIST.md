@@ -157,9 +157,13 @@ window split: `docs/adr/0001-sp-api-pricing-window-split.md`. Goal: a free SP-AP
 supplier stock lists so Keepa tokens go only on a shortlist, without touching DealFinder's
 SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
 
-- [ ] **R27. `Alchemist_Dashboard/issues/020-bug-wholesale-ean-normalisation.md`** (auto,
+- [x] **R27. `Alchemist_Dashboard/issues/020-bug-wholesale-ean-normalisation.md`** (auto,
       bug, major) — 11-digit barcodes are dropped and 12-digit ones are never padded (Bliss:
       205 dropped, 31 missed). Blockers: none.
+      *2026-10-09: landed (Alchemist_Dashboard 3c89ce5, 207/207, reviewed 2 rounds). 11/12-digit
+      codes pad to GTIN-13, lookup tries GTIN-13 + raw + unpadded-12, "No barcode" stat added. CSV
+      uploads now read as text, so lossy `5.01235E+12` cells count as no barcode instead of a
+      made-up EAN. Not browser-checked: the 5-stat scan summary.*
 - [ ] **R28. `alchemist-v2/issues/045-wholesale-prescreen-catalog-stage.md`** (auto) —
       job and line tables, the `wholesale_prescreen` command and the catalog stage
       (barcode → ≤3 ASINs, BSR cut). No pricing calls. Blockers: none.
