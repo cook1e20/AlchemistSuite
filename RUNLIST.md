@@ -164,9 +164,12 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       codes pad to GTIN-13, lookup tries GTIN-13 + raw + unpadded-12, "No barcode" stat added. CSV
       uploads now read as text, so lossy `5.01235E+12` cells count as no barcode instead of a
       made-up EAN. Not browser-checked: the 5-stat scan summary.*
-- [ ] **R28. `alchemist-v2/issues/045-wholesale-prescreen-catalog-stage.md`** (auto) —
+- [x] **R28. `alchemist-v2/issues/045-wholesale-prescreen-catalog-stage.md`** (auto) —
       job and line tables, the `wholesale_prescreen` command and the catalog stage
       (barcode → ≤3 ASINs, BSR cut). No pricing calls. Blockers: none.
+      *2026-10-09: landed (alchemist-v2 92a1890 + 3bfb343, 438/438, reviewed 2 rounds). Migration
+      written, **not applied** (R35). Payload keys + tables pinned in CONTRACTS.md §2/§3 — 021 must
+      match. Catalog fixture is schema-derived: record a real searchCatalogItems response at go-live.*
 - [ ] **R29. `Alchemist_Dashboard/issues/021-wholesale-prescreen-button-and-results.md`**
       (auto) — narrow anon `commands` policy, the Pre-screen button and the results view.
       Blockers: R28.

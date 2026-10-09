@@ -152,6 +152,14 @@ per table is in §3.
   are tolerated; `ean` is mandatory (the RLS policy checks `payload ? 'ean'`).
 - Anon has **no SELECT** on `commands` — the dashboard tracks its own queued EANs in
   localStorage by design.
+- **`wholesale_prescreen`** (alchemist-v2 issue 045, 2026-10-09; anon insert not yet
+  allowed: the dashboard's policy migration is issue 021). Payload, pinned on both sides:
+  `{list_name, vat_basis: 'ex_vat'|'inc_vat', bsr_ceiling?, roi_floor?, lines: [{barcode,
+  cost_pence, stock?, description?}]}`. `cost_pence` is a non-negative integer (GBP pence);
+  `roi_floor` is a **fraction** (0.2 = 20%; accepted 0 ≤ x < 5); `bsr_ceiling` defaults to
+  `WHOLESALE_PRESCREEN_BSR_CEILING` (150000). Over `WHOLESALE_PRESCREEN_MAX_LINES` (10000)
+  lines → a `failed` job with a reason and the command `failed`. The worker drains up to 3
+  per `commands` run, after the backfill rows.
 
 ### `run_log` — Alchemist operational status. Owner: `alchemist-v2`
 
@@ -270,6 +278,32 @@ per table is in §3.
   so scans cost no SP-API calls. New checks still go only through `gating-check` (§3),
   which holds the SP-API credentials — the dashboard's "Check gating" button calls it for
   deals with no verdict.
+
+### `wholesale_prescreen_jobs`, `wholesale_prescreen_lines` — wholesale pre-screen. Owner: `alchemist-v2`
+
+- Migration `alchemist-v2/migrations/2026-10-09-create-wholesale-prescreen-tables.sql`
+  (issue 045; **written, not yet applied** — RUNLIST R35). Spec: root
+  `issues/spec-wholesale-prescreen.md`.
+- **Jobs:** `id` uuid, `list_name`, `command_id` (text, no FK), `status`
+  (`running` → `catalog_done` → `pricing` → `completed`, or `failed` + `failure_reason`),
+  settings `vat_basis`, `bsr_ceiling`, `roi_floor` (fraction), and funnel counts
+  (`lines_total`, `lines_no_barcode`, `lines_looked_up`, `lines_lookup_failed`,
+  `lines_no_asin`, `asins_found`, `bsr_too_high`, `awaiting_pricing`, `roi_below_floor`,
+  `shortlisted`, `ungated`) updated per chunk so the dashboard can show progress. A job
+  where every lookup, or over half of them, failed ends `failed` (SP-API outage), never
+  `catalog_done`. A retried command first marks its own stale `running` job `failed`.
+- **Lines:** one row per supplier line × ASIN (≤3 ASINs per barcode). `raw_barcode`,
+  `gtin13`, `supplier_cost_pence` (integer GBP pence), `stock`, `description`, `asin`
+  (null for `no_barcode` / `no_asin` / `lookup_failed`), `title`, `bsr` (best UK
+  main-category rank, null = unknown, fails open), `dimensions` jsonb, pricing columns
+  `buy_box_pence`, `fees_pence`, `optimistic_roi`, `roi` (fractions; null until the
+  night stage, issue 046), `verdict` in (`no_barcode`, `no_asin`, `lookup_failed`,
+  `bsr_too_high`, `awaiting_pricing`, `roi_below_floor`, `shortlisted`,
+  `shortlisted_unknown`), `reason`.
+- `no_asin` is the job's own verdict: the pre-screen **never** calls `markNotFound` on
+  `products`. Its only `products` write is `uk_asin` on existing rows whose `uk_asin` is
+  null, and only when the barcode resolved to exactly one ASIN.
+- Writes are service-role only (explicit grants). Anon is SELECT-only (§3).
 
 ### `asin_tracker` — manual per-ASIN triage state. Owner: `KeepaCompanion`
 
@@ -439,6 +473,7 @@ checked), with `asin_tracker` added and verified live 2026-09-19:
 | `analytics_cache` | SELECT only | grant: SELECT + `USING (true)` read policy (alchemist-v2 migration `2026-07-21-create-analytics-cache.sql`) |
 | `ungate_log` | SELECT only | grant: SELECT + `USING (true)` read policy (dashboard migration `20260924120000`) — Wholesale Search Gate column |
 | `gating_status` | SELECT only | grant: SELECT + `USING (true)` read policy (dashboard migration `20260925120000`) — Wholesale Search Gate column; writes only via `gating-check` |
+| `wholesale_prescreen_jobs`, `wholesale_prescreen_lines` | SELECT only | grant: SELECT + `USING (true)` read policy (alchemist-v2 migration `2026-10-09-create-wholesale-prescreen-tables.sql`, **not yet applied**); default anon/authenticated privileges revoked |
 | `asin_tracker` | SELECT / INSERT / UPDATE (no DELETE) | grants + permissive `using(true)` policies (KeepaCompanion migration `20260919220000`); the `status` CHECK constraint is what bounds the values. Accepted for single-user triage data, same call as `business_snapshots`. |
 
 Everything else (`scout_log`, `tracking_log_archived`):
