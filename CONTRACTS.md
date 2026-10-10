@@ -152,14 +152,20 @@ per table is in §3.
   are tolerated; `ean` is mandatory (the RLS policy checks `payload ? 'ean'`).
 - Anon has **no SELECT** on `commands` — the dashboard tracks its own queued EANs in
   localStorage by design.
-- **`wholesale_prescreen`** (alchemist-v2 issue 045, 2026-10-09; anon insert not yet
-  allowed: the dashboard's policy migration is issue 021). Payload, pinned on both sides:
+- **`wholesale_prescreen`** (alchemist-v2 issue 045, 2026-10-09; anon insert policy
+  written in dashboard migration `20261010120000_commands_anon_insert_wholesale_prescreen.sql`,
+  issue 021, **not yet applied**). Payload, pinned on both sides:
   `{list_name, vat_basis: 'ex_vat'|'inc_vat', bsr_ceiling?, roi_floor?, lines: [{barcode,
-  cost_pence, stock?, description?}]}`. `cost_pence` is a non-negative integer (GBP pence);
+  cost_pence, stock?, description?}]}`. `cost_pence` is a non-negative integer (GBP pence) **or null** (null = cost unknown; the line still gets ASIN/BSR);
   `roi_floor` is a **fraction** (0.2 = 20%; accepted 0 ≤ x < 5); `bsr_ceiling` defaults to
   `WHOLESALE_PRESCREEN_BSR_CEILING` (150000). Over `WHOLESALE_PRESCREEN_MAX_LINES` (10000)
   lines → a `failed` job with a reason and the command `failed`. The worker drains up to 3
   per `commands` run, after the backfill rows.
+  **Job correlation:** `commands.id` is a server-side identity and anon cannot SELECT, so
+  the insert cannot return it. The dashboard embeds a random ref in `list_name`
+  (`<name> [ref:xxxxxxxx]`); the worker copies `list_name` (trimmed only) onto the job row and the
+  dashboard finds its job in `wholesale_prescreen_jobs` by that suffix. Do not rewrite
+  `list_name` in the worker beyond trimming.
 
 ### `run_log` — Alchemist operational status. Owner: `alchemist-v2`
 
@@ -461,7 +467,7 @@ checked), with `asin_tracker` added and verified live 2026-09-19:
 
 | Table | Anon may | Enforced by |
 |---|---|---|
-| `commands` | INSERT only | grant: INSERT; policy `WITH CHECK (type = 'queue_backfill_ean' AND status = 'pending' AND payload ? 'ean')`. No SELECT/UPDATE/DELETE. |
+| `commands` | INSERT only | grant: INSERT; two separate insert policies. (1) `WITH CHECK (type = 'queue_backfill_ean' AND status = 'pending' AND payload ? 'ean')`. (2) `"anon can queue wholesale_prescreen commands"`: `WITH CHECK (type = 'wholesale_prescreen' AND status = 'pending' AND payload.list_name non-empty string AND payload.vat_basis IN ('ex_vat','inc_vat') AND jsonb_array_length(payload.lines) BETWEEN 1 AND 10000)` (dashboard migration `20261010120000_commands_anon_insert_wholesale_prescreen.sql`, **written, not yet applied**; policy 1 unchanged). No SELECT/UPDATE/DELETE. |
 | `deals` | SELECT all; UPDATE **columns** `status, bought_price_cents, bought_quantity, bought_at, dismissed_at` | column-scoped UPDATE grant; policy `USING (status IN ('new','notified')) WITH CHECK (status IN ('bought','dismissed'))` |
 | `business_snapshots` | SELECT / INSERT / UPDATE / DELETE | table grants (TRUNCATE revoked); permissive `using(true)` policy — accepted for single-user finance data |
 | `deal_notifications` | SELECT only | grant + read policy |

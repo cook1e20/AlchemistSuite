@@ -170,9 +170,13 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       *2026-10-09: landed (alchemist-v2 92a1890 + 3bfb343, 438/438, reviewed 2 rounds). Migration
       written, **not applied** (R35). Payload keys + tables pinned in CONTRACTS.md §2/§3 — 021 must
       match. Catalog fixture is schema-derived: record a real searchCatalogItems response at go-live.*
-- [ ] **R29. `Alchemist_Dashboard/issues/021-wholesale-prescreen-button-and-results.md`**
+- [x] **R29. `Alchemist_Dashboard/issues/021-wholesale-prescreen-button-and-results.md`**
       (auto) — narrow anon `commands` policy, the Pre-screen button and the results view.
       Blockers: R28.
+      *2026-10-10: landed (Alchemist_Dashboard 7c5092d, 248/248, reviewed 2 rounds). Migration
+      `20261010120000` written, **not applied** (R35). The job is found by a `[ref:…]` suffix on
+      `list_name` (anon can't read `commands`). Barcodes are sent unpadded. The cost column follows
+      the VAT toggle. Visual check used a stubbed host; there is no live check until R35.*
 - [ ] **R30. `alchemist-v2/issues/046-wholesale-prescreen-night-pricing-and-shortlist.md`**
       (auto) — 20–08 window, competitivePrice and fees, ROI under the VAT model, shortlist →
       `queue_backfill_ean`. Blockers: R28.
