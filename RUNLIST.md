@@ -192,9 +192,13 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       `logic.mjs` with no copy and no redeploy. `completed` now means priced + gated + summary posted.
       A Discord post can be missed but never doubled. An outage is never counted against an ASIN
       (liveness probe). No migration.*
-- [ ] **R32. `Alchemist_Dashboard/issues/022-wholesale-prescreen-morning-view-and-stop-auto-queue.md`**
+- [x] **R32. `Alchemist_Dashboard/issues/022-wholesale-prescreen-morning-view-and-stop-auto-queue.md`**
       (auto) — morning merge with `products`; the scan stops auto-queueing and gets a
       "queue all" override. Blockers: R29, R30.
+      *2026-10-12: landed (Alchemist_Dashboard c7b209b, 274/274, reviewed 2 rounds). The scan never
+      auto-queued; "Queue all" is now behind a confirm with a token estimate. The morning view shows
+      "ROI vs target" (Keepa, profit ÷ ex-VAT cost) and "SP-API ROI" (046, profit ÷ gross cost)
+      side by side, labelled. They differ by 1.2×; follow-up R39.*
 - [ ] **R33. `alchemist-v2/issues/048-wholesale-prescreen-reuse-and-purge.md`** (auto,
       minor) — reuse on re-upload, 14-day purge. Blockers: R30.
 - [ ] **R34. `alchemist-v2/issues/049-bug-not-found-spike-2026-10-08.md`** (auto, bug,
@@ -221,6 +225,10 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       stale rows) don't jump the miner queue, because `upsertBareProduct` never resets
       `last_mined_at`. Without this the morning view is thin for most Qogita lines.
       Blockers: R30.
+- [ ] **R39. `Alchemist_Dashboard/issues/023-bug-scan-roi-vat-basis.md`** (HITL, bug, minor) —
+      the scan's Keepa-target ROI is profit ÷ ex-VAT cost, and uses the inc-VAT price raw on
+      inc-VAT-only files. The server and SellerAmp use profit ÷ gross cash cost. Operator picks the
+      basis, then build. Blockers: operator decision.
 - [ ] **R38. `DealFinder/issues/056-bug-sp-api-prescreen-not-gated-to-0800-2000.md`** (auto,
       bug, minor) — DealFinder's SP-API pre-screen runs 05–08 and 20–21, overlapping
       alchemist-v2's ADR 0001 window. Do this before R35, or watch for 429s at go-live.
