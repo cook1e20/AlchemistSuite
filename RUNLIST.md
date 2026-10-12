@@ -177,9 +177,14 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       `20261010120000` written, **not applied** (R35). The job is found by a `[ref:…]` suffix on
       `list_name` (anon can't read `commands`). Barcodes are sent unpadded. The cost column follows
       the VAT toggle. Visual check used a stubbed host; there is no live check until R35.*
-- [ ] **R30. `alchemist-v2/issues/046-wholesale-prescreen-night-pricing-and-shortlist.md`**
+- [x] **R30. `alchemist-v2/issues/046-wholesale-prescreen-night-pricing-and-shortlist.md`**
       (auto) — 20–08 window, competitivePrice and fees, ROI under the VAT model, shortlist →
       `queue_backfill_ean`. Blockers: R28.
+      *2026-10-12: landed (alchemist-v2 2835312, 529/529, reviewed 3 rounds). Runs at the tail of the
+      commands tick, only 20:00–08:00 London time. No schema change. B01MSVHZTT ROI 0.5618 (SAS 56%). An SP-API or LWA
+      outage can't fail lines open; only a batch that keeps failing does, 20 ASINs at a time.
+      **Operator call:** the spec's 15% optimistic referral cuts sub-£10 beauty lines (UK fee 8%)
+      without a fees call. Keep it, or lower it to ~8%? Follow-ups: R37, R38.*
 - [ ] **R31. `alchemist-v2/issues/047-wholesale-prescreen-gating-and-discord-summary.md`**
       (auto, minor) — night gating check on the shortlist, plus a Discord funnel message.
       Blockers: R30.
@@ -207,6 +212,15 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       (£50–90/month) into a bigger Keepa plan. If shortlists are a few hundred lines,
       21 tokens/min already clears them, and extra tokens would only speed up the ~906k
       backlog (~65 nights at 2026-10-09 rates). Blockers: R35.
+- [ ] **R37. `alchemist-v2/issues/050-wholesale-prescreen-shortlist-priority-for-existing-products.md`**
+      (auto, major) — shortlisted barcodes that already exist in `products` (Qogita bulk or
+      stale rows) don't jump the miner queue, because `upsertBareProduct` never resets
+      `last_mined_at`. Without this the morning view is thin for most Qogita lines.
+      Blockers: R30.
+- [ ] **R38. `DealFinder/issues/056-bug-sp-api-prescreen-not-gated-to-0800-2000.md`** (auto,
+      bug, minor) — DealFinder's SP-API pre-screen runs 05–08 and 20–21, overlapping
+      alchemist-v2's ADR 0001 window. Do this before R35, or watch for 429s at go-live.
+      Blockers: none.
 
 ### Then — decisions and features
 

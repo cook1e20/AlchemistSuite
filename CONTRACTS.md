@@ -42,6 +42,8 @@ is a snapshot, refreshed when re-verified.
 | Deal review actions (buy/dismiss), wholesale matching, command insertion, status rendering | `Alchemist_Dashboard` |
 | `wholesale_sync_requests` (schema); `qogita-catalog-webhook` Edge Function | `Alchemist_Dashboard` |
 | Qogita catalog-download submit/ingest (`wholesale-sync` stage, Phase 3) | `alchemist-v2` |
+| SP-API `competitivePrice` + `getMyFeesEstimates` (pricing/fees) **20:00–08:00 UK** — wholesale pre-screen night stage; see §5 and [ADR 0001](docs/adr/0001-sp-api-pricing-window-split.md) | `alchemist-v2` |
+| SP-API `competitivePrice` + `getMyFeesEstimates` (pricing/fees) **08:00–20:00 UK** — the hourly probe's SP-API pre-screen | `DealFinder` |
 | SP-API `analytics` stage (`analytics_cache` snapshot) | `alchemist-v2` |
 | `gating_status` (schema + semantics); `gating-check` Edge Function | `alchemist-v2` |
 | Keepa Product Finder browser columns; `asin_tracker` (schema + semantics) | `KeepaCompanion` |
@@ -306,6 +308,28 @@ per table is in §3.
   night stage, issue 046), `verdict` in (`no_barcode`, `no_asin`, `lookup_failed`,
   `bsr_too_high`, `awaiting_pricing`, `roi_below_floor`, `shortlisted`,
   `shortlisted_unknown`), `reason`.
+- **Night pricing stage (alchemist-v2 issue 046, inside the §5 SP-API window only):** takes
+  jobs in `catalog_done`/`pricing` (job status → `pricing` → `completed`; a job stays `pricing`
+  across ticks/nights while lines remain `awaiting_pricing`). Per line × ASIN it fills
+  `buy_box_pence`, `optimistic_roi`, then (survivors) `fees_pence` (total SP-API fees, ex VAT,
+  integer pence) and `roi`, and sets the verdict: `roi_below_floor` (reason says "optimistic"
+  or "real"), `shortlisted`, or `shortlisted_unknown` (SP-API could not price it, fees
+  unavailable, or `supplier_cost_pence` null/0 — only if its BSR passed, else `bsr_too_high`).
+  `shortlisted` on the job counts both shortlisted verdicts. A null `roi_floor` on the job
+  means `WHOLESALE_PRESCREEN_ROI_FLOOR` (default 0.2). **VAT model (DealFinder 052,
+  VAT-registered):** gross cash cost = cost × 1.2 for `ex_vat`, as given for `inc_vat`; output
+  VAT comes off the buy box (÷ 1.2), input VAT is reclaimed (gross ÷ 1.2), fees are ex-VAT;
+  `roi` = profit ÷ gross cash cost. `optimistic_roi` = buy box − 15% referral − 100p minimum
+  FBA fee. The UK digital services fee is not in SP-API's response and is not modelled
+  (DealFinder issue 054), so `roi` is slightly generous. Shortlisted and `shortlisted_unknown`
+  barcodes (`gtin13`, deduped, check digit valid) are queued as service-role-inserted
+  `commands` rows `{type: 'queue_backfill_ean', payload: {ean}, status: 'pending'}` — no
+  `uk_asin`/`brand` — so the commands stage makes the bare rows. **Priority caveat:** only an EAN not already in
+  `products` gets a fresh row with `last_mined_at` null (the miner's front-of-queue tier 0,
+  issue 027). `upsertBareProduct` is insert-only (`ignoreDuplicates`) and never resets
+  `last_mined_at`, so a shortlisted barcode that already exists (Qogita bulk-loaded, or stale)
+  keeps its place in the miner's queue and is NOT prioritised - tracked as alchemist-v2
+  issue 050. No schema change.
 - `no_asin` is the job's own verdict: the pre-screen **never** calls `markNotFound` on
   `products`. Its only `products` write is `uk_asin` on existing rows whose `uk_asin` is
   null, and only when the barcode resolved to exactly one ASIN.
@@ -590,6 +614,37 @@ One Keepa account (one token bucket) is shared deliberately:
   (first canonical `run_log` row at 08:00:00Z) — `--dry-run` is now genuinely
   spend-free on the deployed scheduler too. Re-verify via VERIFICATION.md §2.2 after
   any future deploy before trusting dry-run on the server.
+
+### SP-API pricing/fees window (ADR 0001, alchemist-v2 issue 046)
+
+DealFinder and alchemist-v2 share one seller account, so they share the SP-API
+`competitivePrice` and `getMyFeesEstimates` allowances (0.5 req/s each). They are split by
+**time window, not throttled** — [ADR 0001](docs/adr/0001-sp-api-pricing-window-split.md):
+
+- **DealFinder owns both operations 08:00–20:00 UK**; **alchemist-v2 owns them 20:00–08:00 UK**
+  (matches the Keepa rotation above). Wholesale pre-screen results for prices, fees and the
+  Keepa shortlist therefore arrive from ~20:00, not straight away.
+- alchemist-v2's window is env-tunable, `SP_API_WINDOW_START_HOUR` / `SP_API_WINDOW_END_HOUR`
+  (default 20 / 8; UK local time via `Intl` `Europe/London`, DST-safe; start inclusive, end
+  exclusive, wraps midnight; equal = closed). Moving either project's edge without the other
+  puts both on the same allowance — **widening it is a contract change**.
+- **No pricing or fees call outside the window, ever.** Enforced twice in alchemist-v2: the
+  night stage (`stage-wholesale-pricing.js`, run on the `commands` tick) does nothing outside
+  it, and `sp-api.js` re-checks immediately before every request (a run that crosses 08:00
+  stops mid-job; unfinished lines stay `awaiting_pricing` for the next night's tick).
+- **Open gap (DealFinder side, found 2026-10-10):** DealFinder's only stand-down is the Keepa
+  overnight pause (21:00–05:00, §5 above), which skips the whole tick. Its SP-API pre-screen
+  has no 08:00–20:00 gate of its own, so it still runs 05:00–08:00 and 20:00–21:00 — hours
+  alchemist-v2 now also uses. A 429 there falls through to Keepa (never a false reject, per
+  the ADR), but the split is only half-enforced until DealFinder gates its pre-screen to
+  08:00–20:00. alchemist-v2 cannot fix this; it needs a DealFinder issue.
+- The **catalog lookup** (`searchCatalogItems`) is not windowed: DealFinder never calls it.
+  The pre-screen's catalog stage runs any hour; it takes turns with the miner's catalog
+  pre-screen through the in-process `catalog-lock.js` mutex.
+- No new `run_log` stage: the night pricing work rides the existing `commands` stage
+  (`run_log.stats` gains `prescreenPriced`, `prescreenFeesFetched`, `prescreenShortlisted`,
+  `prescreenRoiBelowFloor`, `prescreenQueued`, `prescreenQueueSkipped`,
+  `prescreenJobsCompleted`, `prescreenPricingThrottled`).
 
 ## 6. Discrepancies found during live verification (2026-07-15)
 
