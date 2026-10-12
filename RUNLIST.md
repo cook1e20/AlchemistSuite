@@ -185,9 +185,13 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       outage can't fail lines open; only a batch that keeps failing does, 20 ASINs at a time.
       **Operator call:** the spec's 15% optimistic referral cuts sub-£10 beauty lines (UK fee 8%)
       without a fees call. Keep it, or lower it to ~8%? Follow-ups: R37, R38.*
-- [ ] **R31. `alchemist-v2/issues/047-wholesale-prescreen-gating-and-discord-summary.md`**
+- [x] **R31. `alchemist-v2/issues/047-wholesale-prescreen-gating-and-discord-summary.md`**
       (auto, minor) — night gating check on the shortlist, plus a Discord funnel message.
       Blockers: R30.
+      *2026-10-12: landed (alchemist-v2 35df6c0, 565/565, reviewed 2 rounds). Reuses the edge function's
+      `logic.mjs` with no copy and no redeploy. `completed` now means priced + gated + summary posted.
+      A Discord post can be missed but never doubled. An outage is never counted against an ASIN
+      (liveness probe). No migration.*
 - [ ] **R32. `Alchemist_Dashboard/issues/022-wholesale-prescreen-morning-view-and-stop-auto-queue.md`**
       (auto) — morning merge with `products`; the scan stops auto-queueing and gets a
       "queue all" override. Blockers: R29, R30.

@@ -280,10 +280,16 @@ per table is in §3.
   **`null` = the check did not complete** (auth failure, throttle, HTTP error). A null
   row is never a verdict and must never be treated as fresh — retry it. The
   `gating-check` edge function only persists completed checks.
-- Writes are service-role only (the `gating-check` edge function). Anon is
+- Writes are service-role only: the `gating-check` edge function, and (since alchemist-v2
+  issue 047) the wholesale pre-screen's night gating (`stage-wholesale-gating.js`, inside the
+  §5 SP-API window only). Both write the same columns with the same semantics, because Node
+  imports the edge function's own `logic.mjs` (`gating-logic.js`): `interpretRestrictions`,
+  the freshness rule (`splitByFreshness`, 30-day default TTL, `gated = null` never fresh) and
+  `REQUEST_SPACING_MS` have ONE copy. Only completed checks (`gated !== null`) are persisted;
+  `approval_links` is left untouched. Anon is
   **SELECT-only** since 2026-09-25 (dashboard migration `20260925120000`): Wholesale
   Search's Gate column reads cached verdicts directly, preferring them over `ungate_log`,
-  so scans cost no SP-API calls. New checks still go only through `gating-check` (§3),
+  so scans cost no SP-API calls. Browser-initiated checks go only through `gating-check` (§3); the night pre-screen writer above is server-side,
   which holds the SP-API credentials — the dashboard's "Check gating" button calls it for
   deals with no verdict.
 
@@ -309,7 +315,7 @@ per table is in §3.
   `bsr_too_high`, `awaiting_pricing`, `roi_below_floor`, `shortlisted`,
   `shortlisted_unknown`), `reason`.
 - **Night pricing stage (alchemist-v2 issue 046, inside the §5 SP-API window only):** takes
-  jobs in `catalog_done`/`pricing` (job status → `pricing` → `completed`; a job stays `pricing`
+  jobs in `catalog_done`/`pricing` (job status → `pricing`, completed by the 047 gating/summary step below; a job stays `pricing`
   across ticks/nights while lines remain `awaiting_pricing`). Per line × ASIN it fills
   `buy_box_pence`, `optimistic_roi`, then (survivors) `fees_pence` (total SP-API fees, ex VAT,
   integer pence) and `roi`, and sets the verdict: `roi_below_floor` (reason says "optimistic"
@@ -330,6 +336,17 @@ per table is in §3.
   `last_mined_at`, so a shortlisted barcode that already exists (Qogita bulk-loaded, or stale)
   keeps its place in the miner's queue and is NOT prioritised - tracked as alchemist-v2
   issue 050. No schema change.
+- **Night gating + summary (alchemist-v2 issue 047, same SP-API window):** once a job has no
+  `awaiting_pricing` lines, the worker checks listing restrictions for every `shortlisted` /
+  `shortlisted_unknown` ASIN (skipping fresh `gating_status` rows), sets the job's `ungated`
+  (shortlisted line x ASIN rows whose ASIN is `gated = false`; a gating-unknown ASIN is not
+  counted), posts ONE Discord message, then sets the job `completed`. **`completed` therefore
+  means pricing + gating + summary done** (046 used to set it at the end of pricing); the job
+  stays `pricing` until then, so the dashboard (which stops polling on any non-`running`
+  status) is unaffected. Exactly-once Discord: the worker claims the job (conditional
+  `catalog_done|pricing` -> `completed` update, also writing `ungated`) BEFORE posting, so a
+  crash can miss a message but never double-post; a definite Discord rejection releases the
+  claim (back to `pricing`) for a bounded retry. No schema change, no new status or column.
 - `no_asin` is the job's own verdict: the pre-screen **never** calls `markNotFound` on
   `products`. Its only `products` write is `uk_asin` on existing rows whose `uk_asin` is
   null, and only when the barcode resolved to exactly one ASIN.
@@ -502,7 +519,7 @@ checked), with `asin_tracker` added and verified live 2026-09-19:
 | Storage object `wholesale-catalogs/latest.csv.gz` | SELECT (GET) only | `storage.objects` policy scoped to `bucket_id = 'wholesale-catalogs' AND name = 'latest.csv.gz'` (dashboard migration `20260720150000`) |
 | `analytics_cache` | SELECT only | grant: SELECT + `USING (true)` read policy (alchemist-v2 migration `2026-07-21-create-analytics-cache.sql`) |
 | `ungate_log` | SELECT only | grant: SELECT + `USING (true)` read policy (dashboard migration `20260924120000`) — Wholesale Search Gate column |
-| `gating_status` | SELECT only | grant: SELECT + `USING (true)` read policy (dashboard migration `20260925120000`) — Wholesale Search Gate column; writes only via `gating-check` |
+| `gating_status` | SELECT only | grant: SELECT + `USING (true)` read policy (dashboard migration `20260925120000`) — Wholesale Search Gate column; browser-initiated writes only via `gating-check` (the alchemist-v2 night pre-screen also writes, service role) |
 | `wholesale_prescreen_jobs`, `wholesale_prescreen_lines` | SELECT only | grant: SELECT + `USING (true)` read policy (alchemist-v2 migration `2026-10-09-create-wholesale-prescreen-tables.sql`, **not yet applied**); default anon/authenticated privileges revoked |
 | `asin_tracker` | SELECT / INSERT / UPDATE (no DELETE) | grants + permissive `using(true)` policies (KeepaCompanion migration `20260919220000`); the `status` CHECK constraint is what bounds the values. Accepted for single-user triage data, same call as `business_snapshots`. |
 
