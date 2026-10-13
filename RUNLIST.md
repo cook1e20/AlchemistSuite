@@ -332,6 +332,13 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       log, shadow → per-SKU handover. New sibling repo `Repricer`. Blockers: grill; cost
       basis from R20 (043) ideally first.
 
+- [ ] **R41. Web page price/stock tracker — spec and tickets** (HITL) — root
+      `issues/009-web-page-price-stock-tracker.md`, grilled 2026-10-13 (scope settled). New sibling
+      repo `SourceWatch`: Chrome extension to add watches (structured data first, else click-to-pick
+      selector, linked to ASIN/EAN) + VPS checker twice daily (plain HTTP, headless Chromium only per
+      watch when needed). Alert on entering "in stock AND ROI ≥ floor". No logged-in pages in
+      phase 1. Next: create the repo, `/to-spec`, `/to-tickets`, CONTRACTS.md tables. Blockers: none.
+
 ### Anytime — cheap AFK filler
 
 - [x] **R13. `alchemist-v2/issues/035-bug-architecture-md-missing-analytics-wholesale-tables.md`**

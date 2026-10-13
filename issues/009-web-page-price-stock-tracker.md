@@ -84,3 +84,21 @@ Proposed shape (for round 2):
   sell price clears the floor. Same Discord channel.
 
 Open for round 2: watch volume, supplier pages behind a trade login, alert rule, repo layout.
+
+## Grill round 2 (2026-10-13) — scope settled
+
+1. **Volume:** hundreds at first, possibly thousands. Twice daily that is at most a few thousand
+   plain-HTTP fetches a day, which the VPS handles easily. Headless Chromium stays a per-watch
+   fallback, never the default, so cost scales with the JS-rendered/blocked minority only.
+   The change log needs a retention rule from day one (DB cap).
+2. **Logins:** none in phase 1. Every watch must be fetchable from the VPS without credentials.
+   Logged-in supplier pages (extension-local checks) are a later phase, if ever.
+3. **Alert rule:** one rule. Alert when a watch moves INTO "in stock AND ROI ≥ floor" (ROI from
+   the source price against the linked product's cached UK sell price). Fires on that
+   transition, not on every check that stays true. No plain "price changed" alerts.
+4. **Owner:** a new sibling repo (working name `SourceWatch`) holding both the Chrome extension
+   (add a watch: auto-detect from structured data, else click to pick a selector; link ASIN/EAN)
+   and the VPS checker (PM2 process). Shares the Alchemist Supabase project; its tables go into
+   CONTRACTS.md when specced.
+
+Next: `/to-spec` → `/to-tickets` in the new repo (RUNLIST R41).
