@@ -233,6 +233,12 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       bug, minor) — DealFinder's SP-API pre-screen runs 05–08 and 20–21, overlapping
       alchemist-v2's ADR 0001 window. Do this before R35, or watch for 429s at go-live.
       Blockers: none.
+- [ ] **R40. `DealFinder/issues/057-faster-time-to-alert-light-scan-and-streaming-notify.md`**
+      (HITL, feature) — cut feed-to-Discord from up to ~70 min to ~15–20: a page-1 light scan
+      every ~15 min between hourly full runs, then notify each pass as it is evaluated instead
+      of after the whole pool (also stops the 600 s deadline costing passes with default fees).
+      Queued 2026-10-13, operator priority. Blockers: R38 (light scans must respect the SP-API
+      window).
 
 ### Then — decisions and features
 
@@ -309,7 +315,8 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       dashboard "how am I getting on" view. Today's lot ROI is gross and analytics hasn't
       run live since 2026-07-21. Blockers: BuySheet SKUs on real purchases; after 042.
 
-- [ ] **R21. Repricer (replace SellerFuse's)** (HITL, grill first) — root `issues/008-repricer.md`.
+- [ ] **R21. Repricer (replace SellerFuse's)** (HITL, grill first) — **PARKED 2026-10-13
+      (operator); skip until un-parked.** Root `issues/008-repricer.md`.
       Rules engine: ROI floor ladder by days in stock (e.g. 30% to day 60, then 15%),
       compete with other sellers not Amazon, manual "sell all" for old stock; ex-VAT ROI;
       polling `getItemOffersBatch` (<100 SKUs), `patchListingsItem` writes, full decision
