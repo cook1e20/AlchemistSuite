@@ -70,3 +70,9 @@ spreadsheet/export path fed the `commands` queue, not the source catalogue.
 Decision 1 (who/what ran the 07-15 load and wrote the +19k unexplained `products`
 rows) remains unanswered — the only still-open thread here; operator to close or
 accept.
+
+## Closed 2026-10-13 (RUNLIST R15)
+
+Operator accepted decision 1 as unknown: who ran the 2026-07-15 load, and whether it wrote the
++19k `products` rows, will not be investigated further. Decisions 2–3 were settled by the purge
+and the E3 re-load above. Nothing left open.

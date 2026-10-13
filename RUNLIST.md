@@ -346,9 +346,10 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       dedupe; reviewed 2 rounds (fixed a reproduced double count and Pending-order
       undercount). CONTRACTS.md §2 fields added. Follow-ups: alchemist-v2 issue 042.
       Deploy is ordinary (no migration); first run after deploy full-scans every lot once.*
-- [ ] **R15. Close root `issues/005`** (HITL, operator) — only open thread is
+- [x] **R15. Close root `issues/005`** (HITL, operator) — only open thread is
       "who ran the 2026-07-15 load"; accept as unknown and move to `done/`.
       Blockers: none.
+      *2026-10-13: closed — accepted as unknown; 005 moved to `issues/done/`.*
 
 ## Phase A — keystone bugs and safety (all AFK)
 
