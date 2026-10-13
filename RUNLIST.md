@@ -259,7 +259,7 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       (`src/pipeline-status.ts`; `analytics` is missing there too). Hold if R1 lands
       on "stay free" — each sync grows the DB. Blockers: R1.
 
-- [ ] **R16. `DealFinder/issues/048-uk-to-uk-price-recovery-source-market.md`** (HITL) —
+- [x] **R16. `DealFinder/issues/048-uk-to-uk-price-recovery-source-market.md`** (HITL) —
       UK→UK price-recovery scanner (UK buy, sell basis = 90-day buy-box average − 10%).
       Operator asked 2026-10-06 (Prime Day); agreed a slower, sliced build.
       *2026-10-06: slices 1–3 of 4 landed (DealFinder 08aae31, 7f24b01, a841977; slices 2–3
@@ -274,6 +274,10 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       `UK_SOURCE_MODE=shadow` and `uk` in MARKETPLACES (suggest `FEED_PAGE_CAP_UK=2`); one live
       UK feed check of avg[3][18]; ≥3 days shadow review; economics calls; DealFinder 049
       (per-market notify baseline / dismiss scope) before `on`.*
+      *2026-10-13: closed (048 → `issues/done/`). Five live days since R18 stand in for shadow;
+      avg90 basis confirmed on all 8 UK passes; 30% ROI floor kept. UK feed was the limiter
+      (2 pages, stage-1 cap never hit, 450–730 tokens left per run): VPS `.env` now
+      `FEED_PAGE_CAP_UK=6`, `STAGE1_MAX_ASINS_UK=200`. 049 stays open on its own.*
 
 - [ ] **R17. Clothing/footwear exclusion trial** (HITL, review ~2026-10-14) — operator call
       2026-10-07: sized items passed on a variation family's shared sales rank, plus return
