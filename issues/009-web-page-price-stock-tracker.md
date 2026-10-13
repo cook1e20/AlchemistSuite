@@ -48,3 +48,39 @@ element changes. We want the same thing inside the constellation.
 ## Not yet decided
 
 Everything above. No build until the grill settles scope and owner.
+
+## Grill round 1 (2026-10-13)
+
+Operator answers:
+
+1. **Sites:** retailers and suppliers only. Amazon pages are a non-goal (Keepa and SP-API cover them).
+2. **Element picking:** follow what the established tools do (see research below).
+3. **Fetching:** plain HTTP preferred, open to a browser where research says it's needed.
+4. **Cadence:** daily or twice daily.
+5. **Tie-in:** yes. A watch links to an ASIN/EAN and a source change re-runs the ROI model.
+6. **Storage:** a few tables in the shared Supabase, counted against the free-plan cap.
+7. **Owner/UI:** a new Chrome extension rather than growing KeepaCompanion.
+
+Research (how the existing tools solve 2 and 3):
+
+- **changedetection.io** (open source): its restock/price mode fetches with plain HTTP and reads the
+  page's structured product data first (JSON-LD, microdata, OpenGraph: price + availability), with
+  a stock-keyword text scan as fallback. A Playwright/Chrome fetcher is an opt-in per watch for
+  pages that render the price in JavaScript.
+- **Distill.io**: click-to-select element picker (stored as CSS/XPath, regex refinable). Two run
+  modes: cloud monitors (their servers, 24/7) and local monitors (the user's own browser via the
+  extension, needs the browser open, gets past logins and most bot checks).
+- Structured-data coverage is uneven: Product schema is common on mid/large retailers (needed for
+  Google Shopping), much rarer on small sites and trade/supplier portals.
+
+Proposed shape (for round 2):
+
+- **Extension = add a watch.** On the retailer page: auto-detect price/stock from structured data;
+  if none, click the price/stock element to store a selector. Link the watch to an ASIN/EAN.
+- **Checker on the VPS = run watches.** Twice daily, plain HTTP, structured data first, then the
+  stored selector. A watch that fails plain HTTP (JS-rendered or blocked) is flagged `needs_browser`
+  and checked with headless Chromium; at twice-daily cadence that costs little.
+- **Alert:** restock always; price drop only when the ROI against the linked product's cached UK
+  sell price clears the floor. Same Discord channel.
+
+Open for round 2: watch volume, supplier pages behind a trade login, alert rule, repo layout.
