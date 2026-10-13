@@ -25,7 +25,7 @@ Live state at the reset: DB **472 MB of the 500 MB free cap** (read-only mode on
 
 ### Now — risk and hygiene
 
-- [ ] **R1. Decide the DB-size path** (HITL, operator, **urgent**) —
+- [x] **R1. Decide the DB-size path** (HITL, operator, **urgent**) —
       `alchemist-v2/issues/038-products-growth-and-bulk-load-cohort.md` (was L3).
       Pro plan vs retire the not-found bulk cohort vs cap DealFinder's
       `products-upsert` intake (~4.9k rows/day, the real growth source). At current
@@ -38,6 +38,9 @@ Live state at the reset: DB **472 MB of the 500 MB free cap** (read-only mode on
       DealFinder's VPS `.env` + `pm2 restart dealfinder`, or deals regrows ~100 MB in 3 weeks.
       Still available if needed: drop the ~260k not-found/no-ASIN `products` rows (~45–70 MB)
       and `VACUUM FULL products` (~25–30 MB bloat; needs headroom for a temp copy).*
+      *2026-10-13: closed — `EXPIRED_RETENTION_DAYS=7` confirmed in the VPS `.env`; purge removes
+      ~1,500 rows/run, `deals` 204k rows / 76 MB, 39 rows unseen 14+ days. Pro move still due
+      per the 10-07 decision.*
 - [x] **R2. Commit the in-flight gating work** (HITL, housekeeping) — git is behind
       the live system in four places. Check no other session is mid-edit first.
       - root: Phase K RUNLIST section, `CONTRACTS.md` §1–3, `README.md`,
@@ -118,7 +121,7 @@ Live state at the reset: DB **472 MB of the 500 MB free cap** (read-only mode on
       *2026-10-09: landed (Alchemist_Dashboard 5d9ec28, 187/187). `grossCostPence` = buy +
       shipping + prep (falls back to landed) on the deal view model; the deals table renders
       no landed column today, so any future cost-beside-ROI display must use it.*
-- [ ] **R5. `alchemist-v2/issues/039-store-sales-rank-drops30-on-products.md`** (AFK,
+- [x] **R5. `alchemist-v2/issues/039-store-sales-rank-drops30-on-products.md`** (AFK,
       small) — was L1. Nullable column + one upsert field; data already parsed.
       Start early: R10 needs a full mine cycle of this data. Blockers: none.
       *2026-10-05: code landed (alchemist-v2 34c3227, reviewed/approved) — also fixed
@@ -132,6 +135,9 @@ Live state at the reset: DB **472 MB of the 500 MB free cap** (read-only mode on
       `stats`. Fixed as alchemist-v2 bug 044 (`3dbdba7`, 384/384). **Operator: deploy
       alchemist-v2 `3dbdba7`, then re-run the overnight check.** R10's mine cycle of data
       starts from that deploy.*
+      *2026-10-13: done — `3dbdba7` pushed and deployed (VPS was `f81375a`; the wholesale
+      045–047 commits above it stay local until R35). 20:15 UK mine: 287/287 enriched rows carry
+      `uk_sales_rank_drops30`. R10's mine cycle starts 2026-10-13.*
 - [ ] **R6. `alchemist-v2/issues/040-sp-api-pre-screen-before-keepa-mine.md`** (AFK) —
       was L2. Phase 1 (EAN with no UK ASIN → no token) first; Phase 2 only on
       measured evidence. Blockers: none.
@@ -143,6 +149,9 @@ Live state at the reset: DB **472 MB of the 500 MB free cap** (read-only mode on
       to land it, then set `MINER_SP_PRESCREEN_MODE=shadow` on the server.*
       *2026-10-07: committed (alchemist-v2 6f32a15), pushed, deployed by operator (dark).
       Operator: set `MINER_SP_PRESCREEN_MODE=shadow`, restart, review a night's stats.*
+      *2026-10-13: `MINER_SP_PRESCREEN_MODE=shadow` live 20:05 UK (backup `.env.bak-20261013-r6`);
+      first mine reports `prescreenMode: shadow`, all prescreen counters 0. Remaining: review
+      2026-10-14's overnight `run_log` mine stats (esp. `prescreenShadowFalseNotFound`).*
 - [ ] **R7. Close out the E4 pilot** (HITL, operator) — was E4, last touched
       2026-07-27. Confirm the 12-hour rotation env vars went live on the VPS in
       both repos, record the final hit rate, and tick E4 with the standing
