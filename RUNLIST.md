@@ -266,7 +266,12 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       window).
       *2026-10-14: slice 1 (light scan) landed (DealFinder `28d2236`, 602/602, reviewed 2 rounds), dark
       behind `LIGHT_SCAN_INTERVAL_MS=0`; knobs `LIGHT_SCAN_MARKETS`, `LIGHT_SCAN_MIN_TOKENS_LEFT=700`.
-      Slice 2 (streaming notify) in progress.*
+      Slice 2 (streaming notify) landed (DealFinder `a63d7e4`, 610/610, reviewed 3 rounds): first pass of a run
+      alerts immediately, then ~10 s flushes; the deadline never suppresses an alert. Streaming only covers
+      post-stage-2 work, so its gain is small; the light scan is the main win.
+      **Open (HITL, operator):** deploy, set `LIGHT_SCAN_INTERVAL_MS=900000` (and `LIGHT_SCAN_MARKETS` if UK
+      should be excluded), then one day of funnel logs: median feed-to-Discord, tokens/hour, no 429 spike,
+      `feeFallback` on `tick=light` lines.*
 
 ### Then — decisions and features
 
