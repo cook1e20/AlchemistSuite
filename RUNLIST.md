@@ -238,10 +238,14 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       the scan's Keepa-target ROI is profit ÷ ex-VAT cost, and uses the inc-VAT price raw on
       inc-VAT-only files. The server and SellerAmp use profit ÷ gross cash cost. Operator picks the
       basis, then build. Blockers: operator decision.
-- [ ] **R38. `DealFinder/issues/056-bug-sp-api-prescreen-not-gated-to-0800-2000.md`** (auto,
+- [x] **R38. `DealFinder/issues/056-bug-sp-api-prescreen-not-gated-to-0800-2000.md`** (auto,
       bug, minor) — DealFinder's SP-API pre-screen runs 05–08 and 20–21, overlapping
       alchemist-v2's ADR 0001 window. Do this before R35, or watch for 429s at go-live.
       Blockers: none.
+      *2026-10-14: landed (DealFinder `147da05`, reviewed 2 rounds -> APPROVE, 584/584). Pricing/fees
+      run as mode `off` outside `SP_API_WINDOW_START/END_HOUR` (default 8/20 UK); the offers batch
+      keeps running (separate allowance), so alert labels are unaffected. Deploy-gated, no `.env`
+      change needed. CONTRACTS.md section 5 updated (root fd8c8a6). Unblocks R40.*
 - [ ] **R40. `DealFinder/issues/057-faster-time-to-alert-light-scan-and-streaming-notify.md`**
       (HITL, feature) — cut feed-to-Discord from up to ~70 min to ~15–20: a page-1 light scan
       every ~15 min between hourly full runs, then notify each pass as it is evaluated instead
