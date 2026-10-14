@@ -247,7 +247,9 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       Blockers: R27–R33.
       *2026-10-14: both migrations applied live and verified (tables + anon/service_role grants;
       `commands` second anon INSERT policy). alchemist-v2 deployed with R34 (`a7a90f3`, restart
-      20:38:26Z). Remaining: LWA client id check, Bliss list end to end, DealFinder 429 check.*
+      20:38:26Z). Operator confirmed both repos use the same LWA app id, so they share one SP-API
+      allowance and ADR 0001's window split stands as written. Remaining: Bliss list end to end,
+      DealFinder 429 check.*
 - [ ] **R36. Keepa plan decision** (HITL, operator) — measure the shortlist token use over
       2–3 stock lists, then decide whether to put the cancelled-subscription money
       (£50–90/month) into a bigger Keepa plan. If shortlists are a few hundred lines,
