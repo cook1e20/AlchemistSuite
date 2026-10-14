@@ -219,6 +219,12 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
 - [ ] **R34. `alchemist-v2/issues/049-bug-not-found-spike-2026-10-08.md`** (auto, bug,
       major) — 10-08 mine: 13,581 not-found vs 2,239 enriched. Possibly false 90-day
       parking. Blockers: none.
+      *2026-10-14: code landed (alchemist-v2 `1d49f1d`, 609/609, reviewed 2 rounds). The 10-08 spike is genuine
+      (GS1 477 Lithuanian block of the 07-17 bulk cohort, 94% not-found at all dates) — markers stand.
+      Real bug found: the miner marked every non-13-digit code not-found (exact `eanList` match); fixed.
+      **Open (HITL, operator):** deploy alchemist-v2, then `node clear-non13-not-found.js --before <deploy ISO>`
+      (dry run, review count, expect <= 1,873 minus twins), then add `--execute`. Then check `run_log` that
+      non-13 rows enrich. Issue stays open until then.*
 - [ ] **R35. Wholesale pre-screen go-live** (HITL, operator):
       - Apply the alchemist-v2 table migration, then the dashboard anon-policy migration,
         live. Check `service_role` grants (see the dashboard CLAUDE.md).
