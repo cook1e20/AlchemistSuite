@@ -368,6 +368,12 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       watch when needed). Alert on entering "in stock AND ROI ≥ floor". No logged-in pages in
       phase 1. Next: create the repo, `/to-spec`, `/to-tickets`, CONTRACTS.md tables. Blockers: none.
 
+- [ ] **R42. Reverse seller tracker — grill + spike** (HITL) — root `issues/010-reverse-seller-tracker.md`,
+      operator idea 2026-10-14. Poll a few strong sellers' storefronts via Keepa `/seller` once or twice a
+      day, alert on newly listed ASINs; maybe use SP-API `getItemOffers` `ShippingTime` to flag freshly
+      shipped-in FBA stock (unverified). Next: grill, then an operator-run token-budgeted spike (3–5 sellers,
+      two days). Shares the Keepa budget (R36). Blockers: grill.
+
 ### Anytime — cheap AFK filler
 
 - [x] **R13. `alchemist-v2/issues/035-bug-architecture-md-missing-analytics-wholesale-tables.md`**
