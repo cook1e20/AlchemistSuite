@@ -246,11 +246,14 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       (£50–90/month) into a bigger Keepa plan. If shortlists are a few hundred lines,
       21 tokens/min already clears them, and extra tokens would only speed up the ~906k
       backlog (~65 nights at 2026-10-09 rates). Blockers: R35.
-- [ ] **R37. `alchemist-v2/issues/050-wholesale-prescreen-shortlist-priority-for-existing-products.md`**
+- [x] **R37. `alchemist-v2/issues/050-wholesale-prescreen-shortlist-priority-for-existing-products.md`**
       (auto, major) — shortlisted barcodes that already exist in `products` (Qogita bulk or
       stale rows) don't jump the miner queue, because `upsertBareProduct` never resets
       `last_mined_at`. Without this the morning view is thin for most Qogita lines.
       Blockers: R30.
+      *2026-10-14: landed (alchemist-v2 `790a7a6`, 614/614, reviewed APPROVE). Pre-screen queueing resets
+      `last_mined_at` to NULL on existing rows; the miner now ranks NULL above every tier (tier 0 is 527k
+      live). Parked not-found rows stay parked (R11). CONTRACTS.md section 2 updated. Deploy with R35.*
 - [ ] **R39. `Alchemist_Dashboard/issues/023-bug-scan-roi-vat-basis.md`** (HITL, bug, minor) —
       the scan's Keepa-target ROI is profit ÷ ex-VAT cost, and uses the inc-VAT price raw on
       inc-VAT-only files. The server and SellerAmp use profit ÷ gross cash cost. Operator picks the

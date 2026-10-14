@@ -92,7 +92,9 @@ per table is in §3.
 - **Key column semantics:**
   - `target_gb_price` — the channel-neutral desired price; see §4.
   - `last_mined_at` (default `now()`) — "UK signal last refreshed *or attempted*";
-    `NULL` = never attempted. The column default used to stamp bare command-queued rows
+    `NULL` = never attempted, **or** a re-mine requested by the wholesale pre-screen (alchemist-v2 issue 050
+    resets it to `NULL` on existing shortlisted rows, which may still hold full signal; the miner ranks
+    `NULL` above every tier). The column default used to stamp bare command-queued rows
     with `now()` on insert — which both looked like an attempt that never happened *and*
     sorted user-queued rows to the very back of the miner's oldest-first backlog
     (~6 nights, measured live 2026-07-16). As of alchemist-v2 issue 027 (`2e8a88a`,
@@ -338,12 +340,15 @@ per table is in §3.
   (DealFinder issue 054), so `roi` is slightly generous. Shortlisted and `shortlisted_unknown`
   barcodes (`gtin13`, deduped, check digit valid) are queued as service-role-inserted
   `commands` rows `{type: 'queue_backfill_ean', payload: {ean}, status: 'pending'}` — no
-  `uk_asin`/`brand` — so the commands stage makes the bare rows. **Priority caveat:** only an EAN not already in
+  `uk_asin`/`brand` — so the commands stage makes the bare rows. **Priority:** an EAN not already in
   `products` gets a fresh row with `last_mined_at` null (the miner's front-of-queue tier 0,
-  issue 027). `upsertBareProduct` is insert-only (`ignoreDuplicates`) and never resets
-  `last_mined_at`, so a shortlisted barcode that already exists (Qogita bulk-loaded, or stale)
-  keeps its place in the miner's queue and is NOT prioritised - tracked as alchemist-v2
-  issue 050. No schema change.
+  issue 027). `upsertBareProduct` is insert-only (`ignoreDuplicates`), so for a shortlisted barcode
+  that already exists (Qogita bulk-loaded, or stale) the pre-screen's queue helper
+  (`queueBackfillEans`, alchemist-v2 issue 050) also sets that row's `last_mined_at` to null
+  (update-only, no other column), and the miner ranks any null `last_mined_at` row above every tier, so it is mined ahead of the stale and missing-signal backlog (the cost: a row with good
+  fresh signal is re-mined once). The dashboard's manual queue is unchanged. Caveat: a row with
+  `uk_not_found_at` under 90 days old stays parked by the miner regardless (issue 028 / RUNLIST R11).
+  No schema change.
 - **Night gating + summary (alchemist-v2 issue 047, same SP-API window):** once a job has no
   `awaiting_pricing` lines, the worker checks listing restrictions for every `shortlisted` /
   `shortlisted_unknown` ASIN (skipping fresh `gating_status` rows), sets the job's `ungated`
