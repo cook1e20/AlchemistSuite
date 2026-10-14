@@ -384,7 +384,7 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       *2026-10-05: landed (alchemist-v2 51bd874, cf817be) — added `analytics_cache`,
       `wholesale_sync_requests`, `gating_status`, `asin_tracker`. ARCHITECTURE.md's
       Module map is also stale (stage list) — noted in the commit, not filed.*
-- [ ] **R14. `alchemist-v2/issues/037-lot-order-history-incremental-cache.md`** (AFK) —
+- [x] **R14. `alchemist-v2/issues/037-lot-order-history-incremental-cache.md`** (AFK) —
       analytics run time grows with lot age; not urgent until lots age.
       Blockers: none.
       *2026-10-05: landed (alchemist-v2 22111c9) — per-lot monotonic watermark + overlap
