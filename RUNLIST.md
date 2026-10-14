@@ -258,6 +258,9 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       of after the whole pool (also stops the 600 s deadline costing passes with default fees).
       Queued 2026-10-13, operator priority. Blockers: R38 (light scans must respect the SP-API
       window).
+      *2026-10-14: slice 1 (light scan) landed (DealFinder `28d2236`, 602/602, reviewed 2 rounds), dark
+      behind `LIGHT_SCAN_INTERVAL_MS=0`; knobs `LIGHT_SCAN_MARKETS`, `LIGHT_SCAN_MIN_TOKENS_LEFT=700`.
+      Slice 2 (streaming notify) in progress.*
 
 ### Then — decisions and features
 
