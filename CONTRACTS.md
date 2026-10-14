@@ -314,6 +314,14 @@ per table is in §3.
   night stage, issue 046), `verdict` in (`no_barcode`, `no_asin`, `lookup_failed`,
   `bsr_too_high`, `awaiting_pricing`, `roi_below_floor`, `shortlisted`,
   `shortlisted_unknown`), `reason`.
+- **Reuse and purge (alchemist-v2 issue 048):** a new job reuses catalog results for a GTIN-13
+  from a line in any job created <7 days ago (never `lookup_failed`), and its pricing if that
+  line's `updated_at` is <24h old and `supplier_cost_pence` is equal; verdict/ROI are recomputed
+  with the new job's settings. Reused lines **inherit the source line's `created_at`/`updated_at`**,
+  so line timestamps are not the job's — use the job's `created_at` for job age. A daily cron
+  (03:30) deletes jobs (and their lines) whose job `created_at` is older than
+  `WHOLESALE_PRESCREEN_RETENTION_DAYS` (default 14), logged as a daily `housekeeping` `run_log`
+  row (stats `prescreenJobsPurged`, `prescreenLinesPurged`, `prescreenRetentionDays`).
 - **Night pricing stage (alchemist-v2 issue 046, inside the §5 SP-API window only):** takes
   jobs in `catalog_done`/`pricing` (job status → `pricing`, completed by the 047 gating/summary step below; a job stays `pricing`
   across ticks/nights while lines remain `awaiting_pricing`). Per line × ASIN it fills

@@ -208,8 +208,14 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       auto-queued; "Queue all" is now behind a confirm with a token estimate. The morning view shows
       "ROI vs target" (Keepa, profit ÷ ex-VAT cost) and "SP-API ROI" (046, profit ÷ gross cost)
       side by side, labelled. They differ by 1.2×; follow-up R39.*
-- [ ] **R33. `alchemist-v2/issues/048-wholesale-prescreen-reuse-and-purge.md`** (auto,
+- [x] **R33. `alchemist-v2/issues/048-wholesale-prescreen-reuse-and-purge.md`** (auto,
       minor) — reuse on re-upload, 14-day purge. Blockers: R30.
+      *2026-10-14: landed (alchemist-v2 `dd06045`, 597/597, reviewed 2 rounds). Catalog reuse <7d, pricing
+      reuse <24h at equal cost (approximate: line `updated_at`), reused lines inherit source timestamps;
+      daily 03:30 purge under `housekeeping`, `WHOLESALE_PRESCREEN_RETENTION_DAYS=14`. No migration.
+      Follow-ups for R35: add an index on `wholesale_prescreen_lines(gtin13, created_at)` (reuse reads
+      scan up to 14 days of lines); dashboard `pipeline-status.ts` "housekeeping runs monthly" comment
+      is now stale.*
 - [ ] **R34. `alchemist-v2/issues/049-bug-not-found-spike-2026-10-08.md`** (auto, bug,
       major) — 10-08 mine: 13,581 not-found vs 2,239 enriched. Possibly false 90-day
       parking. Blockers: none.
