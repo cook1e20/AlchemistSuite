@@ -649,12 +649,11 @@ DealFinder and alchemist-v2 share one seller account, so they share the SP-API
   night stage (`stage-wholesale-pricing.js`, run on the `commands` tick) does nothing outside
   it, and `sp-api.js` re-checks immediately before every request (a run that crosses 08:00
   stops mid-job; unfinished lines stay `awaiting_pricing` for the next night's tick).
-- **Open gap (DealFinder side, found 2026-10-10):** DealFinder's only stand-down is the Keepa
-  overnight pause (21:00–05:00, §5 above), which skips the whole tick. Its SP-API pre-screen
-  has no 08:00–20:00 gate of its own, so it still runs 05:00–08:00 and 20:00–21:00 — hours
-  alchemist-v2 now also uses. A 429 there falls through to Keepa (never a false reject, per
-  the ADR), but the split is only half-enforced until DealFinder gates its pre-screen to
-  08:00–20:00. alchemist-v2 cannot fix this; it needs a DealFinder issue.
+- **DealFinder's side is enforced (DealFinder issue 056):** env-tunable
+  `SP_API_WINDOW_START_HOUR` / `SP_API_WINDOW_END_HOUR` (default 8 / 20, same semantics as above).
+  Outside it `runScheduledTick` makes the pre-screen behave as `SP_API_PRESCREEN=off` (no competitive
+  pricing or fees calls, straight to Keepa, default fees); the Keepa overnight pause is separate.
+  The offers batch (`getItemOffersBatch`) is a different operation and is not windowed.
 - The **catalog lookup** (`searchCatalogItems`) is not windowed: DealFinder never calls it.
   The pre-screen's catalog stage runs any hour; it takes turns with the miner's catalog
   pre-screen through the in-process `catalog-lock.js` mutex.
