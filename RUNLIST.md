@@ -152,6 +152,11 @@ Live state at the reset: DB **472 MB of the 500 MB free cap** (read-only mode on
       *2026-10-13: `MINER_SP_PRESCREEN_MODE=shadow` live 20:05 UK (backup `.env.bak-20261013-r6`);
       first mine reports `prescreenMode: shadow`, all prescreen counters 0. Remaining: review
       2026-10-14's overnight `run_log` mine stats (esp. `prescreenShadowFalseNotFound`).*
+      *2026-10-14 (overseer, read-only): overnight review done — 47 shadow runs, 15,875 candidates, 13,921
+      enriched, but **every pre-screen counter is 0**: Phase 1 only screens EAN rows with no UK ASIN, and none
+      reached the window (19,686 such unparked rows exist, last mined <= 10-11, behind ~500k older tier-0
+      rows). Shadow yields no evidence until those come round or new EAN-only barcodes are queued (e.g. the
+      wholesale shortlist after R35). Operator: leave shadow running and re-check after R35, or accept as is.*
 - [ ] **R7. Close out the E4 pilot** (HITL, operator) — was E4, last touched
       2026-07-27. Confirm the 12-hour rotation env vars went live on the VPS in
       both repos, record the final hit rate, and tick E4 with the standing
