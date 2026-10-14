@@ -230,6 +230,10 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       **Open (HITL, operator):** deploy alchemist-v2, then `node clear-non13-not-found.js --before <deploy ISO>`
       (dry run, review count, expect <= 1,873 minus twins), then add `--execute`. Then check `run_log` that
       non-13 rows enrich. Issue stays open until then.*
+      *2026-10-14 evening: deployed (pushed alchemist-v2 `a7a90f3`, which also ships the wholesale 045–048/050
+      code; R35's two migrations applied first). VPS restart 20:38:26Z. Clear-up run: 1,873 marked, 492 left
+      (13-digit twin exists), 1,381 cleared (8: 1, 12: 846, 14: 534), 0 failed; DB confirms. **Remaining:**
+      check over the next few nights' `run_log` that non-13 rows enrich, then close 049.*
 - [ ] **R35. Wholesale pre-screen go-live** (HITL, operator):
       - Apply the alchemist-v2 table migration, then the dashboard anon-policy migration,
         live. Check `service_role` grants (see the dashboard CLAUDE.md).
@@ -241,6 +245,9 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       - Check that DealFinder's `run_log` shows no 429 spike.
 
       Blockers: R27–R33.
+      *2026-10-14: both migrations applied live and verified (tables + anon/service_role grants;
+      `commands` second anon INSERT policy). alchemist-v2 deployed with R34 (`a7a90f3`, restart
+      20:38:26Z). Remaining: LWA client id check, Bliss list end to end, DealFinder 429 check.*
 - [ ] **R36. Keepa plan decision** (HITL, operator) — measure the shortlist token use over
       2–3 stock lists, then decide whether to put the cancelled-subscription money
       (£50–90/month) into a bigger Keepa plan. If shortlists are a few hundred lines,
