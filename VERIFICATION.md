@@ -66,10 +66,9 @@ Grants/policies (the anon surface) are contract, not health — re-verify them a
 
 ### 2.2 alchemist-v2 scheduler — is it alive, and what is it running?
 
-`scheduler.js` is a long-running node-cron process on a remote server. **The host is
-not documented in the repo** (operator: fill this in — ssh access, process supervisor,
-and repo path on the box), so the reliable liveness check is DB-side: every scheduled
-stage leaves read-only fingerprints.
+`scheduler.js` is a long-running node-cron process on the Hostinger VPS, PM2 process
+`alchemist`, repo at `/root/alchemist-v2` (see "VPS access" below). The DB-side check
+here still works without a login: every scheduled stage leaves read-only fingerprints.
 
 ```sql
 select
@@ -104,6 +103,17 @@ running pre-`7a0e170` code — which also means it predates the `--dry-run` spen
 > that morning, and 20k+ enriched rows were touched in 24 h. But it runs pre-`7a0e170`
 > code: `run_log`'s only rows are 86 legacy `stage='wholesale'` rows, newest
 > 2026-07-06. Re-run the query above after any server pull to re-answer.
+
+### VPS access (agents: read this before saying you can't log in)
+
+`ssh root@31.97.117.157` — key auth through the **Windows OpenSSH client and ssh-agent**.
+From Claude Code, run it with the **PowerShell** tool
+(`ssh -o BatchMode=yes root@31.97.117.157 "<cmd>"`). Git Bash's `ssh` is a separate client
+that can't see the agent, so it fails with `Permission denied (publickey)`. If it fails,
+try PowerShell before you report that you can't log in.
+
+On the box, PM2 runs `alchemist` (`/root/alchemist-v2`), `dealfinder` (`/root/dealfinder`,
+branch `main`) and `crucible-mcp`.
 
 ### 2.3 DealFinder probe — PM2 on the Hostinger VPS
 
