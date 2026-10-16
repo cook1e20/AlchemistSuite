@@ -71,3 +71,10 @@ unreliable for the reasons above — not worth building even as a stopgap.
 - User story 8 (ungating data ownership) — related context, not a direct match; this
   issue is about export correctness downstream of that data, not new ungating
   detection.
+
+## Decision (operator, 2026-10-16)
+
+Superseded the `ungate_log` options: since R2 the dashboard reads `gating_status` anon, so no
+new grant or edge function is needed. **Predicate:** drop ASINs whose `gating_status` verdict is
+gated; **keep unchecked ASINs** and add a `gating` column to the CSV (`ungated` / `unchecked`).
+Build in Alchemist_Dashboard (auto).

@@ -115,6 +115,8 @@ Live state at the reset: DB **472 MB of the 500 MB free cap** (read-only mode on
 - [ ] **R25. `DealFinder/issues/054-eval-other-fees-column-and-dst.md`** (HITL, minor) —
       `deals.eval_other_fees_pence` migration (operator applies it) plus the digital services
       fee knob decision. Blockers: operator migration.
+      *2026-10-16: DST decision — leave unmodelled (operator). Remaining: operator applies the
+      `eval_other_fees_pence` migration, then the column + dashboard "closing" term (auto).*
 - [x] **R26. `Alchemist_Dashboard/issues/019-bug-deals-landed-cost-net-beside-gross-roi.md`**
       (auto, bug, minor) — show gross cost beside ROI after DealFinder 052. Blockers: none
       (real effect only after the 052 deploy).
@@ -199,6 +201,8 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       outage can't fail lines open; only a batch that keeps failing does, 20 ASINs at a time.
       **Operator call:** the spec's 15% optimistic referral cuts sub-£10 beauty lines (UK fee 8%)
       without a fees call. Keep it, or lower it to ~8%? Follow-ups: R37, R38.*
+      *2026-10-16: operator call — lower the optimistic referral to **7%** (lowest UK rate; 15% wrongly cut
+      electronics/computers too). No minimum-price cut. → R43.*
 - [x] **R31. `alchemist-v2/issues/047-wholesale-prescreen-gating-and-discord-summary.md`**
       (auto, minor) — night gating check on the shortlist, plus a Discord funnel message.
       Blockers: R30.
@@ -221,6 +225,11 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       Follow-ups for R35: add an index on `wholesale_prescreen_lines(gtin13, created_at)` (reuse reads
       scan up to 14 days of lines); dashboard `pipeline-status.ts` "housekeeping runs monthly" comment
       is now stale.*
+- [ ] **R43. Wholesale pre-screen: optimistic referral 15% → 7%** (auto, small) — alchemist-v2
+      `wholesale-prescreen.js` `OPTIMISTIC_REFERRAL_RATE`. Operator call 2026-10-16: 7% is the lowest UK
+      referral rate, so the early cut stays truly optimistic for electronics/computers and sub-£10 beauty.
+      The real fees call still decides. Update tests and the stage comment in `stage-wholesale-pricing.js`.
+      No minimum-price cut. Blockers: none.
 - [ ] **R34. `alchemist-v2/issues/049-bug-not-found-spike-2026-10-08.md`** (auto, bug,
       major) — 10-08 mine: 13,581 not-found vs 2,239 enriched. Possibly false 90-day
       parking. Blockers: none.
@@ -267,6 +276,7 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       the scan's Keepa-target ROI is profit ÷ ex-VAT cost, and uses the inc-VAT price raw on
       inc-VAT-only files. The server and SellerAmp use profit ÷ gross cash cost. Operator picks the
       basis, then build. Blockers: operator decision.
+      *2026-10-16: decided — **gross cash cost** (matches SellerAmp/052/046). Now auto: build per the issue.*
 - [x] **R38. `DealFinder/issues/056-bug-sp-api-prescreen-not-gated-to-0800-2000.md`** (auto,
       bug, minor) — DealFinder's SP-API pre-screen runs 05–08 and 20–21, overlapping
       alchemist-v2's ADR 0001 window. Do this before R35, or watch for 429s at go-live.
@@ -307,19 +317,28 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       unblocked: `gating_status` has data and the dashboard reads it anon (R2).
       Remaining question: filter the export on `gating_status`, and what to do with
       ASINs that have no row. Blockers: R2.
+      *2026-10-16: decided — filter on `gating_status` (anon-readable, no new grant): drop gated, **keep
+      unchecked**, add a `gating` column (`ungated`/`unchecked`) to the CSV. Now auto (dashboard build).*
 - [ ] **R9. `DealFinder/issues/047-velocity-floor-shared-across-signals.md`** (HITL,
       investigation) — was L5. Read issue 005's floor-tuning outcome first.
       Blockers: none; its optional `products` write needs R5.
       *2026-10-06: investigated (DealFinder 3e4fe26) — 005 never tuned the floor; the 50 is
       the untuned PRD default and the rank-drops branch passes 79/229k. Recommends a
       separate `VELOCITY_FLOOR_RANK_DROPS` defaulting to 50. Awaiting operator decision.*
+      *2026-10-16: decided — split; ship `VELOCITY_FLOOR_RANK_DROPS` at 50 (no change), then calibrate N
+      from `products` (data since 10-13) + `deals` passer counts and bring the numbers to the operator.
+      N also feeds R10. Now auto (build + calibration), HITL only for setting N.*
 - [ ] **R10. `alchemist-v2/issues/041-slim-records-for-low-velocity-products.md`**
       (HITL) — was L4. Operator picks the rank-drops threshold and the re-check
       interval. Blockers: R5 plus one mine cycle of data, and R1 (on Pro this
       shrinks to the re-check-interval half).
+      *2026-10-16: decided — re-check interval **120 days**, **tokens only** (no slimming; Pro removes the
+      size pressure). Blocked on N from R9's calibration.*
 - [ ] **R11. `alchemist-v2/issues/028-requeue-does-not-clear-not-found-marker.md`**
       (HITL, product call) — should a deliberate dashboard re-queue override the
       90-day not-found marker? Cheap once decided. Blockers: none.
+      *2026-10-16: decided — **never override; badge only**. Next (auto): log the Alchemist_Dashboard issue
+      to show "not found on Amazon UK" from `uk_not_found_at`, close 028 as routed.*
 - [ ] **R12. Qogita auto-sync flip** (HITL, operator) —
       `Alchemist_Dashboard/issues/015` Phase 6 (G6's deferred flip). Pre-flip:
       add `wholesale-sync` to the dashboard's `KNOWN_STAGES`
@@ -358,6 +377,9 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       argues against 050's reject rule. Same day: miner cron fixed to Europe/London
       (alchemist-v2 f81375a, deployed) — it had run 21:00–08:45 UK, colliding with
       DealFinder 08:00–09:00 and idling 20:00–21:00.*
+      *2026-10-16: operator — **keep the exclusion for now**; some shoes/clothes still come through, so the
+      leaf-node lists have gaps (operator to pass example ASINs; find their categories, extend
+      `EXCLUDE_CATEGORIES_<M>`). DealFinder 050 still undecided.*
 
 - [x] **R18. Turn UK Discord alerts on** (HITL, operator) — `UK_SOURCE_MODE=on` in
       DealFinder's VPS `.env`, then restart. Operator call 2026-10-08 (don't wait the full 3
@@ -396,6 +418,11 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       day, alert on newly listed ASINs; maybe use SP-API `getItemOffers` `ShippingTime` to flag freshly
       shipped-in FBA stock (unverified). Next: grill, then an operator-run token-budgeted spike (3–5 sellers,
       two days). Shares the Keepa budget (R36). Blockers: grill.
+
+- [ ] **R44. Zappies email ingester — grill** (HITL) — root `issues/011-zappies-email-ingester.md`, operator
+      idea 2026-10-16. Gmail deal emails, several products each: Amazon link → ASIN, else EAN, else skip
+      (Zappies SKU only); price DealFinder-style and alert on Discord. Next: sample emails, then grill.
+      Blockers: grill.
 
 ### Anytime — cheap AFK filler
 
