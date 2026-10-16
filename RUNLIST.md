@@ -294,10 +294,12 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       *2026-10-16: deployed (`a63d7e4` on `main`, VPS pulled + restarted ~12:58 UK) with
       `LIGHT_SCAN_INTERVAL_MS=900000` set by operator (all markets). DB-side check 13:01 UK: probe alive,
       fresh run writing `deals` 12:59–13:01 (~4.5k rows; before restart only the hourly :17/:25 pattern).
-      VPS not checked directly (local ssh key rejected), so the light-scan ticks themselves and the
-      commit on the box are unconfirmed. **Remaining:** confirm `tick=light` lines in `pm2 logs dealfinder`
-      from ~13:15, then a day of funnel logs (median feed-to-Discord, tokens/hour, no 429 spike,
-      `feeFallback` on light ticks), then close 057.*
+      VPS confirmed (ssh via Windows OpenSSH, not Git Bash's ssh): `/root/dealfinder` on `main` at `a63d7e4`,
+      startup line `lightScanIntervalMs=900000 (markets=de,fr,it,es,uk, minTokensLeft=700)`, catch-up full
+      run started 11:59:49Z, no error-log lines. **Watch:** today's hourly runs ended with `tokensLeft`
+      234–650, below the 700 floor, so light ticks may often skip; if so, lower `LIGHT_SCAN_MIN_TOKENS_LEFT`.
+      **Remaining:** confirm `tick=light` lines fire, then a day of funnel logs (median feed-to-Discord,
+      tokens/hour, no 429 spike, `feeFallback` on light ticks), then close 057.*
 
 ### Then — decisions and features
 
