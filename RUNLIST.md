@@ -275,6 +275,8 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       run as mode `off` outside `SP_API_WINDOW_START/END_HOUR` (default 8/20 UK); the offers batch
       keeps running (separate allowance), so alert labels are unaffected. Deploy-gated, no `.env`
       change needed. CONTRACTS.md section 5 updated (root fd8c8a6). Unblocks R40.*
+      *2026-10-16: deployed — DealFinder `a63d7e4` pushed to `free-first-funnel` and fast-forwarded to
+      `main`; operator pulled + restarted ~12:58 UK. Unblocks R35's go-live run.*
 - [ ] **R40. `DealFinder/issues/057-faster-time-to-alert-light-scan-and-streaming-notify.md`**
       (HITL, feature) — cut feed-to-Discord from up to ~70 min to ~15–20: a page-1 light scan
       every ~15 min between hourly full runs, then notify each pass as it is evaluated instead
@@ -289,6 +291,13 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       **Open (HITL, operator):** deploy, set `LIGHT_SCAN_INTERVAL_MS=900000` (and `LIGHT_SCAN_MARKETS` if UK
       should be excluded), then one day of funnel logs: median feed-to-Discord, tokens/hour, no 429 spike,
       `feeFallback` on `tick=light` lines.*
+      *2026-10-16: deployed (`a63d7e4` on `main`, VPS pulled + restarted ~12:58 UK) with
+      `LIGHT_SCAN_INTERVAL_MS=900000` set by operator (all markets). DB-side check 13:01 UK: probe alive,
+      fresh run writing `deals` 12:59–13:01 (~4.5k rows; before restart only the hourly :17/:25 pattern).
+      VPS not checked directly (local ssh key rejected), so the light-scan ticks themselves and the
+      commit on the box are unconfirmed. **Remaining:** confirm `tick=light` lines in `pm2 logs dealfinder`
+      from ~13:15, then a day of funnel logs (median feed-to-Discord, tokens/hour, no 429 spike,
+      `feeFallback` on light ticks), then close 057.*
 
 ### Then — decisions and features
 
