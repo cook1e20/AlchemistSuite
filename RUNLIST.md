@@ -266,9 +266,12 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       rows/night. Plain re-mines keep stored values. **Open (operator):** apply
       `migrations/2026-10-17-add-products-uk-buybox-avg-pence.sql` live BEFORE deploying (else
       `MINER_BUYBOX_MODE=off` as a miner stopgap; imports would still fail). Next (auto): Dashboard 024.*
-- [ ] **R48. `alchemist-v2/issues/056-bug-enrichbatch-ignores-upsertproduct-false-return.md`** (HITL, bug,
+- [x] **R48. `alchemist-v2/issues/056-bug-enrichbatch-ignores-upsertproduct-false-return.md`** (HITL, bug,
       major) — a failed upsert counts as enriched and never stamps `last_mined_at`; with buybox lookups that
       re-spends 3 tokens/row every 15 min. Do before or with the 054 deploy. Blockers: none.
+      *2026-10-17: landed (alchemist-v2 `e648f85`, 657/657, red-first). Miner + import now count a `false` upsert as an
+      error (run reads `completed_with_errors`), not enriched/imported. The row still has a null `last_mined_at`, so a
+      persistently failing write still re-spends each run: apply the 054 migration before deploying. No backoff built.*
 - [ ] **R49. `alchemist-v2/issues/055-bug-enrichbatch-marks-failed-keepa-call-as-not-found.md`** (HITL, bug,
       major) — a failed or empty Keepa response parks the whole batch (up to 100 rows) not-found for 90 days.
       Blockers: none.
