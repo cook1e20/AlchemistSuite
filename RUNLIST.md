@@ -260,6 +260,18 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       (new-price, feeds the miner target) unchanged. Tickets filed: alchemist-v2 054 (`c14e22a`,
       `uk_buybox_avg30_pence` + `uk_buybox_avg90_pence`, migration operator-applied) and Dashboard 024
       (`4a6c7e1`, columns + filters, blocked by 054's migration and R39/023). Build order: 054, R39, 024.*
+      *2026-10-17: alchemist-v2 054 code landed (`e6e4afa`, 655/655, reviewed 3 rounds). Keepa needs `buybox=1` for
+      csv 18 (3 tokens vs 1). Operator: buybox lookups only for velocity rows (drops30 >= 3, monthly_sold > 0, or
+      front-of-queue) plus imports; `MINER_BUYBOX_MODE` / `MINER_BUYBOX_MIN_DROPS30` knobs. Expect ~30% fewer
+      rows/night. Plain re-mines keep stored values. **Open (operator):** apply
+      `migrations/2026-10-17-add-products-uk-buybox-avg-pence.sql` live BEFORE deploying (else
+      `MINER_BUYBOX_MODE=off` as a miner stopgap; imports would still fail). Next (auto): Dashboard 024.*
+- [ ] **R48. `alchemist-v2/issues/056-bug-enrichbatch-ignores-upsertproduct-false-return.md`** (HITL, bug,
+      major) — a failed upsert counts as enriched and never stamps `last_mined_at`; with buybox lookups that
+      re-spends 3 tokens/row every 15 min. Do before or with the 054 deploy. Blockers: none.
+- [ ] **R49. `alchemist-v2/issues/055-bug-enrichbatch-marks-failed-keepa-call-as-not-found.md`** (HITL, bug,
+      major) — a failed or empty Keepa response parks the whole batch (up to 100 rows) not-found for 90 days.
+      Blockers: none.
 - [ ] **R34. `alchemist-v2/issues/049-bug-not-found-spike-2026-10-08.md`** (auto, bug,
       major) — 10-08 mine: 13,581 not-found vs 2,239 enriched. Possibly false 90-day
       parking. Blockers: none.

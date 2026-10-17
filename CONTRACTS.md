@@ -104,13 +104,32 @@ per table is in §3.
     signal"; the dashboard uses `title IS NOT NULL` to tell enriched from queued.
   - `uk_sales_rank_drops30` (integer, nullable, no default, no index — alchemist-v2
     issue 039, migration `2026-10-05-add-products-uk-sales-rank-drops30.sql`; **code
-    landed 2026-10-05, migration not yet applied live — apply before deploying that
-    commit or every `upsertProduct` fails**) — Keepa `salesRankDrops30` (UK sales-rank
+    landed 2026-10-05, migration confirmed applied live 2026-10-07, RUNLIST R5**) — Keepa `salesRankDrops30` (UK sales-rank
     drops in the last 30 days), written by the alchemist-v2 miner/import on every full
     enrichment (explicit `null` when Keepa omits it). A velocity *proxy*, never
     sales/month: it must not be read as or merged into `monthly_sold`. Same field as
     DealFinder's `deals.uk_sales_rank_drops30`; DealFinder's `products-upsert` does
     not write it (DealFinder issue 047). Consumer: alchemist-v2 issue 041.
+  - `uk_buybox_avg30_pence`, `uk_buybox_avg90_pence` (integer GBP pence, nullable, no
+    default, no index — alchemist-v2 issue 054, migration
+    `2026-10-17-add-products-uk-buybox-avg-pence.sql`; **code landed 2026-10-17,
+    migration not yet applied live — apply before deploying that commit or the
+    buy-box miner upserts and every import upsert fail on an unknown column**) — Keepa
+    `stats.avg30[18]` / `stats.avg90[18]` (csv 18 = `BUY_BOX_SHIPPING`), the buy-box
+    30/90-day average. **Not `uk_avg30_price`**, which is the new-price average
+    (`stats.avg30[1]`) and keeps its meaning. No grant change (anon has table-level
+    SELECT).
+    **Filled only by buy-box lookups.** Keepa returns csv 18 only for `buybox=1`
+    requests (3 tokens vs 1). The miner makes them for rows with
+    `uk_sales_rank_drops30 >= MINER_BUYBOX_MIN_DROPS30` (default 3), `monthly_sold > 0`
+    or null `last_mined_at` (front-of-queue rows); the buy-sheet import always makes
+    them. Plain 1-token re-mines leave the stored values untouched (keys omitted,
+    never nulled), so a non-null value comes from the last buy-box lookup and can be
+    older than `last_mined_at`. On a buy-box lookup Keepa -1 and 0 are stored as
+    explicit `null`; that rule applies to buy-box lookups only. So `null` means "not
+    yet looked up with `buybox=1`, or Keepa had no data". Same series as
+    `deals.uk_buybox_avg30_pence`; DealFinder's `products-upsert` does not write them.
+    Consumer: Alchemist_Dashboard issue 024.
   - `last_evaluated_at` — stamped only when a full economics/gating verdict was computed
     (DealFinder); not yet read by any gating logic.
   - `uk_not_found_at` (timestamptz, nullable, no default — added live 2026-07-17,
@@ -571,7 +590,7 @@ edge only.
 
 | Table | Columns | Unit |
 |---|---|---|
-| `products` | `uk_current_price`, `uk_avg30_price`, `uk_breakeven_ex_vat`, `uk_breakeven_inc_vat`, `target_gb_price`, `target_gb_price_high`, `fba_pick_pack` | GBP **pence** (integer) |
+| `products` | `uk_current_price`, `uk_avg30_price`, `uk_buybox_avg30_pence`, `uk_buybox_avg90_pence`, `uk_breakeven_ex_vat`, `uk_breakeven_inc_vat`, `target_gb_price`, `target_gb_price_high`, `fba_pick_pack` | GBP **pence** (integer) |
 | `products` | `referral_pct` | numeric percentage |
 | `products` | `de/fr/it/es_360day_min` | EUR **cents** (legacy EU scan; `-1` = never scanned) |
 | `deals` | `eu_price_cents`, `avg30_price_cents`, `notified_price_cents`, `bought_price_cents` | **source-market minor unit, keyed by `marketplace`**: EUR **cents** for `de/fr/it/es`, GBP **pence** for `uk` (buy side) |
