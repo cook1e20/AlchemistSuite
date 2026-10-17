@@ -464,6 +464,10 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
 - [ ] **R19. KeepaCompanion 002 + 003** (HITL) — Google search button per Product Finder
       row (EAN-first query, stamps Searched), then Google in a reused popup docked beside
       Keepa (can't be iframed). Blockers: none (003 after 002).
+      *2026-10-17: 002 built (KeepaCompanion `6346718`, 47/47, typecheck + build clean). Keepa's title/brand row field
+      names are unverified (guesses `title`/`productTitle`, `brand`/`manufacturer` in one accessor). **Operator:**
+      `npm run build`, load `dist/` unpacked, inspect `params.data` on a real row, confirm the names, check the
+      column and the Searched stamp; then 002 closes and 003 can start.*
 - [ ] **R20. `alchemist-v2/issues/043-realised-net-roi-per-lot.md`** (HITL, grill first) —
       realised net ROI per lot from the SP-API Finances API (fees, refunds, VAT), then a
       dashboard "how am I getting on" view. Today's lot ROI is gross and analytics hasn't
