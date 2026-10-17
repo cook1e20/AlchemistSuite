@@ -266,6 +266,10 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       rows/night. Plain re-mines keep stored values. **Open (operator):** apply
       `migrations/2026-10-17-add-products-uk-buybox-avg-pence.sql` live BEFORE deploying (else
       `MINER_BUYBOX_MODE=off` as a miner stopgap; imports would still fail). Next (auto): Dashboard 024.*
+      *2026-10-17: Dashboard 024 code landed (`1e857e4`, 291/291, typecheck clean, reviewed APPROVE 1 round).
+      **Deploy gate:** its product selects name the two buy-box columns, so the wholesale scan and morning view
+      hard-fail until the 054 migration is live — apply it before deploying the dashboard. **Remaining (operator):**
+      apply migration, deploy alchemist-v2 + dashboard, visual check of the new columns/filters/CSV, then close 024.*
 - [x] **R48. `alchemist-v2/issues/056-bug-enrichbatch-ignores-upsertproduct-false-return.md`** (HITL, bug,
       major) — a failed upsert counts as enriched and never stamps `last_mined_at`; with buybox lookups that
       re-spends 3 tokens/row every 15 min. Do before or with the 054 deploy. Blockers: none.
@@ -275,6 +279,8 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
 - [ ] **R49. `alchemist-v2/issues/055-bug-enrichbatch-marks-failed-keepa-call-as-not-found.md`** (HITL, bug,
       major) — a failed or empty Keepa response parks the whole batch (up to 100 rows) not-found for 90 days.
       Blockers: none.
+      *2026-10-17: in progress — coder stopped mid-build (session usage limit). Uncommitted work in alchemist-v2
+      (`keepa.js`, `stage-import.js`, `stage-miner.js`, two tests); resume, don't restart.*
 - [ ] **R34. `alchemist-v2/issues/049-bug-not-found-spike-2026-10-08.md`** (auto, bug,
       major) — 10-08 mine: 13,581 not-found vs 2,239 enriched. Possibly false 90-day
       parking. Blockers: none.
