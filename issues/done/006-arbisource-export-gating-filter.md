@@ -78,3 +78,10 @@ Superseded the `ungate_log` options: since R2 the dashboard reads `gating_status
 new grant or edge function is needed. **Predicate:** drop ASINs whose `gating_status` verdict is
 gated; **keep unchecked ASINs** and add a `gating` column to the CSV (`ungated` / `unchecked`).
 Build in Alchemist_Dashboard (auto).
+
+## Outcome (2026-10-17)
+
+Built in Alchemist_Dashboard `ef85cbc`: export drops `gated = true`, labels the rest
+`ungated` / `unchecked` (null or no `gating_status` row) in a new `gating` column, with an
+`asin,gating` header on every file. A failed gating read aborts the export. Not browser-checked;
+confirm Arbisource accepts the header and second column.
