@@ -243,9 +243,13 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       stats include the first error object plus the rate-limit header per tick. Bug 053 logged (retries refresh
       `updated_at`). **Open (operator):** deploy alchemist-v2 (ordinary, no migration). After the next night with a
       job, read `prescreenFeesErrorSample`/`prescreenFeesInvalidSample` from `run_log` to close AC1/AC4.*
-- [ ] **R46. `alchemist-v2/issues/052-wholesale-prescreen-gate-before-keepa-queue.md`** (auto, minor) —
+- [x] **R46. `alchemist-v2/issues/052-wholesale-prescreen-gate-before-keepa-queue.md`** (auto, minor) —
       operator call 10-17: queue shortlist barcodes for Keepa only after gating, ungated or unchecked only
       (~290 gated lines were mined on 10-16). Blockers: none.
+      *2026-10-17: landed (alchemist-v2 `be9daad`, 628/628, reviewed 2 rounds). Pricing and 048 reuse no longer
+      queue; gating queues ungated/unchecked barcodes before the completion claim, once per job (a Discord retry
+      doesn't re-queue and re-null `last_mined_at`). CONTRACTS.md section 5 updated. **Deploy note:** jobs in
+      `pricing` at deploy re-queue their ungated barcodes once, so deploy when no job is mid-pricing (daytime).*
 - [ ] **R47. Wholesale scan: 30/90-day price + ROI columns and filters** (HITL: one migration) — root
       `issues/012-wholesale-recovery-roi-90-day-basis.md`. Operator 10-17: dashboard-only, user-chosen
       filters, one line per product: sales/month + rank drops, 30/90-day price, 30/90-day ROI. Needs an

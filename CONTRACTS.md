@@ -338,8 +338,11 @@ per table is in §3.
   `roi` = profit ÷ gross cash cost. `optimistic_roi` = buy box − 7% referral (R43, 2026-10-17) − 100p minimum
   FBA fee. A per-item fees `InternalError` is retried (line stays `awaiting_pricing`) up to 5
   ticks before failing open (alchemist-v2 issue 051). The UK digital services fee is not in SP-API's response and is not modelled
-  (DealFinder issue 054), so `roi` is slightly generous. Shortlisted and `shortlisted_unknown`
-  barcodes (`gtin13`, deduped, check digit valid) are queued as service-role-inserted
+  (DealFinder issue 054), so `roi` is slightly generous. **Queue timing (alchemist-v2 issue 052):** nothing is queued when a verdict
+  is written (pricing stage, or the 048 reuse path). The night gating stage queues AFTER a job's shortlist is
+  gate-checked, before the completion claim (at-least-once), and only for shortlisted and `shortlisted_unknown`
+  barcodes with an ungated or gating-unchecked ASIN (a barcode with several ASINs is queued if any is); gated
+  ones are never queued; a line with no ASIN is queued (fails open). Those barcodes (`gtin13`, deduped, check digit valid) are queued as service-role-inserted
   `commands` rows `{type: 'queue_backfill_ean', payload: {ean}, status: 'pending'}` — no
   `uk_asin`/`brand` — so the commands stage makes the bare rows. **Priority:** an EAN not already in
   `products` gets a fresh row with `last_mined_at` null (the miner's front-of-queue tier 0,
@@ -354,7 +357,7 @@ per table is in §3.
   `awaiting_pricing` lines, the worker checks listing restrictions for every `shortlisted` /
   `shortlisted_unknown` ASIN (skipping fresh `gating_status` rows), sets the job's `ungated`
   (shortlisted line x ASIN rows whose ASIN is `gated = false`; a gating-unknown ASIN is not
-  counted), posts ONE Discord message, then sets the job `completed`. **`completed` therefore
+  counted), queues the not-gated barcodes for Keepa (issue 052, before the claim), posts ONE Discord message, then sets the job `completed`. **`completed` therefore
   means pricing + gating + summary done** (046 used to set it at the end of pricing); the job
   stays `pricing` until then, so the dashboard (which stops polling on any non-`running`
   status) is unaffected. Exactly-once Discord: the worker claims the job (conditional
