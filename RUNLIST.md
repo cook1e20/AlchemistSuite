@@ -401,6 +401,8 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       to show "not found on Amazon UK" from `uk_not_found_at`, close 028 as routed.*
       *2026-10-17: done. Scan + morning view already badge the marker; the gap is the queue path, logged as
       Alchemist_Dashboard 025 (`d25acd0`, auto). alchemist-v2 028 closed as routed (`798bf57`). Build 025 next.*
+      *2026-10-17: 025 built (Alchemist_Dashboard `0e53a9c`, 304/304): backfill-status badge "Not on Amazon UK, retried
+      after <date>"; Queue-all AC moot (marked EANs are matched, never queueable). Open only for a browser check.*
 - [ ] **R12. Qogita auto-sync flip** (HITL, operator) —
       `Alchemist_Dashboard/issues/015` Phase 6 (G6's deferred flip). Pre-flip:
       add `wholesale-sync` to the dashboard's `KNOWN_STAGES`
