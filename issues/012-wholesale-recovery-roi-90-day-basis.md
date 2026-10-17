@@ -45,7 +45,12 @@ Work: (1) alchemist-v2 - nullable `products` avg90 column (migration, operator a
 field, same shape as issue 039; CONTRACTS.md section 2/4. (2) Alchemist_Dashboard - the columns and
 filters (needs the column live; avg30 half can start first).
 
-## Remaining questions (small, ask at ticket time)
+## Remaining questions - answered 2026-10-17 (operator)
+
+- Price: **buy-box** average, both 30d and 90d (two new `products` pence columns; `uk_avg30_price` keeps
+  its new-price meaning). Fees: re-derive at the average. Tickets: alchemist-v2 054, Alchemist_Dashboard 024.
+
+Original wording:
 
 - Fees at the average price: re-derive from `referral_pct` + `fba_pick_pack` (as the scan does today)?
 - Which Keepa average for "price": buy box avg (as DealFinder's recovery) or new-price avg?

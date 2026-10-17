@@ -255,6 +255,11 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       filters, one line per product: sales/month + rank drops, 30/90-day price, 30/90-day ROI. Needs an
       alchemist-v2 `products` avg90 column (migration, operator applies) + miner write, then the dashboard
       columns. Next: file the two repo tickets. Blockers: none (two small questions in the issue).
+      *2026-10-17: operator: price basis = **buy-box** average for both 30d and 90d (Keepa csv 18); fees
+      re-derived at the average (referral_pct + fba_pick_pack); ROI on gross cash cost. `uk_avg30_price`
+      (new-price, feeds the miner target) unchanged. Tickets filed: alchemist-v2 054 (`c14e22a`,
+      `uk_buybox_avg30_pence` + `uk_buybox_avg90_pence`, migration operator-applied) and Dashboard 024
+      (`4a6c7e1`, columns + filters, blocked by 054's migration and R39/023). Build order: 054, R39, 024.*
 - [ ] **R34. `alchemist-v2/issues/049-bug-not-found-spike-2026-10-08.md`** (auto, bug,
       major) — 10-08 mine: 13,581 not-found vs 2,239 enriched. Possibly false 90-day
       parking. Blockers: none.
