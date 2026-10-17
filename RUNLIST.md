@@ -276,11 +276,13 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       *2026-10-17: landed (alchemist-v2 `e648f85`, 657/657, red-first). Miner + import now count a `false` upsert as an
       error (run reads `completed_with_errors`), not enriched/imported. The row still has a null `last_mined_at`, so a
       persistently failing write still re-spends each run: apply the 054 migration before deploying. No backoff built.*
-- [ ] **R49. `alchemist-v2/issues/055-bug-enrichbatch-marks-failed-keepa-call-as-not-found.md`** (HITL, bug,
+- [x] **R49. `alchemist-v2/issues/055-bug-enrichbatch-marks-failed-keepa-call-as-not-found.md`** (HITL, bug,
       major) — a failed or empty Keepa response parks the whole batch (up to 100 rows) not-found for 90 days.
       Blockers: none.
-      *2026-10-17: in progress — coder stopped mid-build (session usage limit). Uncommitted work in alchemist-v2
-      (`keepa.js`, `stage-import.js`, `stage-miner.js`, two tests); resume, don't restart.*
+      *2026-10-17: landed (alchemist-v2 `c0258b9`, 674/674, red-first, reviewed APPROVE 1 round). Keepa batch helpers
+      now return `ok`; a failed call (timeout/network/parse/429 body) marks nothing, counts one error, rows retry next
+      run. A successful `products: []` still parks. Unverified: Keepa sends an explicit empty `products` for an
+      all-absent lookup (if not, rows retry rather than park). Ordinary deploy, ship with 056 + 054 migration.*
 - [ ] **R34. `alchemist-v2/issues/049-bug-not-found-spike-2026-10-08.md`** (auto, bug,
       major) — 10-08 mine: 13,581 not-found vs 2,239 enriched. Possibly false 90-day
       parking. Blockers: none.
