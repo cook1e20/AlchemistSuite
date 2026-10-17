@@ -302,11 +302,15 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       *2026-10-14: landed (alchemist-v2 `790a7a6`, 614/614, reviewed APPROVE). Pre-screen queueing resets
       `last_mined_at` to NULL on existing rows; the miner now ranks NULL above every tier (tier 0 is 527k
       live). Parked not-found rows stay parked (R11). CONTRACTS.md section 2 updated. Deploy with R35.*
-- [ ] **R39. `Alchemist_Dashboard/issues/023-bug-scan-roi-vat-basis.md`** (HITL, bug, minor) —
+- [x] **R39. `Alchemist_Dashboard/issues/023-bug-scan-roi-vat-basis.md`** (HITL, bug, minor) —
       the scan's Keepa-target ROI is profit ÷ ex-VAT cost, and uses the inc-VAT price raw on
       inc-VAT-only files. The server and SellerAmp use profit ÷ gross cash cost. Operator picks the
       basis, then build. Blockers: operator decision.
       *2026-10-16: decided — **gross cash cost** (matches SellerAmp/052/046). Now auto: build per the issue.*
+      *2026-10-17: landed (Alchemist_Dashboard `c2bbce2`, 279/279, typecheck clean, reviewed APPROVE). Scan and
+      morning view use profit / gross cash cost; "ROI (Keepa target)" now matches SP-API ROI (B01MSVHZTT 56.18%).
+      `roiAtPrice` exported for Dashboard 024. Note: paying exactly `target_gb_price` now reads 16.7% (the target
+      is still a 20%-on-net-cost price). Not browser-checked.*
 - [x] **R38. `DealFinder/issues/056-bug-sp-api-prescreen-not-gated-to-0800-2000.md`** (auto,
       bug, minor) — DealFinder's SP-API pre-screen runs 05–08 and 20–21, overlapping
       alchemist-v2's ADR 0001 window. Do this before R35, or watch for 429s at go-live.
