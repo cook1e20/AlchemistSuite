@@ -370,12 +370,15 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
 
 ### Then — decisions and features
 
-- [ ] **R8. Arbisource export gating** (HITL) — was K3, root `issues/006`. Now
+- [x] **R8. Arbisource export gating** (HITL) — was K3, root `issues/006`. Now
       unblocked: `gating_status` has data and the dashboard reads it anon (R2).
       Remaining question: filter the export on `gating_status`, and what to do with
       ASINs that have no row. Blockers: R2.
       *2026-10-16: decided — filter on `gating_status` (anon-readable, no new grant): drop gated, **keep
       unchecked**, add a `gating` column (`ungated`/`unchecked`) to the CSV. Now auto (dashboard build).*
+      *2026-10-17: landed (Alchemist_Dashboard `ef85cbc`, 299/299, typecheck clean; overseer diff read). CSV is now
+      `asin,gating` with a header per file (was headerless ASINs). Failed gating read aborts. Operator: deploy, then check
+      Arbisource accepts the header + second column (if not, drop the header). Root issue 006 -> done.*
 - [ ] **R9. `DealFinder/issues/047-velocity-floor-shared-across-signals.md`** (HITL,
       investigation) — was L5. Read issue 005's floor-tuning outcome first.
       Blockers: none; its optional `products` write needs R5.
