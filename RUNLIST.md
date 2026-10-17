@@ -239,11 +239,11 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
 - [ ] **R46. `alchemist-v2/issues/052-wholesale-prescreen-gate-before-keepa-queue.md`** (auto, minor) —
       operator call 10-17: queue shortlist barcodes for Keepa only after gating, ungated or unchecked only
       (~290 gated lines were mined on 10-16). Blockers: none.
-- [ ] **R47. Wholesale recovery ROI on a 90-day basis — grill** (HITL) — root
-      `issues/012-wholesale-recovery-roi-90-day-basis.md`, operator idea 10-17: judge wholesale lines on a
-      30/90-day average (as DealFinder's UK price recovery does), not just today's buy box; the night cut
-      stays on today's price. Needs a `products` avg90 column. Next: grill. Blockers: grill (better after R45
-      and the R43 deploy).
+- [ ] **R47. Wholesale scan: 30/90-day price + ROI columns and filters** (HITL: one migration) — root
+      `issues/012-wholesale-recovery-roi-90-day-basis.md`. Operator 10-17: dashboard-only, user-chosen
+      filters, one line per product: sales/month + rank drops, 30/90-day price, 30/90-day ROI. Needs an
+      alchemist-v2 `products` avg90 column (migration, operator applies) + miner write, then the dashboard
+      columns. Next: file the two repo tickets. Blockers: none (two small questions in the issue).
 - [ ] **R34. `alchemist-v2/issues/049-bug-not-found-spike-2026-10-08.md`** (auto, bug,
       major) — 10-08 mine: 13,581 not-found vs 2,239 enriched. Possibly false 90-day
       parking. Blockers: none.

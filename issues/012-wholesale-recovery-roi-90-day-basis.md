@@ -28,7 +28,29 @@ DealFinder 048). Operator: the 90-day average ROI data will be valuable on the w
   `uk_sales_rank_drops30`) + a migration the operator applies. DB is near the free cap (R1) - a few
   bytes a row.
 
-## Questions to grill
+## Scope decided (operator, 2026-10-17)
+
+**Dashboard-only for the user**: the wholesale scan / morning view gets more columns and filters; the
+user picks the filter, so all of it can be analysed on one line per product. No change to the night
+cut, the shortlist or Discord. Columns:
+
+- sales/month (`monthly_sold`; shows "?" for ~94% of rows - Keepa only has it above Amazon's 50+/month
+  badge, DealFinder 032) **and** rank drops/30d (`uk_sales_rank_drops30`) as the real demand figure;
+  a "50+/month" filter should key on rank drops, not `monthly_sold`, or it hides nearly everything
+- 30-day price (`uk_avg30_price`, exists) and 90-day price (**new column**)
+- 30-day ROI and 90-day ROI: the scan's ROI maths at each average instead of the current price, on
+  gross cash cost (R39 decision)
+
+Work: (1) alchemist-v2 - nullable `products` avg90 column (migration, operator applies) + miner upsert
+field, same shape as issue 039; CONTRACTS.md section 2/4. (2) Alchemist_Dashboard - the columns and
+filters (needs the column live; avg30 half can start first).
+
+## Remaining questions (small, ask at ticket time)
+
+- Fees at the average price: re-derive from `referral_pct` + `fba_pick_pack` (as the scan does today)?
+- Which Keepa average for "price": buy box avg (as DealFinder's recovery) or new-price avg?
+
+## Original questions (mostly answered above)
 
 1. Basis: avg90, avg30, min(avg30, avg90), or avg90 - 10% (DealFinder's)? Which buy box series?
 2. Demand gate for "recovery" winners: minimum `uk_sales_rank_drops30`? Amazon on the listing? FBA
