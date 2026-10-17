@@ -408,6 +408,8 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       add `wholesale-sync` to the dashboard's `KNOWN_STAGES`
       (`src/pipeline-status.ts`; `analytics` is missing there too). Hold if R1 lands
       on "stay free" — each sync grows the DB. Blockers: R1.
+      *2026-10-17: pre-flip done — `KNOWN_STAGES` now has `wholesale-sync` + `analytics` (Alchemist_Dashboard `4cda552`).
+      R1 landed on "free for 1–2 months, then Pro", so the hold applies: flip when on Pro (operator).*
 
 - [x] **R16. `DealFinder/issues/048-uk-to-uk-price-recovery-source-market.md`** (HITL) —
       UK→UK price-recovery scanner (UK buy, sell basis = 90-day buy-box average − 10%).

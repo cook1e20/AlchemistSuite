@@ -206,15 +206,9 @@ per table is in §3.
   034, Phase 6)** added a `scheduler.js` cron entry (every 15 min, offset from
   `commands`), gated by `WHOLESALE_SYNC_ENABLED` (default `false` — the cron always
   registers but no-ops until an operator flips the env var and restarts, same
-  rollback pattern as the miner window/issue 030). **`Alchemist_Dashboard/src/
-  pipeline-status.ts`'s `KNOWN_STAGES` was NOT updated as part of issue 034** — it
-  still lists five entries, not six — Phase 5 (G5, UI) landed without touching it
-  either, so the "Phase 5 touches that file anyway" assumption in this note's prior
-  revision turned out false. This is currently harmless (the switch defaults off, so
-  no cron-produced `wholesale-sync` row exists yet), but the moment an operator sets
-  `WHOLESALE_SYNC_ENABLED=true`, every 15-min cron row will render via the
-  `known:false` drift-alarm fallback instead of a proper card — add the sixth entry
-  to `KNOWN_STAGES` *before* or *at* that flip, not after.
+  rollback pattern as the miner window/issue 030). `Alchemist_Dashboard/src/
+  pipeline-status.ts`'s `KNOWN_STAGES` lists all seven names since 2026-10-17 (`4cda552`,
+  added before the auto-sync flip, RUNLIST R12).
 - **Current state:** writers landed 2026-07-15 (alchemist-v2 `7a0e170`, issue 017):
   `run-log.js`'s `withRunLog` wraps every stage run in both dispatchers (`index.js`
   CLI and `scheduler.js`, the deployed cron process). Statuses: `running` →
@@ -514,9 +508,7 @@ per table is in §3.
   **Manual dispatch only** (`node index.js --stage analytics`) — no cron for v1
   (owner's call: "on request"). Because it's never cron'd, a run's `run_log` row is
   the only regular producer of the `analytics` stage name; `Alchemist_Dashboard`'s
-  `KNOWN_STAGES` was deliberately not updated for this — same reasoning as
-  `wholesale-sync`'s pre-cron phase (safe to render via the `known:false` drift-alarm
-  fallback until/unless this ever gets a cron entry).
+  `KNOWN_STAGES` includes it since 2026-10-17 (`4cda552`); it shows idle between manual runs.
 - **Readers:** `Alchemist_Dashboard` (issue 008, landed 2026-07-21) built both — a
   "Live check" line on the Finance tab (the capital-invested check this table was
   actually built for) plus the full stock/orders/disbursement breakdown on the
