@@ -236,6 +236,13 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       major) — first live job (NDA-TOys, 10-16): 689 of 1,069 fees calls came back per-item `InternalError`
       (+55 `InvalidParameterValue`), all failed open to `shortlisted_unknown` and were Keepa-queued unpriced.
       Treat `InternalError` as transient with a retry cap. Do before R36's token measurement. Blockers: none.
+      *2026-10-17: code landed (alchemist-v2 `fbd7cf8`, 620/620, reviewed 2 rounds). Fees `InternalError` now
+      retries (line stays `awaiting_pricing`, attempt count in `reason`, cap 5 ticks, then fails open as before).
+      Live error share rose through the 10-16 run (46% -> 73% by minute), so throttling is the likely cause; pacing
+      already matches the documented 0.5 rps. No request defect found for `InvalidParameterValue`. New `run_log`
+      stats include the first error object plus the rate-limit header per tick. Bug 053 logged (retries refresh
+      `updated_at`). **Open (operator):** deploy alchemist-v2 (ordinary, no migration). After the next night with a
+      job, read `prescreenFeesErrorSample`/`prescreenFeesInvalidSample` from `run_log` to close AC1/AC4.*
 - [ ] **R46. `alchemist-v2/issues/052-wholesale-prescreen-gate-before-keepa-queue.md`** (auto, minor) —
       operator call 10-17: queue shortlist barcodes for Keepa only after gating, ungated or unchecked only
       (~290 gated lines were mined on 10-16). Blockers: none.

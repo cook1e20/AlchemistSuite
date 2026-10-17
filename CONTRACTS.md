@@ -335,8 +335,9 @@ per table is in §3.
   means `WHOLESALE_PRESCREEN_ROI_FLOOR` (default 0.2). **VAT model (DealFinder 052,
   VAT-registered):** gross cash cost = cost × 1.2 for `ex_vat`, as given for `inc_vat`; output
   VAT comes off the buy box (÷ 1.2), input VAT is reclaimed (gross ÷ 1.2), fees are ex-VAT;
-  `roi` = profit ÷ gross cash cost. `optimistic_roi` = buy box − 15% referral − 100p minimum
-  FBA fee. The UK digital services fee is not in SP-API's response and is not modelled
+  `roi` = profit ÷ gross cash cost. `optimistic_roi` = buy box − 7% referral (R43, 2026-10-17) − 100p minimum
+  FBA fee. A per-item fees `InternalError` is retried (line stays `awaiting_pricing`) up to 5
+  ticks before failing open (alchemist-v2 issue 051). The UK digital services fee is not in SP-API's response and is not modelled
   (DealFinder issue 054), so `roi` is slightly generous. Shortlisted and `shortlisted_unknown`
   barcodes (`gtin13`, deduped, check digit valid) are queued as service-role-inserted
   `commands` rows `{type: 'queue_backfill_ean', payload: {ean}, status: 'pending'}` — no
@@ -673,7 +674,9 @@ DealFinder and alchemist-v2 share one seller account, so they share the SP-API
 - No new `run_log` stage: the night pricing work rides the existing `commands` stage
   (`run_log.stats` gains `prescreenPriced`, `prescreenFeesFetched`, `prescreenShortlisted`,
   `prescreenRoiBelowFloor`, `prescreenQueued`, `prescreenQueueSkipped`,
-  `prescreenJobsCompleted`, `prescreenPricingThrottled`).
+  `prescreenJobsCompleted`, `prescreenPricingThrottled`; issue 051 adds
+  `prescreenFeesInternalError`, `prescreenFeesInternalErrorGaveUp`, `prescreenFeesInvalidParameter`
+  (lines) and the per-tick samples `prescreenFeesErrorSample`, `prescreenFeesInvalidSample`).
 
 ## 6. Discrepancies found during live verification (2026-07-15)
 
