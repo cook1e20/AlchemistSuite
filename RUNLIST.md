@@ -392,7 +392,7 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       behaviour change. Calibration in the issue: 50+/month badge holders show drops30 median 28, p25 18; new
       no-badge passers per day ~190 / ~100 / ~50 / ~10 at N = 10 / 15 / 20 / 30 (3 tokens each), ROI >= 20%
       candidates 127 / 127 / 123 / 26 over 7 days. **Operator:** pick N (overseer suggests 20), deploy, set
-      `VELOCITY_FLOOR_RANK_DROPS=<N>`. Then dashboard drops30 colouring follows (label-only follow-up).*
+      `VELOCITY_FLOOR_RANK_DROPS=<N>`. Label-only follow-up logged: DealFinder 058 (dashboard drops30 colouring).*
 - [ ] **R10. `alchemist-v2/issues/041-slim-records-for-low-velocity-products.md`**
       (HITL) — was L4. Operator picks the rank-drops threshold and the re-check
       interval. Blockers: R5 plus one mine cycle of data, and R1 (on Pro this
