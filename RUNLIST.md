@@ -394,11 +394,13 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       shrinks to the re-check-interval half).
       *2026-10-16: decided — re-check interval **120 days**, **tokens only** (no slimming; Pro removes the
       size pressure). Blocked on N from R9's calibration.*
-- [ ] **R11. `alchemist-v2/issues/028-requeue-does-not-clear-not-found-marker.md`**
+- [x] **R11. `alchemist-v2/issues/028-requeue-does-not-clear-not-found-marker.md`**
       (HITL, product call) — should a deliberate dashboard re-queue override the
       90-day not-found marker? Cheap once decided. Blockers: none.
       *2026-10-16: decided — **never override; badge only**. Next (auto): log the Alchemist_Dashboard issue
       to show "not found on Amazon UK" from `uk_not_found_at`, close 028 as routed.*
+      *2026-10-17: done. Scan + morning view already badge the marker; the gap is the queue path, logged as
+      Alchemist_Dashboard 025 (`d25acd0`, auto). alchemist-v2 028 closed as routed (`798bf57`). Build 025 next.*
 - [ ] **R12. Qogita auto-sync flip** (HITL, operator) —
       `Alchemist_Dashboard/issues/015` Phase 6 (G6's deferred flip). Pre-flip:
       add `wholesale-sync` to the dashboard's `KNOWN_STAGES`
