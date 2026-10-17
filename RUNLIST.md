@@ -225,11 +225,13 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       Follow-ups for R35: add an index on `wholesale_prescreen_lines(gtin13, created_at)` (reuse reads
       scan up to 14 days of lines); dashboard `pipeline-status.ts` "housekeeping runs monthly" comment
       is now stale.*
-- [ ] **R43. Wholesale pre-screen: optimistic referral 15% → 7%** (auto, small) — alchemist-v2
+- [x] **R43. Wholesale pre-screen: optimistic referral 15% → 7%** (auto, small) — alchemist-v2
       `wholesale-prescreen.js` `OPTIMISTIC_REFERRAL_RATE`. Operator call 2026-10-16: 7% is the lowest UK
       referral rate, so the early cut stays truly optimistic for electronics/computers and sub-£10 beauty.
       The real fees call still decides. Update tests and the stage comment in `stage-wholesale-pricing.js`.
       No minimum-price cut. Blockers: none.
+      *2026-10-17: landed (alchemist-v2 `ff41a81`, 614/614, tests red-first). No schema change; ordinary
+      deploy. More lines now reach the night fees call (SP-API only, no Keepa tokens).*
 - [ ] **R34. `alchemist-v2/issues/049-bug-not-found-spike-2026-10-08.md`** (auto, bug,
       major) — 10-08 mine: 13,581 not-found vs 2,239 enriched. Possibly false 90-day
       parking. Blockers: none.
