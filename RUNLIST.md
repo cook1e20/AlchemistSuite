@@ -232,6 +232,18 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       No minimum-price cut. Blockers: none.
       *2026-10-17: landed (alchemist-v2 `ff41a81`, 614/614, tests red-first). No schema change; ordinary
       deploy. More lines now reach the night fees call (SP-API only, no Keepa tokens).*
+- [ ] **R45. `alchemist-v2/issues/051-bug-fees-estimate-internal-error-mass-fail-open.md`** (auto, bug,
+      major) — first live job (NDA-TOys, 10-16): 689 of 1,069 fees calls came back per-item `InternalError`
+      (+55 `InvalidParameterValue`), all failed open to `shortlisted_unknown` and were Keepa-queued unpriced.
+      Treat `InternalError` as transient with a retry cap. Do before R36's token measurement. Blockers: none.
+- [ ] **R46. `alchemist-v2/issues/052-wholesale-prescreen-gate-before-keepa-queue.md`** (auto, minor) —
+      operator call 10-17: queue shortlist barcodes for Keepa only after gating, ungated or unchecked only
+      (~290 gated lines were mined on 10-16). Blockers: none.
+- [ ] **R47. Wholesale recovery ROI on a 90-day basis — grill** (HITL) — root
+      `issues/012-wholesale-recovery-roi-90-day-basis.md`, operator idea 10-17: judge wholesale lines on a
+      30/90-day average (as DealFinder's UK price recovery does), not just today's buy box; the night cut
+      stays on today's price. Needs a `products` avg90 column. Next: grill. Blockers: grill (better after R45
+      and the R43 deploy).
 - [ ] **R34. `alchemist-v2/issues/049-bug-not-found-spike-2026-10-08.md`** (auto, bug,
       major) — 10-08 mine: 13,581 not-found vs 2,239 enriched. Possibly false 90-day
       parking. Blockers: none.
