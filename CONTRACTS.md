@@ -113,8 +113,8 @@ per table is in §3.
   - `uk_buybox_avg30_pence`, `uk_buybox_avg90_pence` (integer GBP pence, nullable, no
     default, no index — alchemist-v2 issue 054, migration
     `2026-10-17-add-products-uk-buybox-avg-pence.sql`; **code landed 2026-10-17,
-    migration not yet applied live — apply before deploying that commit or the
-    buy-box miner upserts and every import upsert fail on an unknown column**) — Keepa
+    migration applied live 2026-10-19** (verified: both columns, anon SELECT + service_role
+    UPDATE inherited from the table grants)) — Keepa
     `stats.avg30[18]` / `stats.avg90[18]` (csv 18 = `BUY_BOX_SHIPPING`), the buy-box
     30/90-day average. **Not `uk_avg30_price`**, which is the new-price average
     (`stats.avg30[1]`) and keeps its meaning. No grant change (anon has table-level

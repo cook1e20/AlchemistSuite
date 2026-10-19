@@ -270,6 +270,9 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       **Deploy gate:** its product selects name the two buy-box columns, so the wholesale scan and morning view
       hard-fail until the 054 migration is live — apply it before deploying the dashboard. **Remaining (operator):**
       apply migration, deploy alchemist-v2 + dashboard, visual check of the new columns/filters/CSV, then close 024.*
+      *2026-10-19: 054 migration applied live (overseer, on operator request); both columns verified, 0 rows filled.
+      Deploy gate cleared: alchemist-v2 (054 + 055 + 056) and the dashboard (024/025/R8/KNOWN_STAGES) can deploy.
+      DB was 536 MB at apply time (over the 500 MB free cap); the migration adds no data.*
 - [x] **R48. `alchemist-v2/issues/056-bug-enrichbatch-ignores-upsertproduct-false-return.md`** (HITL, bug,
       major) — a failed upsert counts as enriched and never stamps `last_mined_at`; with buybox lookups that
       re-spends 3 tokens/row every 15 min. Do before or with the 054 deploy. Blockers: none.
