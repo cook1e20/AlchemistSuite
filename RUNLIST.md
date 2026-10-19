@@ -164,6 +164,9 @@ Live state at the reset: DB **472 MB of the 500 MB free cap** (read-only mode on
       reached the window (19,686 such unparked rows exist, last mined <= 10-11, behind ~500k older tier-0
       rows). Shadow yields no evidence until those come round or new EAN-only barcodes are queued (e.g. the
       wholesale shortlist after R35). Operator: leave shadow running and re-check after R35, or accept as is.*
+      *2026-10-19 (overseer, read-only): evidence now in — 236 shadow runs since 10-14: 1,448 SP-API not-found
+      answers, of which Keepa found **194 (13.4%)** and confirmed 1,254; 0 unchecked. Enforcing would park ~1 in 7
+      wrongly for 90 days, so **do not enforce as is.** Operator decision: keep shadow / turn off / investigate.*
 - [ ] **R7. Close out the E4 pilot** (HITL, operator) — was E4, last touched
       2026-07-27. Confirm the 12-hour rotation env vars went live on the VPS in
       both repos, record the final hit rate, and tick E4 with the standing
@@ -248,6 +251,8 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       stats include the first error object plus the rate-limit header per tick. Bug 053 logged (retries refresh
       `updated_at`). **Open (operator):** deploy alchemist-v2 (ordinary, no migration). After the next night with a
       job, read `prescreenFeesErrorSample`/`prescreenFeesInvalidSample` from `run_log` to close AC1/AC4.*
+      *2026-10-19: deployed (VPS alchemist-v2 `0fe03ad`, was `a7a90f3`, restart 12:42Z; ships R43/051/052/054/055/056).
+      No wholesale job has run since, so the samples check waits on the next stock list (R35).*
 - [x] **R46. `alchemist-v2/issues/052-wholesale-prescreen-gate-before-keepa-queue.md`** (auto, minor) —
       operator call 10-17: queue shortlist barcodes for Keepa only after gating, ungated or unchecked only
       (~290 gated lines were mined on 10-16). Blockers: none.
@@ -291,7 +296,7 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       now return `ok`; a failed call (timeout/network/parse/429 body) marks nothing, counts one error, rows retry next
       run. A successful `products: []` still parks. Unverified: Keepa sends an explicit empty `products` for an
       all-absent lookup (if not, rows retry rather than park). Ordinary deploy, ship with 056 + 054 migration.*
-- [ ] **R34. `alchemist-v2/issues/049-bug-not-found-spike-2026-10-08.md`** (auto, bug,
+- [x] **R34. `alchemist-v2/issues/049-bug-not-found-spike-2026-10-08.md`** (auto, bug,
       major) — 10-08 mine: 13,581 not-found vs 2,239 enriched. Possibly false 90-day
       parking. Blockers: none.
       *2026-10-14: code landed (alchemist-v2 `1d49f1d`, 609/609, reviewed 2 rounds). The 10-08 spike is genuine
@@ -304,6 +309,8 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       code; R35's two migrations applied first). VPS restart 20:38:26Z. Clear-up run: 1,873 marked, 492 left
       (13-digit twin exists), 1,381 cleared (8: 1, 12: 846, 14: 534), 0 failed; DB confirms. **Remaining:**
       check over the next few nights' `run_log` that non-13 rows enrich, then close 049.*
+      *2026-10-19: closed (alchemist-v2 `7c6592d`). Since the fix 1,056 of 1,092 mined non-13 rows enriched, 0 newly
+      marked not-found; 1,372 still waiting their turn in the queue.*
 - [ ] **R35. Wholesale pre-screen go-live** (HITL, operator):
       - Apply the alchemist-v2 table migration, then the dashboard anon-policy migration,
         live. Check `service_role` grants (see the dashboard CLAUDE.md).
@@ -375,6 +382,11 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       234–650, below the 700 floor, so light ticks may often skip; if so, lower `LIGHT_SCAN_MIN_TOKENS_LEFT`.
       **Remaining:** confirm `tick=light` lines fire, then a day of funnel logs (median feed-to-Discord,
       tokens/hour, no 429 spike, `feeFallback` on light ticks), then close 057.*
+      *2026-10-19 (overseer, read-only VPS logs): light ticks fire every 15 min (36 on 10-18, 17 by 13:00 on 10-19),
+      ~150-160 stage-1 tokens on a busy tick, often 0-20; `tokensLeft` stays ~800-1,100, so the 700 floor isn't
+      starving them. 0 429s in out/error logs. `feeFallback` mostly 0, at most 2. ~5 light ticks produced an alert
+      over 1.5 days. Median feed-to-Discord isn't in the logs, so not measured. Operator: close 057 on this, or ask
+      for a timing metric.*
 
 ### Then — decisions and features
 
