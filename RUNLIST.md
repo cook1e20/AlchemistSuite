@@ -507,6 +507,12 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       (Zappies SKU only); price DealFinder-style and alert on Discord. Next: sample emails, then grill.
       Blockers: grill.
 
+- [ ] **R50. Home micro server — grill** (HITL) — root `issues/013-home-server-db-claude-and-vps-work.md`,
+      operator idea 2026-10-19. One box at home: runs Claude remote sessions, hosts the shared DB (replacing
+      the free Supabase plan instead of Pro; likely self-hosted Supabase so app code doesn't change), maybe
+      takes some VPS work. Soft deadline: DB headroom ~2-3 months from 2026-10-19 (419 MB). Next: grill.
+      Blockers: grill, hardware.
+
 ### Anytime — cheap AFK filler
 
 - [x] **R13. `alchemist-v2/issues/035-bug-architecture-md-missing-analytics-wholesale-tables.md`**
