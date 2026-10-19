@@ -117,13 +117,15 @@ Live state at the reset: DB **472 MB of the 500 MB free cap** (read-only mode on
       `feeFallback` in the funnel log; fee total cross-check. Bug 055 folded in: the batch made the
       pre-screen's default-fee bound pessimistic, so it now charges `LIVE_FEE_FLOOR` on unknown fees.
       Deploy-gated (no migration); watch `feeFallback` and `spApiFalseReject` after deploy.*
-- [ ] **R25. `DealFinder/issues/054-eval-other-fees-column-and-dst.md`** (HITL, minor) —
+- [x] **R25. `DealFinder/issues/054-eval-other-fees-column-and-dst.md`** (HITL, minor) —
       `deals.eval_other_fees_pence` migration (operator applies it) plus the digital services
       fee knob decision. Blockers: operator migration.
       *2026-10-16: DST decision — leave unmodelled (operator). Remaining: operator applies the
       `eval_other_fees_pence` migration, then the column + dashboard "closing" term (auto).*
       *2026-10-19: migration written + applied live on operator go-ahead (DealFinder
       `supabase/migrations/20261019120000_...`, `c75a843`); verified. Persist + dashboard term: coder in progress.*
+      *2026-10-19: done (DealFinder `6fd11dd`, 626/626): persisted + "closing £z" on the dashboard net line; CONTRACTS.md
+      VAT-model note updated. Deploys with the next DealFinder pull.*
 - [x] **R26. `Alchemist_Dashboard/issues/019-bug-deals-landed-cost-net-beside-gross-roi.md`**
       (auto, bug, minor) — show gross cost beside ROI after DealFinder 052. Blockers: none
       (real effect only after the 052 deploy).
@@ -446,6 +448,7 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       on "stay free" — each sync grows the DB. Blockers: R1.
       *2026-10-17: pre-flip done — `KNOWN_STAGES` now has `wholesale-sync` + `analytics` (Alchemist_Dashboard `4cda552`).
       R1 landed on "free for 1–2 months, then Pro", so the hold applies: flip when on Pro (operator).*
+      *2026-10-19: operator — **hold until the home server (R50)**; manual syncs from the dashboard still work.*
 
 - [x] **R16. `DealFinder/issues/048-uk-to-uk-price-recovery-source-market.md`** (HITL) —
       UK→UK price-recovery scanner (UK buy, sell basis = 90-day buy-box average − 10%).
@@ -482,6 +485,8 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       *2026-10-16: operator — **keep the exclusion for now**; some shoes/clothes still come through, so the
       leaf-node lists have gaps (operator to pass example ASINs; find their categories, extend
       `EXCLUDE_CATEGORIES_<M>`). DealFinder 050 still undecided.*
+      *2026-10-19: DealFinder 050 closed as won't-do (operator: label only, no reject rule; `8d2ef78`). Remaining: operator
+      example ASINs of apparel still getting through.*
 
 - [x] **R18. Turn UK Discord alerts on** (HITL, operator) — `UK_SOURCE_MODE=on` in
       DealFinder's VPS `.env`, then restart. Operator call 2026-10-08 (don't wait the full 3

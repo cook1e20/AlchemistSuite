@@ -613,7 +613,8 @@ meanings until they are re-evaluated):
   shipping + prep − reclaim. It is no longer the sum of its parts. The reclaim has no
   column: derive it as buy + shipping + prep − landed (±1p).
 - `eval_net_proceeds_pence`: output VAT is deducted only when registered. It also carries
-  the SP-API closing/other fees (slice 1, no column; see DealFinder issue 054).
+  the SP-API closing/other fees, stored in `eval_other_fees_pence` (GBP pence, integer, null on
+  rows evaluated before DealFinder issue 054; null on screen-failure/pre-screen-reject rows).
 - `eval_roi`: profit (`eval_net_proceeds_pence − eval_landed_cost_pence`) ÷ **gross** cash
   cost (`eval_landed_cost_pence` + reclaim). This matches SellerAmp.
 Readers that show landed cost beside ROI must show the gross figure. Alchemist_Dashboard
