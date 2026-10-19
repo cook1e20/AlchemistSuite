@@ -290,6 +290,9 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       *2026-10-19: 054 migration applied live (overseer, on operator request); both columns verified, 0 rows filled.
       Deploy gate cleared: alchemist-v2 (054 + 055 + 056) and the dashboard (024/025/R8/KNOWN_STAGES) can deploy.
       DB was 536 MB at apply time (over the 500 MB free cap); the migration adds no data.*
+      *2026-10-19 evening: deployed (VPS `0fe03ad`, then `d7ca94f`); buy-box lookups live (13 rows/run, 39 tokens) and
+      49 `products` rows already carry both averages. Dashboard (Vercel, from `4cda552`) is live. Remaining: browser check
+      of the 024 columns/filters/CSV, then close 024.*
 - [x] **R48. `alchemist-v2/issues/056-bug-enrichbatch-ignores-upsertproduct-false-return.md`** (HITL, bug,
       major) — a failed upsert counts as enriched and never stamps `last_mined_at`; with buybox lookups that
       re-spends 3 tokens/row every 15 min. Do before or with the 054 deploy. Blockers: none.
@@ -425,13 +428,16 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       "50 today" baseline was the code default. Operator: **N = 20** (same as live). Set
       `VELOCITY_FLOOR_RANK_DROPS=20` on the VPS (backup `.env.bak-20261019-r9`, no restart needed, no behaviour change).
       Split deployed (`b81f952`). Unblocks R10.*
-- [ ] **R10. `alchemist-v2/issues/041-slim-records-for-low-velocity-products.md`**
+- [x] **R10. `alchemist-v2/issues/041-slim-records-for-low-velocity-products.md`**
       (HITL) — was L4. Operator picks the rank-drops threshold and the re-check
       interval. Blockers: R5 plus one mine cycle of data, and R1 (on Pro this
       shrinks to the re-check-interval half).
       *2026-10-16: decided — re-check interval **120 days**, **tokens only** (no slimming; Pro removes the
       size pressure). Blocked on N from R9's calibration.*
       *2026-10-19: N = 20 (R9). Now auto; coder building the 120-day re-check for below-bar rows.*
+      *2026-10-19: landed + deployed (alchemist-v2 `d7ca94f`, 689/689, reviewed APPROVE). Live PostgREST call of the new
+      filter returns rows at the old cost (~4s/2,000 rows). Restart 20:54 UK; 21:00 mine: 289 candidates, 286 enriched,
+      0 errors. Dormant today (0 below-bar rows 30-120 days stale); saves tokens as the 68k below-bar rows age.*
 - [x] **R11. `alchemist-v2/issues/028-requeue-does-not-clear-not-found-marker.md`**
       (HITL, product call) — should a deliberate dashboard re-queue override the
       90-day not-found marker? Cheap once decided. Blockers: none.
