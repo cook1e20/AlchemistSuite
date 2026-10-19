@@ -110,6 +110,13 @@ per table is in §3.
     sales/month: it must not be read as or merged into `monthly_sold`. Same field as
     DealFinder's `deals.uk_sales_rank_drops30`; DealFinder's `products-upsert` does
     not write it (DealFinder issue 047). Consumer: alchemist-v2 issue 041.
+    **Re-check cadence (alchemist-v2 issue 041 item 2, 2026-10-19):** a complete-signal row
+    with a stored `uk_sales_rank_drops30 < MINER_VELOCITY_MIN_DROPS30` (default 20) and
+    `monthly_sold` null or < 50 ("below the bar") is re-mined every
+    `MINER_BELOW_BAR_RECHECK_DAYS` (default 120) instead of the normal 30. Null drops30 is
+    unknown, not slow, so it keeps 30 days; null `last_mined_at` and missing-signal rows
+    are unaffected. Evaluated from the stored signal each time, so a row that clears the
+    bar returns to 30 days on its next re-check. No column is nulled and no row deleted.
   - `uk_buybox_avg30_pence`, `uk_buybox_avg90_pence` (integer GBP pence, nullable, no
     default, no index — alchemist-v2 issue 054, migration
     `2026-10-17-add-products-uk-buybox-avg-pence.sql`; **code landed 2026-10-17,
