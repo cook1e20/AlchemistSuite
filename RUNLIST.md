@@ -41,6 +41,11 @@ Live state at the reset: DB **472 MB of the 500 MB free cap** (read-only mode on
       *2026-10-13: closed — `EXPIRED_RETENTION_DAYS=7` confirmed in the VPS `.env`; purge removes
       ~1,500 rows/run, `deals` 204k rows / 76 MB, 39 rows unseen 14+ days. Pro move still due
       per the 10-07 decision.*
+      *2026-10-19: DB 536 MB (over cap). On operator go-ahead, removed 233,909 bulk-load not-found/no-ASIN
+      `products` rows (backup on VPS `/root/db-backups/` + local `codeProjects/db-backups/`; detail in
+      alchemist-v2 038), then `VACUUM FULL products` 13:00 UK: **DB 536 -> 419 MB** (`products` 399 -> 283 MB).
+      Growth ~1.1 MB/day from DealFinder intake, so roughly 2-3 months of headroom.
+      Operator plan: move the DB to a self-hosted home micro server instead of Pro (not yet scoped).*
 - [x] **R2. Commit the in-flight gating work** (HITL, housekeeping) — git is behind
       the live system in four places. Check no other session is mid-edit first.
       - root: Phase K RUNLIST section, `CONTRACTS.md` §1–3, `README.md`,
