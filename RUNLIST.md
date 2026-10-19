@@ -122,6 +122,8 @@ Live state at the reset: DB **472 MB of the 500 MB free cap** (read-only mode on
       fee knob decision. Blockers: operator migration.
       *2026-10-16: DST decision — leave unmodelled (operator). Remaining: operator applies the
       `eval_other_fees_pence` migration, then the column + dashboard "closing" term (auto).*
+      *2026-10-19: migration written + applied live on operator go-ahead (DealFinder
+      `supabase/migrations/20261019120000_...`, `c75a843`); verified. Persist + dashboard term: coder in progress.*
 - [x] **R26. `Alchemist_Dashboard/issues/019-bug-deals-landed-cost-net-beside-gross-roi.md`**
       (auto, bug, minor) — show gross cost beside ROI after DealFinder 052. Blockers: none
       (real effect only after the 052 deploy).
@@ -167,6 +169,9 @@ Live state at the reset: DB **472 MB of the 500 MB free cap** (read-only mode on
       *2026-10-19 (overseer, read-only): evidence now in — 236 shadow runs since 10-14: 1,448 SP-API not-found
       answers, of which Keepa found **194 (13.4%)** and confirmed 1,254; 0 unchecked. Enforcing would park ~1 in 7
       wrongly for 90 days, so **do not enforce as is.** Operator decision: keep shadow / turn off / investigate.*
+      *2026-10-19: operator — **keep shadow, investigate.** Logged alchemist-v2 058 (major): 179 distinct false EANs
+      (VPS `/root/db-backups/r6-false-not-found-eans-2026-10-19.txt`): 105 UK `50x` clustered by company prefix, 20
+      leading-zero (padded UPC), 15 ISBN, 39 other; base rates not yet known. Never enforce before 058 closes.*
 - [ ] **R7. Close out the E4 pilot** (HITL, operator) — was E4, last touched
       2026-07-27. Confirm the 12-hour rotation env vars went live on the VPS in
       both repos, record the final hit rate, and tick E4 with the standing
@@ -359,7 +364,7 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       change needed. CONTRACTS.md section 5 updated (root fd8c8a6). Unblocks R40.*
       *2026-10-16: deployed — DealFinder `a63d7e4` pushed to `free-first-funnel` and fast-forwarded to
       `main`; operator pulled + restarted ~12:58 UK. Unblocks R35's go-live run.*
-- [ ] **R40. `DealFinder/issues/057-faster-time-to-alert-light-scan-and-streaming-notify.md`**
+- [x] **R40. `DealFinder/issues/057-faster-time-to-alert-light-scan-and-streaming-notify.md`**
       (HITL, feature) — cut feed-to-Discord from up to ~70 min to ~15–20: a page-1 light scan
       every ~15 min between hourly full runs, then notify each pass as it is evaluated instead
       of after the whole pool (also stops the 600 s deadline costing passes with default fees).
@@ -387,6 +392,7 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       starving them. 0 429s in out/error logs. `feeFallback` mostly 0, at most 2. ~5 light ticks produced an alert
       over 1.5 days. Median feed-to-Discord isn't in the logs, so not measured. Operator: close 057 on this, or ask
       for a timing metric.*
+      *2026-10-19: operator closed 057 on this evidence (DealFinder `c75a843`).*
 
 ### Then — decisions and features
 
@@ -399,7 +405,7 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       *2026-10-17: landed (Alchemist_Dashboard `ef85cbc`, 299/299, typecheck clean; overseer diff read). CSV is now
       `asin,gating` with a header per file (was headerless ASINs). Failed gating read aborts. Operator: deploy, then check
       Arbisource accepts the header + second column (if not, drop the header). Root issue 006 -> done.*
-- [ ] **R9. `DealFinder/issues/047-velocity-floor-shared-across-signals.md`** (HITL,
+- [x] **R9. `DealFinder/issues/047-velocity-floor-shared-across-signals.md`** (HITL,
       investigation) — was L5. Read issue 005's floor-tuning outcome first.
       Blockers: none; its optional `products` write needs R5.
       *2026-10-06: investigated (DealFinder 3e4fe26) — 005 never tuned the floor; the 50 is
@@ -413,12 +419,17 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       no-badge passers per day ~190 / ~100 / ~50 / ~10 at N = 10 / 15 / 20 / 30 (3 tokens each), ROI >= 20%
       candidates 127 / 127 / 123 / 26 over 7 days. **Operator:** pick N (overseer suggests 20), deploy, set
       `VELOCITY_FLOOR_RANK_DROPS=<N>`. Label-only follow-up logged: DealFinder 058 (dashboard drops30 colouring).*
+      *2026-10-19: done. Correction: production `VELOCITY_FLOOR` was already 20 (VPS `.env`), so the calibration's
+      "50 today" baseline was the code default. Operator: **N = 20** (same as live). Set
+      `VELOCITY_FLOOR_RANK_DROPS=20` on the VPS (backup `.env.bak-20261019-r9`, no restart needed, no behaviour change).
+      Split deployed (`b81f952`). Unblocks R10.*
 - [ ] **R10. `alchemist-v2/issues/041-slim-records-for-low-velocity-products.md`**
       (HITL) — was L4. Operator picks the rank-drops threshold and the re-check
       interval. Blockers: R5 plus one mine cycle of data, and R1 (on Pro this
       shrinks to the re-check-interval half).
       *2026-10-16: decided — re-check interval **120 days**, **tokens only** (no slimming; Pro removes the
       size pressure). Blocked on N from R9's calibration.*
+      *2026-10-19: N = 20 (R9). Now auto; coder building the 120-day re-check for below-bar rows.*
 - [x] **R11. `alchemist-v2/issues/028-requeue-does-not-clear-not-found-marker.md`**
       (HITL, product call) — should a deliberate dashboard re-queue override the
       90-day not-found marker? Cheap once decided. Blockers: none.
