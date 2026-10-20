@@ -541,8 +541,16 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       (Zappies SKU only); price DealFinder-style and alert on Discord. 2026-10-20: grill complete
       (buy price in email; Gmail API hourly Mon–Fri 08–18; regex parser, no LLM; Keepa buy-box
       avg30/avg90 basis, 30% ROI floor at avg90 − 10%; dedup on ASIN+price; no category exclusions).
-      Owner: DealFinder (new module + own PM2 app). Next: tickets.
-      Blockers: none (ticketing).
+      Owner: DealFinder (new module + own PM2 app). Tickets DealFinder 059–064:
+      - 059: Gmail client and OAuth. Operator mints the refresh token.
+      - 060: email parser.
+      - 061: EAN → ASIN via SP-API catalog.
+      - 062: avg30/avg90 pricing and evaluation. Operator: are Zappies prices ex-VAT? Shipping?
+      - 063: `supplier_emails`/`supplier_offers` tables and dedup. Migration operator-applied;
+        CONTRACTS.md §2/§4.
+      - 064: PM2 app, hourly Mon–Fri 08–18, Discord alert, deploy.
+      Order: 059 and 063 can start in parallel; then 060 → 061 → 062 → 064.
+      Blockers: operator answer on VAT (062).
 
 - [ ] **R50. Home micro server — grill** (HITL) — root `issues/013-home-server-db-claude-and-vps-work.md`,
       operator idea 2026-10-19. One box at home: runs Claude remote sessions, hosts the shared DB (replacing
