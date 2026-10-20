@@ -538,8 +538,11 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
 
 - [ ] **R44. Zappies email ingester — grill** (HITL) — root `issues/011-zappies-email-ingester.md`, operator
       idea 2026-10-16. Gmail deal emails, several products each: Amazon link → ASIN, else EAN, else skip
-      (Zappies SKU only); price DealFinder-style and alert on Discord. Next: sample emails, then grill.
-      Blockers: grill.
+      (Zappies SKU only); price DealFinder-style and alert on Discord. 2026-10-20: grill complete
+      (buy price in email; Gmail API hourly Mon–Fri 08–18; regex parser, no LLM; Keepa buy-box
+      avg30/avg90 basis, 30% ROI floor at avg90 − 10%; dedup on ASIN+price; no category exclusions).
+      Owner: DealFinder (new module + own PM2 app). Next: tickets.
+      Blockers: none (ticketing).
 
 - [ ] **R50. Home micro server — grill** (HITL) — root `issues/013-home-server-db-claude-and-vps-work.md`,
       operator idea 2026-10-19. One box at home: runs Claude remote sessions, hosts the shared DB (replacing
