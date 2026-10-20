@@ -37,7 +37,9 @@ Per product in an email:
 ## Answered (operator, 2026-10-20)
 
 1. **Buy price:** yes, each product carries one in the email. It is the ROI cost basis.
-2. **Gmail access:** Gmail API on the jurassicdesignlabs@gmail.com account, polled hourly
+2. **Gmail access:** IMAP with an app password on jurassicdesignlabs@gmail.com. This changed
+   from the Gmail API with OAuth on 2026-10-20: simpler setup and no token expiry (DealFinder
+   059). Polled hourly
    during business hours (exact window still to pin: days and hours, UK time).
 
 ## Sample findings (2026-10-20, read via the Gmail connector)
