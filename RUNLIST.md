@@ -559,6 +559,17 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       the free Supabase plan instead of Pro; likely self-hosted Supabase so app code doesn't change), maybe
       takes some VPS work. Soft deadline: DB headroom ~2-3 months from 2026-10-19 (419 MB). Next: grill.
       Blockers: grill, hardware.
+- [ ] **R51. Inventory hold-or-sell view** (HITL: one migration) — root
+      `issues/014-inventory-hold-or-sell.md`, operator ask 2026-10-23: per held item, days held, my price,
+      buy box now, BB avg30/avg90, last sale, and a verdict (Sell now / Hold / Reprice / Healthy).
+      Decisions: analytics stage daily; line in the sand (stock in FBA at baseline = legacy cohort per
+      ASIN, purchases after = per Seller SKU); **Sell now means sell at the price that clears it**, not
+      hold for break-even; every row gets a suggested price + P/L. Tickets: alchemist-v2 059 (verify
+      SP-API reports live first, daily cron, buy-box lookups for held ASINs, `analytics_cache.stock_health`
+      migration, 30-day retention) then Alchemist_Dashboard 026 (table, verdicts, summary). Order: 059 → 026.
+      Also: Amazon-dominance rule (BB share + OOS %, same Keepa call); holds never expire, re-measured
+      daily; velocity columns (my sales 30/90d, market velocity, months to clear) with Slow/Stalled flags.
+      Blockers: none to start 059; its migration is operator-applied before deploy.
 
 ### Anytime — cheap AFK filler
 
