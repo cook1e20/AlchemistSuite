@@ -485,6 +485,26 @@ per table is in §3.
   stays counted; an order arriving >2h behind the watermark is missed (accepted limits).
   A prior record is reused only if its `purchaseDate` matches the BuySheet and its
   accumulators are valid; otherwise that lot full-scans.
+- **`stock_health` (jsonb, nullable; alchemist-v2 issue 059, root issue 014):** per held item,
+  the dashboard's hold-or-sell inputs. Migration `2026-10-24-add-analytics-cache-stock-health.sql`
+  (**written, not yet applied**; also grants `service_role` DELETE for the retention purge, which
+  it lacked). Shape `{ baselineAt, generatedAt, sources, items[] }`. `baselineAt` is the cohort
+  line, stamped by the first run and carried forward; `sources` is `{listings, orders, offers,
+  keepa}` each `ok` / `failed` / `skipped[: reason]`. Each item: `cohort` (`legacy` = one row per
+  ASIN for stock not bought on/after the baseline as a BuySheet SKU lot; `lot` = one SKU),
+  `sku` (lot only), `skus`, `asin`, `title`, `units`, `unitCostPence` (lot cost, else BuySheet
+  ASIN blend, units-weighted), `purchaseDate` (lot), `heldSince` / `ageDays` (purchase date, else
+  oldest listing open-date), `myPricePence` (listings report; lowest across a legacy row's SKUs),
+  `buyBoxNowPence`, `lowestFbaPence`, `amazonOfferPence`, `buyBoxSellerId`, `iHoldBuyBox` (null
+  unless `SP_API_SELLER_ID` is set) from `getItemOffersBatch`; `buyBoxAvg30Pence`,
+  `buyBoxAvg90Pence`, `amazonBuyBoxShare90` and `amazonOosPct90` (**fractions**),
+  `amazonPriceNowPence`, `amazonAvg90Pence`, `salesRankDrops30`, `monthlySold` from Keepa
+  (`buybox=1, stats=90`, Amazon UK seller `A3P5ROKL5A1OLE`); `lastSaleAt`, `unitsSold30`,
+  `unitsSold90` from the orders report (all marketplaces, cancellations excluded; legacy by ASIN,
+  lot by SKU; `0` = no sales, `null` = the orders report failed); `sourceNotes` (strings saying
+  why a field is null). No verdict: the dashboard computes it (Alchemist_Dashboard issue 026).
+  A run that cannot read the previous `stock_health` omits the column rather than redraw the
+  baseline, so readers must take the latest row that **has** `stock_health`, not just the latest row.
 - **Contract:** one wide row per stage run (never updated); the dashboard reads only
   the latest row (`order by snapshot_at desc limit 1`). Money in `fba_stock`/
   `recent_orders`/`next_disbursement` is integer pence (§4), computed at the
@@ -512,10 +532,11 @@ per table is in §3.
   accurate to "has real stock, needs a cost row" — a true zero-unit ASIN is shown but
   not counted there.
 - **Writers:** `alchemist-v2`'s `analytics` stage (service_role) only, `insertAnalyticsSnapshot` (`db.js`).
-  **Manual dispatch only** (`node index.js --stage analytics`) — no cron for v1
-  (owner's call: "on request"). Because it's never cron'd, a run's `run_log` row is
-  the only regular producer of the `analytics` stage name; `Alchemist_Dashboard`'s
-  `KNOWN_STAGES` includes it since 2026-10-17 (`4cda552`); it shows idle between manual runs.
+  **Daily at 04:30 UK** from `scheduler.js` since issue 059 (was manual dispatch only;
+  `node index.js --stage analytics` still works); `run_log` stage `analytics`, which
+  `Alchemist_Dashboard`'s `KNOWN_STAGES` includes since 2026-10-17 (`4cda552`). **Retention:**
+  the daily 03:30 `housekeeping` run deletes rows older than `ANALYTICS_RETENTION_DAYS` (30) but
+  never the latest row (it carries the lot accumulators and the stock_health baseline).
 - **Readers:** `Alchemist_Dashboard` (issue 008, landed 2026-07-21) built both — a
   "Live check" line on the Finance tab (the capital-invested check this table was
   actually built for) plus the full stock/orders/disbursement breakdown on the

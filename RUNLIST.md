@@ -570,6 +570,13 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       Also: Amazon-dominance rule (BB share + OOS %, same Keepa call); holds never expire, re-measured
       daily; velocity columns (my sales 30/90d, market velocity, months to clear) with Slow/Stalled flags.
       Blockers: none to start 059; its migration is operator-applied before deploy.
+      *2026-10-24: alchemist-v2 059 landed (`006120a`, 734/734; live read-only run: 28 items, 147s, 0 errors).
+      Design change on operator go-ahead: Keepa buy-box/Amazon lookups run inside the daily analytics run
+      and go to `stock_health` only (no `products` columns, no miner change). **Operator:** apply
+      `alchemist-v2/migrations/2026-10-24-add-analytics-cache-stock-health.sql` (column + service_role
+      DELETE), set `SP_API_SELLER_ID` (very likely `A2FTJ0MI2JDBZ2`), deploy + restart. Land bug
+      alchemist-v2 060 (BuySheet DD/MM dates misread by the lot code) before or with the deploy. Then
+      Dashboard 026 against the first live `stock_health` row.*
 
 ### Anytime — cheap AFK filler
 
