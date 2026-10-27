@@ -577,6 +577,9 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       DELETE), set `SP_API_SELLER_ID` (very likely `A2FTJ0MI2JDBZ2`), deploy + restart. Land bug
       alchemist-v2 060 (BuySheet DD/MM dates misread by the lot code) before or with the deploy. Then
       Dashboard 026 against the first live `stock_health` row.*
+      *2026-10-27: bug alchemist-v2 060 landed (`0703992`, red-first, 737/741; the 4 failures are another
+      session's uncommitted 058 tests). Lot order scans now read BuySheet dates day-first. Deploy prerequisite
+      cleared; remaining as above (operator: migration, `SP_API_SELLER_ID`, deploy).*
 
 ### Anytime — cheap AFK filler
 
