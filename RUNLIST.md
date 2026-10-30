@@ -580,6 +580,8 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       *2026-10-27: bug alchemist-v2 060 landed (`0703992`, red-first, 737/741; the 4 failures are another
       session's uncommitted 058 tests). Lot order scans now read BuySheet dates day-first. Deploy prerequisite
       cleared; remaining as above (operator: migration, `SP_API_SELLER_ID`, deploy).*
+      *2026-10-30: migration applied live (`stock_health jsonb` present; service_role now DELETE, INSERT,
+      SELECT; anon SELECT unchanged). Remaining: `SP_API_SELLER_ID`, deploy + `pm2 restart`.*
 
 ### Anytime — cheap AFK filler
 
