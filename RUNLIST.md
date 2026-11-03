@@ -615,6 +615,11 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       doesn't depend on it. CONTRACTS.md updated. Review found that alchemist-v2's submit leg also claims
       `pending` rows with no `source` filter; added to 062 (`edf0ac2`). **Operator:** apply the migration,
       then check grants live.*
+      *2026-11-03: Dashboard 029 code landed (`5fdf360`, 320/320, typecheck + build clean, reviewed APPROVE).
+      `qogita_blocked_brands` (normalised-brand PK, anon SELECT/INSERT/DELETE, service_role SELECT) and a Wholesale
+      Search panel. Migration `20261103130000` **not applied**; the panel errors until it is. CONTRACTS.md sections 2
+      and 3 updated (readers must normalise brands the same way). **Operator:** apply both Dashboard migrations
+      (028, 029), check `role_table_grants` and `pg_policies`, then do a browser check of the panel. Next (auto): 062.*
 
 ### Anytime — cheap AFK filler
 

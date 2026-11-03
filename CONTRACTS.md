@@ -457,6 +457,21 @@ per table is in §3.
   `storage.objects` (Supabase's standard managed grant, verified live), so this
   policy is the only gate. A write to any other path in the bucket stays private.
 
+### `qogita_blocked_brands` — operator's blocked-brand list. Owner: `Alchemist_Dashboard`
+
+- **PK:** `brand` (text) holding the NORMALISED brand: NFKC, whitespace runs collapsed to
+  one space, trimmed, lower-case (`Alchemist_Dashboard/src/blocked-brands.ts`
+  `normaliseBrand`). The DB check enforces it minus NFKC
+  (`brand = regexp_replace(lower(btrim(brand)), '\s+', ' ', 'g')`, <= 100 chars). Other
+  columns: `note` (<= 500 chars, nullable), `created_at` (default `now()`). Migration
+  `20261103130000` (Alchemist_Dashboard 029, **not yet applied**).
+- **Writers:** the dashboard only (anon INSERT/DELETE, §3). There is no UPDATE grant, so a
+  duplicate is rejected on 409/23505, never upserted.
+- **Readers:** alchemist-v2 (service_role SELECT, explicit grant) for Qogita price drops
+  (064) and the ungating finder (066). **Readers must normalise the Qogita brand the same
+  way before comparing** (NFKC, collapse whitespace, trim, lower-case), or a match is
+  missed.
+
 ### `analytics_cache` — SP-API snapshot for the dashboard. Owner: `alchemist-v2`
 
 - **PK:** `id` (bigint identity). Columns: `snapshot_at` (default `now()`), `fba_stock`
@@ -593,6 +608,7 @@ checked), with `asin_tracker` added and verified live 2026-09-19:
 | `gating_status` | SELECT only | grant: SELECT + `USING (true)` read policy (dashboard migration `20260925120000`) — Wholesale Search Gate column; browser-initiated writes only via `gating-check` (the alchemist-v2 night pre-screen also writes, service role) |
 | `wholesale_prescreen_jobs`, `wholesale_prescreen_lines` | SELECT only | grant: SELECT + `USING (true)` read policy (alchemist-v2 migration `2026-10-09-create-wholesale-prescreen-tables.sql`, **not yet applied**); default anon/authenticated privileges revoked |
 | `asin_tracker` | SELECT / INSERT / UPDATE (no DELETE) | grants + permissive `using(true)` policies (KeepaCompanion migration `20260919220000`); the `status` CHECK constraint is what bounds the values. Accepted for single-user triage data, same call as `business_snapshots`. |
+| `qogita_blocked_brands` | SELECT / INSERT / DELETE (no UPDATE) | grants + one permissive `using(true)` / `with check(true)` policy per operation (dashboard migration `20261103130000`, **not yet applied**); default anon/authenticated privileges revoked; the brand check constraint bounds the values. Single-user list, same call as `business_snapshots`. |
 
 Everything else (`scout_log`, `tracking_log_archived`):
 **no anon access**.
