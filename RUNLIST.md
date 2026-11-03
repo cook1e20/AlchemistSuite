@@ -583,6 +583,30 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       *2026-10-30: migration applied live (`stock_health jsonb` present; service_role now DELETE, INSERT,
       SELECT; anon SELECT unchanged). Remaining: `SP_API_SELLER_ID`, deploy + `pm2 restart`.*
 
+- [ ] **R52. Supabase Pro** (HITL, operator) — decided 2026-11-03 in the Qogita grill (spec Q1). The DB was at
+      497/500 MB on 2026-11-03, growing ~5 MB/day (not the ~1.1 MB/day assumed on 10-19). Free puts the DB
+      read-only once over. Pro is a bridge: the home-server move (R50) is still the plan, now for January.
+      Blockers: none. **Do first.**
+- [ ] **R53. Qogita price drops + ungating finder** (HITL: migrations, Discord webhook, VPS switch) — root
+      `issues/spec-qogita-price-drops.md`, grilled 2026-11-03 (Q1-Q20, live API probes). Hourly invoice-only
+      catalogue pull → SQLite price history on the VPS (change log + 30/90-day averages + December median) → drops
+      costed instantly from `products` → new Qogita Discord channel → SP-API confirmation the same night → daily
+      ungating-finder digest. The invoice-only account setting stays ON (filters the API: 247,834 vs 465,639 rows).
+      Relaxes alchemist-v2 done/003 for this one pull only; the 015 "no catalogue table" ruling holds for Postgres.
+      Tickets:
+      - alchemist-v2 061 (bug, Qogita token dies <20 min, cache is 50; blocks all polling)
+      - Alchemist_Dashboard 028 (`wholesale_sync_requests.source` + service_role INSERT + `qogita-drops` stage; migration)
+      - Alchemist_Dashboard 029 (blocked-brands table + panel; migration, anon contract change)
+      - alchemist-v2 062 (hourly pull + daily copy; switch on as soon as it lands; history can't be backfilled)
+      - alchemist-v2 063 (SQLite change log + summary)
+      - alchemist-v2 064 (drop rules + instant check + Qogita channel; candidates migration)
+      - alchemist-v2 065 (night pre-screen job + Keepa queue cap 200/day)
+      - alchemist-v2 066 (ungating finder digest)
+      - Alchemist_Dashboard 027 (bug, supplier cost shown ex VAT; any time)
+      Order: 061 and 028 in parallel (029 too) → 062 → 063 → 064 → 065 and 066. Target: 062 live this week
+      (Q4); 064 before mid-November. January: Price Drops view, Christmas lens, SQLite → Postgres on R50.
+      Blockers: R52 for 064's candidates table (DB full); none for 061/028/029/062/063.
+
 ### Anytime — cheap AFK filler
 
 - [x] **R13. `alchemist-v2/issues/035-bug-architecture-md-missing-analytics-wholesale-tables.md`**
