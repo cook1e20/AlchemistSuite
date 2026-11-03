@@ -583,10 +583,11 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       *2026-10-30: migration applied live (`stock_health jsonb` present; service_role now DELETE, INSERT,
       SELECT; anon SELECT unchanged). Remaining: `SP_API_SELLER_ID`, deploy + `pm2 restart`.*
 
-- [ ] **R52. Supabase Pro** (HITL, operator) — decided 2026-11-03 in the Qogita grill (spec Q1). The DB was at
+- [x] **R52. Supabase Pro** (HITL, operator) — decided 2026-11-03 in the Qogita grill (spec Q1). The DB was at
       497/500 MB on 2026-11-03, growing ~5 MB/day (not the ~1.1 MB/day assumed on 10-19). Free puts the DB
       read-only once over. Pro is a bridge: the home-server move (R50) is still the plan, now for January.
-      Blockers: none. **Do first.**
+      *2026-11-03: done; org plan `pro` confirmed via the Supabase API. R12's "hold until Pro or home server" and
+      the Storage 50 MB global cap no longer bind (gzip stays).*
 - [ ] **R53. Qogita price drops + ungating finder** (HITL: migrations, Discord webhook, VPS switch) — root
       `issues/spec-qogita-price-drops.md`, grilled 2026-11-03 (Q1-Q20, live API probes). Hourly invoice-only
       catalogue pull → SQLite price history on the VPS (change log + 30/90-day averages + December median) → drops
