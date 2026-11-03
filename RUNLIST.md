@@ -610,6 +610,11 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       *2026-11-03: 061 landed (alchemist-v2 `6dd3216`, 742 pass / 4 fail, all 4 in another session's uncommitted 058
       test file). A 401 re-logs in and retries once, and the token is cached until its JWT `exp` (else 10 min).
       062's new callers must use `authedRequest`.*
+      *2026-11-03: Dashboard 028 code landed (`99c0fbf`, 304/304, typecheck clean, reviewed APPROVE). Migration
+      `20261103120000` (`source` default `'dashboard'` + service_role INSERT) **not applied**. The dashboard deploy
+      doesn't depend on it. CONTRACTS.md updated. Review found that alchemist-v2's submit leg also claims
+      `pending` rows with no `source` filter; added to 062 (`edf0ac2`). **Operator:** apply the migration,
+      then check grants live.*
 
 ### Anytime — cheap AFK filler
 

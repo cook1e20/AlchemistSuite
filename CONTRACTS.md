@@ -202,7 +202,9 @@ per table is in §3.
 - **PK:** `id`. Columns: `stage`, `status` (default `'running'`), `stats` (jsonb),
   `started_at` (default `now()`), `finished_at`.
 - **Canonical stage names (the published contract):** `mine`, `import`, `scout`,
-  `commands`, `housekeeping`, `wholesale-sync`, `analytics`. The dashboard renders
+  `commands`, `housekeeping`, `wholesale-sync`, `analytics`, `qogita-drops` (the hourly
+  Qogita price-drops pull, alchemist-v2 062; in the dashboard's `KNOWN_STAGES` since
+  Alchemist_Dashboard 028, 2026-11-03). The dashboard renders
   exactly these names — no aliases. Known drift hazards this contract settles: the scheduler's
   internal console label `miner` (cosmetic, must not leak into `run_log.stage`) and
   the dashboard's legacy `ungating` card key (real stage is `scout`) — the latter
@@ -404,10 +406,22 @@ per table is in §3.
 
 - **PK:** `id` (bigint identity). Columns: `status` (default `'pending'`),
   `catalog_request_id`, `download_url`, `filename`, `requested_at`, `completed_at`,
-  `error`, `created_at` (default `now()`). Created live 2026-07-20 (Alchemist_Dashboard
-  issue 015/016, migration `20260720130000`).
-- **Contract:** bookkeeping only, never catalog data (owner ruled out a Qogita-catalog
-  data table entirely — issue 015 Design). A handful of ephemeral rows. Status lifecycle:
+  `error`, `created_at` (default `now()`), `source` (text, not null, default
+  `'dashboard'`). Created live 2026-07-20 (Alchemist_Dashboard issue 015/016, migration
+  `20260720130000`). `source` added by migration `20261103120000` (Alchemist_Dashboard
+  028, **not yet applied**).
+- **`source`:** `'dashboard'` = the manual Wholesale Search sync (anon INSERT, relying on
+  the default); `'qogita-drops'` = alchemist-v2's hourly price-drops pull (062,
+  service_role INSERT), its own bookkeeping. **Must hold once 062 lands:** both
+  `wholesale-sync` legs claim only `'dashboard'` rows: submit (`getPendingWholesaleSyncRequest`,
+  oldest `pending`), so a qogita-drops row is never submitted twice, and ingest, so the
+  hourly pull never overwrites `latest.csv.gz`. Neither filters on `source` today. The
+  `qogita-drops` stage is a third service_role writer. The anon insert policy does not pin
+  `source` (anon surface left as is; single-user tool).
+- **Contract:** bookkeeping only. No Qogita catalogue table in Postgres (issue 015
+  Design; reaffirmed in the 2026-11-03 Qogita price-drops grill). Catalogue files and a
+  SQLite price history on the VPS are allowed (root `issues/spec-qogita-price-drops.md`).
+  A handful of ephemeral rows. Status lifecycle:
   `pending` (anon-inserted) → `requested` (alchemist-v2's `wholesale-sync` stage submit
   leg, landed 2026-07-20, issue 033 — Phase 3) → `ready` / `failed` (the
   `qogita-catalog-webhook` Edge Function, on Qogita's completion webhook) → `done` (the
@@ -421,6 +435,7 @@ per table is in §3.
   common Supabase assumption. Caught live during the G4 pilot (permission denied on
   every real stage invocation, despite 208/208 green mocked tests); fixed with a
   follow-up migration (`20260720140000`, `grant select, update to service_role`).
+  `20261103120000` adds `grant insert to service_role` for the hourly pull's own rows.
   Check `information_schema.role_table_grants` for `service_role` before trusting any
   new table's service-role code path.
 - **Readers:** the dashboard polls its own request's status (no push channel available to
