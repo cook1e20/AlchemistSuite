@@ -607,6 +607,9 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       Order: 061 and 028 in parallel (029 too) → 062 → 063 → 064 → 065 and 066. Target: 062 live this week
       (Q4); 064 before mid-November. January: Price Drops view, Christmas lens, SQLite → Postgres on R50.
       Blockers: R52 for 064's candidates table (DB full); none for 061/028/029/062/063.
+      *2026-11-03: 061 landed (alchemist-v2 `6dd3216`, 742 pass / 4 fail, all 4 in another session's uncommitted 058
+      test file). A 401 re-logs in and retries once, and the token is cached until its JWT `exp` (else 10 min).
+      062's new callers must use `authedRequest`.*
 
 ### Anytime — cheap AFK filler
 
