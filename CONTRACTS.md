@@ -472,6 +472,21 @@ per table is in §3.
   way before comparing** (NFKC, collapse whitespace, trim, lower-case), or a match is
   missed.
 
+### `qogita_drop_candidates` — Qogita price-drop candidates. Owner: `alchemist-v2`
+
+- **PK:** `(uk_day date, gtin text)`, upserted by the `qogita-drops` stage (alchemist-v2 064). Columns:
+  `found_at` (timestamptz, latest detection), `matched` (bool: a `products` row matched), `uk_asin` (nullable),
+  `baseline_pence`, `current_pence` (cheapest invoice offer, **integer pence ex VAT**), `drop_pct` (numeric(6,1)),
+  `offer_stock` (int), `posted` (bool, default false; never reset to false once true). Matched and unmatched
+  candidates both land here. Migration `alchemist-v2/migrations/2026-11-04-create-qogita-drop-candidates.sql`
+  (**written, not applied**).
+- **Writers:** alchemist-v2 only (service_role), only while `QOGITA_ALERTS_ENABLED=true`. Rows older than 14 days
+  are purged by the 03:30 housekeeping cron. **No anon access** (RLS on, no policy, anon/authenticated revoked).
+- **Readers:** alchemist-v2 065 (night pre-screen of the day's candidates); a later dashboard view would need a
+  dashboard-owned anon SELECT grant + policy (contract change, §3).
+- The price history behind it (change log, 30/90-day averages, posted state) lives in SQLite on the VPS, not
+  Postgres (spec Q9/Q17), until the home-server move.
+
 ### `analytics_cache` — SP-API snapshot for the dashboard. Owner: `alchemist-v2`
 
 - **PK:** `id` (bigint identity). Columns: `snapshot_at` (default `now()`), `fba_stock`

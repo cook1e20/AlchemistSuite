@@ -643,6 +643,14 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       day. **Operator:** push + deploy alchemist-v2 (no migration, no `.env` change), then after two real pulls check the
       `history:` log line: summary ~ catalogue size, changes << catalogue, RSS < 1 GB. Next (auto): 064 (its candidates
       migration is HITL).*
+      *2026-11-04: alchemist-v2 064 landed (`8af1dc6`, 900 pass / 4 fail (baseline 058 file), reviewed APPROVE + 1 hardening
+      round), **dark** behind `QOGITA_ALERTS_ENABLED`. Drops vs avg30 (previous price for a GTIN's first 7 days), stock
+      minimum, pre-order and blocked-brand skips, ROI 30/90 + profit/month from `products`, inc-VAT Discord post, once per
+      UK day (+10% re-post), max 25 posts/run. CONTRACTS.md section 2 gains `qogita_drop_candidates`. **Operator, in order:**
+      create the Qogita channel + webhook, set `DISCORD_QOGITA_WEBHOOK`, apply
+      `alchemist-v2/migrations/2026-11-04-create-qogita-drop-candidates.sql`, push + deploy (also ships 063), set
+      `QOGITA_ALERTS_ENABLED=true`, restart; check `preorderSkips` (encoding unverified) on the first run. Expect a burst
+      ~7 days after 063's deploy when every GTIN moves to the avg30 baseline (the cap absorbs it). Next (auto): 065 and 066.*
 
 ### Anytime — cheap AFK filler
 
