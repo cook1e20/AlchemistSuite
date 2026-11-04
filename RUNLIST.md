@@ -634,6 +634,9 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       `QOGITA_DROPS_ENABLED=true` (backup `.env.bak-20261104-r53`). Live check passed: 14:07 pulled 245,949 rows and wrote
       `qogita-2026-11-04.csv.gz`; 15:07 cached in 22 s; `latest.csv.gz` unchanged. 062 closed (`e4d3e9f`). Price history
       starts 2026-11-04. Next (auto): 063.*
+      *2026-11-04: cadence changed (operator: drops sell fast): :07/:37 08-20 UK, :07 overnight, London time, 36
+      runs/day. Qogita re-serves its last file for ~16-81 min, so hourly runs were often cached. alchemist-v2 `166306b`,
+      pushed and deployed 16:40 UK.*
 
 ### Anytime — cheap AFK filler
 
