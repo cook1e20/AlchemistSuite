@@ -637,6 +637,12 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       *2026-11-04: cadence changed (operator: drops sell fast): :07/:37 08-20 UK, :07 overnight, London time, 36
       runs/day. Qogita re-serves its last file for ~16-81 min, so hourly runs were often cached. alchemist-v2 `166306b`,
       pushed and deployed 16:40 UK.*
+      *2026-11-04: alchemist-v2 063 landed (`d62c413`, 810 pass / 4 fail (baseline 058 file), reviewed APPROVE + 1 fix round).
+      Each pulled file feeds SQLite (`node:sqlite`, no native build) at `QOGITA_HISTORY_DB` (default next to the snapshots):
+      `price_changes` on price/offer-stock change, `price_summary` per GTIN, averages rebuilt on the first pull of each London
+      day. **Operator:** push + deploy alchemist-v2 (no migration, no `.env` change), then after two real pulls check the
+      `history:` log line: summary ~ catalogue size, changes << catalogue, RSS < 1 GB. Next (auto): 064 (its candidates
+      migration is HITL).*
 
 ### Anytime — cheap AFK filler
 
