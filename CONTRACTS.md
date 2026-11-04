@@ -409,13 +409,13 @@ per table is in §3.
   `error`, `created_at` (default `now()`), `source` (text, not null, default
   `'dashboard'`). Created live 2026-07-20 (Alchemist_Dashboard issue 015/016, migration
   `20260720130000`). `source` added by migration `20261103120000` (Alchemist_Dashboard
-  028, **not yet applied**).
+  028, applied live 2026-11-03).
 - **`source`:** `'dashboard'` = the manual Wholesale Search sync (anon INSERT, relying on
   the default); `'qogita-drops'` = alchemist-v2's hourly price-drops pull (062,
-  service_role INSERT), its own bookkeeping. **Must hold once 062 lands:** both
-  `wholesale-sync` legs claim only `'dashboard'` rows: submit (`getPendingWholesaleSyncRequest`,
-  oldest `pending`), so a qogita-drops row is never submitted twice, and ingest, so the
-  hourly pull never overwrites `latest.csv.gz`. Neither filters on `source` today. The
+  service_role INSERT), its own bookkeeping, inserted as `requested` (never `pending`). Both
+  `wholesale-sync` legs claim only `'dashboard'` rows (alchemist-v2 062, `a34a5c7`): submit
+  (`getPendingWholesaleSyncRequest`, oldest `pending`), so a qogita-drops row is never
+  submitted twice, and ingest, so the hourly pull never overwrites `latest.csv.gz`. The
   `qogita-drops` stage is a third service_role writer. The anon insert policy does not pin
   `source` (anon surface left as is; single-user tool).
 - **Contract:** bookkeeping only. No Qogita catalogue table in Postgres (issue 015
@@ -464,7 +464,7 @@ per table is in §3.
   `normaliseBrand`). The DB check enforces it minus NFKC
   (`brand = regexp_replace(lower(btrim(brand)), '\s+', ' ', 'g')`, <= 100 chars). Other
   columns: `note` (<= 500 chars, nullable), `created_at` (default `now()`). Migration
-  `20261103130000` (Alchemist_Dashboard 029, **not yet applied**).
+  `20261103130000` (Alchemist_Dashboard 029, applied live 2026-11-04).
 - **Writers:** the dashboard only (anon INSERT/DELETE, §3). There is no UPDATE grant, so a
   duplicate is rejected on 409/23505, never upserted.
 - **Readers:** alchemist-v2 (service_role SELECT, explicit grant) for Qogita price drops
@@ -608,7 +608,7 @@ checked), with `asin_tracker` added and verified live 2026-09-19:
 | `gating_status` | SELECT only | grant: SELECT + `USING (true)` read policy (dashboard migration `20260925120000`) — Wholesale Search Gate column; browser-initiated writes only via `gating-check` (the alchemist-v2 night pre-screen also writes, service role) |
 | `wholesale_prescreen_jobs`, `wholesale_prescreen_lines` | SELECT only | grant: SELECT + `USING (true)` read policy (alchemist-v2 migration `2026-10-09-create-wholesale-prescreen-tables.sql`, **not yet applied**); default anon/authenticated privileges revoked |
 | `asin_tracker` | SELECT / INSERT / UPDATE (no DELETE) | grants + permissive `using(true)` policies (KeepaCompanion migration `20260919220000`); the `status` CHECK constraint is what bounds the values. Accepted for single-user triage data, same call as `business_snapshots`. |
-| `qogita_blocked_brands` | SELECT / INSERT / DELETE (no UPDATE) | grants + one permissive `using(true)` / `with check(true)` policy per operation (dashboard migration `20261103130000`, **not yet applied**); default anon/authenticated privileges revoked; the brand check constraint bounds the values. Single-user list, same call as `business_snapshots`. |
+| `qogita_blocked_brands` | SELECT / INSERT / DELETE (no UPDATE) | grants + one permissive `using(true)` / `with check(true)` policy per operation (dashboard migration `20261103130000`, applied live 2026-11-04); default anon/authenticated privileges revoked; the brand check constraint bounds the values. Single-user list, same call as `business_snapshots`. |
 
 Everything else (`scout_log`, `tracking_log_archived`):
 **no anon access**.

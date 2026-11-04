@@ -620,6 +620,16 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       Search panel. Migration `20261103130000` **not applied**; the panel errors until it is. CONTRACTS.md sections 2
       and 3 updated (readers must normalise brands the same way). **Operator:** apply both Dashboard migrations
       (028, 029), check `role_table_grants` and `pg_policies`, then do a browser check of the panel. Next (auto): 062.*
+      *2026-11-04: both Dashboard migrations applied live and verified (overseer, operator go-ahead). 028: 13/13 rows
+      read `dashboard`, service_role INSERT added; closed (`87138a2`). 029: applied in two calls (the single-call
+      apply hung twice in the Supabase MCP tool, probably its confirmation gate on `revoke`/`drop policy`); grants,
+      RLS, 3 policies verified; closed (`ba804e3`). The panel hasn't been browser-checked.*
+      *2026-11-04: alchemist-v2 062 landed (`a34a5c7`, 775 pass / 4 fail (baseline 058 file), reviewed 2 rounds, 1
+      stale finding overruled). Hourly `qogita-drops` stage at :07, dark behind `QOGITA_DROPS_ENABLED`. Both
+      wholesale-sync legs now claim `source='dashboard'` only. Daily gzip snapshot in `/root/qogita-snapshots/`;
+      invoice guard at 350k rows. **Operator:** deploy alchemist-v2, set `QOGITA_DROPS_ENABLED=true`, `pm2 restart`,
+      then check two consecutive runs (one `pulled`, `latest.csv.gz` unchanged). History starts at the switch-on, so
+      do it soon (Q4). Next (auto): 063.*
 
 ### Anytime — cheap AFK filler
 
