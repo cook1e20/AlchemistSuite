@@ -630,6 +630,10 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       invoice guard at 350k rows. **Operator:** deploy alchemist-v2, set `QOGITA_DROPS_ENABLED=true`, `pm2 restart`,
       then check two consecutive runs (one `pulled`, `latest.csv.gz` unchanged). History starts at the switch-on, so
       do it soon (Q4). Next (auto): 063.*
+      *2026-11-04: alchemist-v2 pushed (`d7ca94f..a34a5c7`, also ships R51's 059/060) and deployed 13:23 UK with
+      `QOGITA_DROPS_ENABLED=true` (backup `.env.bak-20261104-r53`). Live check passed: 14:07 pulled 245,949 rows and wrote
+      `qogita-2026-11-04.csv.gz`; 15:07 cached in 22 s; `latest.csv.gz` unchanged. 062 closed (`e4d3e9f`). Price history
+      starts 2026-11-04. Next (auto): 063.*
 
 ### Anytime — cheap AFK filler
 
