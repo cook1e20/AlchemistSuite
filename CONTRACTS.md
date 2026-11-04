@@ -196,6 +196,16 @@ per table is in §3.
   (`<name> [ref:xxxxxxxx]`); the worker copies `list_name` (trimmed only) onto the job row and the
   dashboard finds its job in `wholesale_prescreen_jobs` by that suffix. Do not rewrite
   `list_name` in the worker beyond trimming.
+  **Optional `summary_channel`** (alchemist-v2 065, 2026-11-04): absent/null = the default pre-screen Discord
+  channel; `'qogita'` = the server's `DISCORD_QOGITA_WEBHOOK` (unset = default channel, logged). A channel name,
+  never a URL; any other value fails the command (`summary_channel must be "qogita" when present`), no job row.
+  The server honours it only for jobs whose cleaned `list_name` starts with `Qogita drops `. The anon policy
+  doesn't check it (harmless: it only picks a server-held webhook).
+  **Server-side producer:** alchemist-v2 (`qogita-night.js`, service_role) inserts one `wholesale_prescreen` row
+  per UK day at ~19:50, `list_name: 'Qogita drops YYYY-MM-DD'`, `vat_basis: 'ex_vat'`, `summary_channel:
+  'qogita'`, lines `{barcode: gtin, cost_pence: ex-VAT price, stock: offer_stock, description}` (matched
+  candidates only, biggest drop first, capped at `WHOLESALE_PRESCREEN_MAX_LINES`). That `list_name` is the
+  once-per-day marker, so the `Qogita drops ` prefix is reserved for the server.
 
 ### `run_log` — Alchemist operational status. Owner: `alchemist-v2`
 
@@ -204,7 +214,7 @@ per table is in §3.
 - **Canonical stage names (the published contract):** `mine`, `import`, `scout`,
   `commands`, `housekeeping`, `wholesale-sync`, `analytics`, `qogita-drops` (the hourly
   Qogita price-drops pull, alchemist-v2 062; in the dashboard's `KNOWN_STAGES` since
-  Alchemist_Dashboard 028, 2026-11-03). The dashboard renders
+  Alchemist_Dashboard 028, 2026-11-03; plus one evening row ~19:50 UK with `night*` stats, alchemist-v2 065). The dashboard renders
   exactly these names — no aliases. Known drift hazards this contract settles: the scheduler's
   internal console label `miner` (cosmetic, must not leak into `run_log.stage`) and
   the dashboard's legacy `ungating` card key (real stage is `scout`) — the latter
@@ -482,7 +492,8 @@ per table is in §3.
   (**written, not applied**).
 - **Writers:** alchemist-v2 only (service_role), only while `QOGITA_ALERTS_ENABLED=true`. Rows older than 14 days
   are purged by the 03:30 housekeeping cron. **No anon access** (RLS on, no policy, anon/authenticated revoked).
-- **Readers:** alchemist-v2 065 (night pre-screen of the day's candidates); a later dashboard view would need a
+- **Readers:** alchemist-v2 065 (19:50 UK: matched rows → one pre-screen job; unmatched → Keepa queue, max
+  `QOGITA_DROPS_KEEPA_CAP` = 200/day via `queueBackfillEans`, ~3 tokens each in the miner window); a later dashboard view would need a
   dashboard-owned anon SELECT grant + policy (contract change, §3).
 - The price history behind it (change log, 30/90-day averages, posted state) lives in SQLite on the VPS, not
   Postgres (spec Q9/Q17), until the home-server move.

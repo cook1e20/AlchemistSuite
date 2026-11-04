@@ -651,6 +651,14 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       `alchemist-v2/migrations/2026-11-04-create-qogita-drop-candidates.sql`, push + deploy (also ships 063), set
       `QOGITA_ALERTS_ENABLED=true`, restart; check `preorderSkips` (encoding unverified) on the first run. Expect a burst
       ~7 days after 063's deploy when every GTIN moves to the avg30 baseline (the cap absorbs it). Next (auto): 065 and 066.*
+      *2026-11-04: alchemist-v2 065 landed (`0d035fa`, 946 pass / 4 fail (baseline 058 file), reviewed APPROVE 1 round), dark
+      with 064. 19:50 UK: the day's matched candidates go in as one pre-screen job `Qogita drops <date>` (summary to the
+      Qogita channel via payload `summary_channel`, no migration); unmatched ones are Keepa-queued, max 200/day.
+      **Operator decision:** unmatched drops are kept out of the job (052 would queue them to Keepa uncapped, bypassing
+      Q19's 200 cap), so they get SP-API confirmation only after they're mined and still qualify the next day. Say if
+      you want them in the job anyway. Also: one 19:50 tick, no evening retry; drops found after 19:50 miss that day's
+      job. CONTRACTS.md section 2 (`commands`, `run_log`, `qogita_drop_candidates`) updated. Bug alchemist-v2 067
+      logged (`ccb85a0`, `scheduler.test.js` flake, predates 065). Next (auto): 066.*
 
 ### Anytime — cheap AFK filler
 
