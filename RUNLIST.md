@@ -659,6 +659,13 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       you want them in the job anyway. Also: one 19:50 tick, no evening retry; drops found after 19:50 miss that day's
       job. CONTRACTS.md section 2 (`commands`, `run_log`, `qogita_drop_candidates`) updated. Bug alchemist-v2 067
       logged (`ccb85a0`, `scheduler.test.js` flake, predates 065). Next (auto): 066.*
+      *2026-11-06: alchemist-v2 066 landed (`f5b533d`, 990 pass / 4 fail (baseline 058 file), reviewed 2 rounds -> APPROVE),
+      **dark** behind `QOGITA_UNGATING_ENABLED`. Daily 09:15 UK digest to the Qogita channel: each gated brand's cheapest
+      stocked product (>= 10), cost = 10 units inc VAT, ranked cheapest, top 20, plus a separate "gating unknown" list; ROI
+      from 064's estimate; blocked brands skipped; cache-only gating (no SP-API/Keepa). `price_summary` gains `last_seen_at`
+      (SQLite, auto-added) so items that have left the catalogue are never recommended. **Operator:** push + deploy (no migration), wait for one
+      pull, set `QOGITA_UNGATING_ENABLED=true`, restart, confirm one real digest posts (066's open live AC). Not done
+      (non-blocking): verdict age is ignored; no data-age warning if pulls stop.*
 
 ### Anytime — cheap AFK filler
 

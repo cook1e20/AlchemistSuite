@@ -214,7 +214,7 @@ per table is in §3.
 - **Canonical stage names (the published contract):** `mine`, `import`, `scout`,
   `commands`, `housekeeping`, `wholesale-sync`, `analytics`, `qogita-drops` (the hourly
   Qogita price-drops pull, alchemist-v2 062; in the dashboard's `KNOWN_STAGES` since
-  Alchemist_Dashboard 028, 2026-11-03; plus one evening row ~19:50 UK with `night*` stats, alchemist-v2 065). The dashboard renders
+  Alchemist_Dashboard 028, 2026-11-03; plus one evening row ~19:50 UK with `night*` stats, alchemist-v2 065, and one daily row ~09:15 UK (`QOGITA_UNGATING_HOUR`) with `ungating*` stats, alchemist-v2 066). The dashboard renders
   exactly these names — no aliases. Known drift hazards this contract settles: the scheduler's
   internal console label `miner` (cosmetic, must not leak into `run_log.stage`) and
   the dashboard's legacy `ungating` card key (real stage is `scout`) — the latter
