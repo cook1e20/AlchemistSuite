@@ -82,6 +82,13 @@ per table is in §3.
     bulk load claiming it would bury dashboard-queued EANs; stamped rows remain tier-0
     miner candidates behind user-queued ones. Repairs 11-digit stripped-leading-zero
     UPCs by left-padding to GTIN-13 (root issue 005's chosen fix for the re-load path).
+  - `alchemist-v2` Qogita catalogue load (issue 068): the one-off CLI `load-qogita-products.js`
+    (dry-run by default, `--execute` to write) plus a daily top-up inside the `qogita-drops`
+    stage on the first fresh pull of the London day (`QOGITA_PRODUCTS_LOAD_ENABLED`, default
+    off; `run_log` stats `productsLoaded` / `productsLoadSkippedExisting`). It uses the same insert-only
+    `bulkInsertBareProducts` path and load-time `last_mined_at` stamp as above. Rows are Qogita
+    GTINs not already present (any twin form) that pass 064's stock rule. 11/12-digit codes are padded and a
+    14-digit code loses a leading 0, both to GTIN-13. Other codes are stored as listed.
   - `DealFinder` write-through (`src/products-upsert/`, `source = 'dealfinder'`) — writes
     only the columns its header comment lists (ean, uk_asin, de_asin, title, brand,
     uk_current_price, uk_avg30_price, monthly_sold, seller_count, source,

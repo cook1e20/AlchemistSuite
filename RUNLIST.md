@@ -685,6 +685,12 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       - alchemist-v2 070 (buy-box re-mine queue for NEW-basis rows, 100/day)
       - Alchemist_Dashboard 030 (Qogita/eany tabs, filters, pre-screen + block-brand actions)
       Order: 068 and 069 in parallel → 070 and Dashboard 030.
+      *2026-11-06: alchemist-v2 068 landed (`c26e357`, 1020 pass / 4 fail (baseline 058 file), reviewed APPROVE 1 round),
+      dark. The CLI and a daily top-up (`QOGITA_PRODUCTS_LOAD_ENABLED`) insert missing stock-passing Qogita GTINs as bare
+      rows; it never modifies existing ones. **Operator (VPS):** push + deploy, `node load-qogita-products.js` (dry run,
+      record counts in 068), weigh the insert count against DB size, `--execute`, then set the flag + `pm2 restart`.
+      Notes: top-up re-checks ~700-900 presence batches daily; 14-digit outer-case codes will likely park not-found;
+      padded UPCs grow 058's bucket. Next (auto): 069.*
 - [ ] **R55. eany.io automated pull** (HITL: session cookie, live probe, flags) — root `issues/spec-eany-pull.md`,
       grilled 2026-11-06 after a Chrome capture session. Export = bearer-authed `backend.eany.io/api/v1/exports`,
       file = cookie-authed `eany.io/api/exports/<id>/download` (link 307s to /login without a session). Cost =
