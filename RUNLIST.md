@@ -529,6 +529,10 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       selector, linked to ASIN/EAN) + VPS checker twice daily (plain HTTP, headless Chromium only per
       watch when needed). Alert on entering "in stock AND ROI ≥ floor". No logged-in pages in
       phase 1. Next: create the repo, `/to-spec`, `/to-tickets`, CONTRACTS.md tables. Blockers: none.
+      *2026-10-30: repo bootstrapped at `SourceWatch/` (local, no remote, nothing committed). Spec and
+      tickets 001-008 in `SourceWatch/issues/`; CONTRACTS.md tables added as planned. A per-watch buy
+      price now takes priority over the ROI floor. First watch: Trade Point DeWalt snips, buy below
+      £11.50 inc. VAT. **Next: `SourceWatch/issues/001` (HITL: live migration).***
 
 - [ ] **R42. Reverse seller tracker — grill + spike** (HITL) — root `issues/010-reverse-seller-tracker.md`,
       operator idea 2026-10-14. Poll a few strong sellers' storefronts via Keepa `/seller` once or twice a
@@ -582,7 +586,6 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       cleared; remaining as above (operator: migration, `SP_API_SELLER_ID`, deploy).*
       *2026-10-30: migration applied live (`stock_health jsonb` present; service_role now DELETE, INSERT,
       SELECT; anon SELECT unchanged). Remaining: `SP_API_SELLER_ID`, deploy + `pm2 restart`.*
-
 - [x] **R52. Supabase Pro** (HITL, operator) — decided 2026-11-03 in the Qogita grill (spec Q1). The DB was at
       497/500 MB on 2026-11-03, growing ~5 MB/day (not the ~1.1 MB/day assumed on 10-19). Free puts the DB
       read-only once over. Pro is a bridge: the home-server move (R50) is still the plan, now for January.
@@ -659,6 +662,12 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       you want them in the job anyway. Also: one 19:50 tick, no evening retry; drops found after 19:50 miss that day's
       job. CONTRACTS.md section 2 (`commands`, `run_log`, `qogita_drop_candidates`) updated. Bug alchemist-v2 067
       logged (`ccb85a0`, `scheduler.test.js` flake, predates 065). Next (auto): 066.*
+      *2026-11-06: 063-065 deployed live (operator go-ahead). Candidates migration applied (grants: service_role
+      SELECT/INSERT/UPDATE/DELETE only), alchemist-v2 pushed `166306b..ccb85a0` and deployed 11:35 UK,
+      `QOGITA_ALERTS_ENABLED=true` (backup `.env.bak-20261106-r53-alerts`; `DISCORD_QOGITA_WEBHOOK` already set). First
+      run 11:37: history seeded 243,600 GTINs (rss 401 MB), rebuild 3 s, 0 candidates (no baseline yet, expected).
+      Price history in SQLite starts today, not 11-04 (063 had never been deployed). Still to check: first real
+      drops/Discord posts, `preorderSkips`, the 19:50 night job, and the avg30 switch burst ~2026-11-13.*
       *2026-11-06: alchemist-v2 066 landed (`f5b533d`, 990 pass / 4 fail (baseline 058 file), reviewed 2 rounds -> APPROVE),
       **dark** behind `QOGITA_UNGATING_ENABLED`. Daily 09:15 UK digest to the Qogita channel: each gated brand's cheapest
       stocked product (>= 10), cost = 10 units inc VAT, ranked cheapest, top 20, plus a separate "gating unknown" list; ROI
@@ -666,6 +675,38 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       (SQLite, auto-added) so items that have left the catalogue are never recommended. **Operator:** push + deploy (no migration), wait for one
       pull, set `QOGITA_UNGATING_ENABLED=true`, restart, confirm one real digest posts (066's open live AC). Not done
       (non-blocking): verdict age is ignored; no data-age warning if pulls stop.*
+- [ ] **R54. Supplier best offers + Qogita/eany tabs** (HITL: live load, migration, browser check) — root
+      `issues/spec-supplier-best-offers.md`, grilled 2026-11-06 (Q1-Q13). Standing list of each pull's qualifying
+      offers (matched, stock rule, sales test, ROI >= 15% stored / 20% shown, BB or NEW basis) as Wholesale sub-tabs.
+      Only 17% of Qogita GTINs are in `products` and 0.9% have buy-box averages, hence 068 and 070.
+      Tickets:
+      - alchemist-v2 068 (load Qogita GTINs into `products`, initial CLI + daily top-up; start first, mining takes weeks)
+      - alchemist-v2 069 (signal cache + best-offers rebuild + `supplier_best_offers` migration)
+      - alchemist-v2 070 (buy-box re-mine queue for NEW-basis rows, 100/day)
+      - Alchemist_Dashboard 030 (Qogita/eany tabs, filters, pre-screen + block-brand actions)
+      Order: 068 and 069 in parallel → 070 and Dashboard 030.
+- [ ] **R55. eany.io automated pull** (HITL: session cookie, live probe, flags) — root `issues/spec-eany-pull.md`,
+      grilled 2026-11-06 after a Chrome capture session. Export = bearer-authed `backend.eany.io/api/v1/exports`,
+      file = cookie-authed `eany.io/api/exports/<id>/download` (link 307s to /login without a session). Cost =
+      EUR x 1.2 x ECB rate (delivery included, duty is overhead). Cookie on the VPS now; Playwright on the home
+      micro server later (fetcher swappable).
+      Tickets:
+      - alchemist-v2 071 (fetcher + live probe of the exports list; decides poll vs IMAP)
+      - alchemist-v2 072 (nightly `eany-pull` stage: snapshot, SQLite history, FX, alerts dark 2 weeks)
+      - alchemist-v2 073 (eany into products load + best offers; needs R54's 068/069)
+      - alchemist-v2 074 (Hot deals 2-week trial, store and measure only)
+      Order: 071 → 072 → 073 and 074. Operator first: copy the session cookie into `.env`, check eany's terms.
+- [ ] **R56. Qogita drops as a DealFinder feed** (HITL: two migrations, flag flip) — root
+      `issues/spec-qogita-dealfinder-feed.md`, 2026-11-06. Qogita drop (alchemist-v2 stock/drop rule) -> DealFinder:
+      ASIN, free SP-API pre-screen, Keepa (200/day cap), wholesale evaluation on buy-box avg30/avg90 (lower ROI >= 20%,
+      never the current buy box), gating -> card in `#wholesale`. 064/065 keep running during the trial.
+      *2026-11-06: 064 alerts switched to DealFinder-style embeds (alchemist-v2 40c9aa8, deployed).*
+      Tickets:
+      - alchemist-v2 075 (name/brand/link on `qogita_drop_candidates`)
+      - DealFinder 065 (wholesale supplier evaluation, shared with Zappies 062)
+      - DealFinder 066 (write buy-box averages back to `products`)
+      - DealFinder 067 (Qogita feed: poller, pre-screen shadow, cap, card, dedup; dark)
+      Order: 075, 065, 066 and 061's `searchCatalogByEan` in parallel → 067.
 
 ### Anytime — cheap AFK filler
 

@@ -36,6 +36,7 @@ is a snapshot, refreshed when re-verified.
 | Buy-sheet import, SP-API ungating checks | `alchemist-v2` |
 | EU→UK deal probing and deal lifecycle | `DealFinder` |
 | `deals`, `deal_notifications`, `ungating_opportunities` (schema + semantics) | `DealFinder` |
+| `supplier_emails`, `supplier_offers` (Zappies email ingest; schema + semantics) | `DealFinder` |
 | `products` write-through from evaluated deals (signal columns only) | `DealFinder` |
 | Browser UI; all anon-key payload shapes | `Alchemist_Dashboard` |
 | `business_snapshots` (finance history) | `Alchemist_Dashboard` |
@@ -266,6 +267,22 @@ per table is in §3.
   DealFinder only; anon read-only. The dashboard's Deals-tab ungating section consumes
   it as-is (`Alchemist_Dashboard/issues/done/005`, landed 2026-07-17 — one bounded GET,
   no write path), never redefining gating semantics.
+
+### `supplier_emails`, `supplier_offers` — Zappies supplier email ingest. Owner: `DealFinder`
+
+- **PK:** `supplier_emails.message_id` (text, Gmail X-GM-MSGID); `supplier_offers.id`
+  (identity), `message_id` FK to `supplier_emails`. One `supplier_emails` row per processed
+  email (idempotent polling), one `supplier_offers` row per parsed line with its verdict.
+  Money columns GBP pence, `roi_*` fractions (§4). Written by DealFinder only (service_role);
+  **no anon access** (RLS on, no policy, anon/authenticated revoked — §3).
+- **Dedup rule (operator, 2026-10-20):** key `(supplier, asin)`. A line alerts if no earlier
+  row for that key was notified, or its `price_pence` is below the last notified price; same
+  or higher price is stored with `notified_at` null. The baseline is the **minimum** notified
+  `price_pence` per `(supplier, asin)`. `(message_id, line_index)` is unique (0-based line
+  position), so a retried email upserts its lines instead of duplicating them. Indexed on `(supplier, asin)` (plus a
+  partial `notified_at` index for the last-notified lookup).
+- Migration `20261020120000_create_supplier_emails_and_offers.sql` (DealFinder), **written,
+  not yet applied**. DealFinder issue 063; parent root issue 011.
 
 ### `business_snapshots` — finance history. Owner: `Alchemist_Dashboard`
 
@@ -607,6 +624,19 @@ per table is in §3.
   blended summary box until lot coverage grows. Deliberate, not a bug — see
   Alchemist_Dashboard CLAUDE.md.
 
+### `source_watches`, `source_watch_changes` — retailer page watches. Owner: `SourceWatch` (planned)
+
+**Not yet created** (RUNLIST R41, `SourceWatch/issues/spec.md`).
+
+- `source_watches`: one row per watched non-Amazon product page, with a unique `url`, linked
+  `ean` and `asin`, optional `buy_price_pence`, `vat_basis` (`inc_vat` / `ex_vat`), and latest
+  reading and buy-state columns. `source_watch_changes`: one row per price or stock change, FK
+  to the watch, deleted after 90 days.
+- Written by the SourceWatch checker (service_role). Reads `products` only, by `ean`.
+- A failed check leaves stored price, stock and buy state untouched.
+- Prices are GBP pence on the watch's `vat_basis`. ROI must match DealFinder's model (§4).
+- **No anon access** until SourceWatch issue 006 adds the extension's grant to §3.
+
 ### `tracking_log_archived` — archived, read-only
 
 Frozen history of retired sniper Keepa trackings (0 rows live). No live writer; not a
@@ -636,7 +666,7 @@ checked), with `asin_tracker` added and verified live 2026-09-19:
 | `asin_tracker` | SELECT / INSERT / UPDATE (no DELETE) | grants + permissive `using(true)` policies (KeepaCompanion migration `20260919220000`); the `status` CHECK constraint is what bounds the values. Accepted for single-user triage data, same call as `business_snapshots`. |
 | `qogita_blocked_brands` | SELECT / INSERT / DELETE (no UPDATE) | grants + one permissive `using(true)` / `with check(true)` policy per operation (dashboard migration `20261103130000`, applied live 2026-11-04); default anon/authenticated privileges revoked; the brand check constraint bounds the values. Single-user list, same call as `business_snapshots`. |
 
-Everything else (`scout_log`, `tracking_log_archived`):
+Everything else (`scout_log`, `tracking_log_archived`, `supplier_emails`, `supplier_offers`):
 **no anon access**.
 
 Rules:
@@ -676,6 +706,9 @@ edge only.
 | `deals` | `eval_per_seller_monthly_share` | units/month per UK FBA seller (`monthly_sold / uk_fba_offer_count`; not ×100) |
 | `deal_notifications` | `notified_price_cents` | unit of the row's `notified_marketplace` (EUR **cents**, or GBP **pence** for `uk`) |
 | `ungating_opportunities` | `eu_price_cents` | EUR **cents** (`uk`-sourced deals are never parked); `uk_*_pence` GBP **pence** |
+| `supplier_offers` | `price_pence` | GBP **pence** (integer), the supplier's price **ex-VAT** (Zappies, DealFinder issue 062) |
+| `supplier_offers` | `buy_box_pence`, `buy_box_avg30_pence`, `buy_box_avg90_pence` | GBP **pence** (integer, UK sell side) |
+| `supplier_offers` | `roi_now`, `roi_avg30`, `roi_avg90` | fraction (×100 for %) |
 | `business_snapshots` | `bank`, `amazon_balance`, `fba_inventory`, `waiting_to_ship`, `amex_balance`, `cot_balance`, `net_invested`, `capital_injected`, `capital_withdrawn`, `total_cash`, `total_inventory`, `total_liabilities`, `total_capital`, `pnl` | GBP **pence** (integer, since dashboard migration `20260709150000`) |
 | `business_snapshots` | `roic_pct`, `inv_pct` | `numeric(6,2)` percentages |
 

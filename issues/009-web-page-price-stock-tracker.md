@@ -102,3 +102,24 @@ Open for round 2: watch volume, supplier pages behind a trade login, alert rule,
    CONTRACTS.md when specced.
 
 Next: `/to-spec` → `/to-tickets` in the new repo (RUNLIST R41).
+
+## First real watch (2026-10-30)
+
+Operator missed a drop to £11.38 on the DeWalt DWHT14675-0 aviation snips (VAT basis of that
+price not confirmed):
+https://www.trade-point.co.uk/departments/dewalt-dwht14675-0-300mm-aviation-snips/3253560146757_TP.prd
+
+Fetch test: plain `curl` returned 200 with no login and no bot block. The page's JSON-LD Product
+has `gtin13` 3253560146757, `price` 14.48 GBP and `availability` InStock (one offer per delivery
+method). So the plain-HTTP, structured-data-first path works here, and the EAN can seed the
+ASIN link. One sample fetch only, not a sustained test.
+
+For the spec: JSON-LD `price` is inc. VAT (£14.48); the ex-VAT figure (£12.07) is only in the
+embedded page data. Each watch needs to record its VAT basis before ROI is calculated.
+
+Operator decisions (2026-10-30): £11.38 was inc. VAT. Alert as a buy below £11.50 inc. VAT, linked
+to https://www.amazon.co.uk/dp/B072LQJ6W9. This adds a per-watch buy price to the round 2 rule:
+a watch with a buy price uses it, and a watch without one uses the ROI floor.
+
+Spec and tickets: `SourceWatch/issues/`. `products` maps this EAN to B08YD7G8LL, not B072LQJ6W9;
+the operator's ASIN is kept and the alert notes the mismatch.
