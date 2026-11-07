@@ -698,6 +698,11 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       check grants (anon SELECT only, service_role all four), deploy, set `BEST_OFFERS_ENABLED=true`, restart; after the
       first fresh pull record the row count + BB/NEW split in 069 and check the pre-order skip count. Next (auto): 070, then
       Dashboard 030 (its live check needs the migration).*
+      *2026-11-07: alchemist-v2 070 landed (`baab73e`, 1084 pass / 4 fail (baseline 058 file), reviewed APPROVE 1 round), dark
+      with 069. After each completed rebuild, the top `basis = 'new'` rows by profit/month are Keepa-queued for a buy-box
+      lookup, max 100/UK day (`BEST_OFFERS_BUYBOX_CAP`, ~300 tokens), with its own ledger separate from 065's; a GTIN isn't
+      re-queued within 7 days. Ships with 069's deploy (no extra migration or flag). Open live AC: BB share up a week
+      after deploy. CONTRACTS.md section 2 updated. Next (auto): Dashboard 030.*
 - [ ] **R55. eany.io automated pull** (HITL: session cookie, live probe, flags) — root `issues/spec-eany-pull.md`,
       grilled 2026-11-06 after a Chrome capture session. Export = bearer-authed `backend.eany.io/api/v1/exports`,
       file = cookie-authed `eany.io/api/exports/<id>/download` (link 307s to /login without a session). Cost =

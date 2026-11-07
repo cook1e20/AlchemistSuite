@@ -537,6 +537,9 @@ per table is in §3.
   behind `BEST_OFFERS_ENABLED` (no new `run_log` stage; stats `bestOffers`, `bestOffersNew`, `bestOffersRemoved`,
   `bestOffersBasisBb`, `bestOffersBasisNew`). Rows that stop qualifying are deleted, so it is a snapshot, not history.
   A partial read aborts the whole write; a removal of more than `BEST_OFFERS_MAX_REMOVE_PCT` (50%) is skipped.
+- **Buy-box re-mine (070):** after each completed rebuild, the top `basis = 'new'` rows by `profit_month_pence`
+  are Keepa-queued via `queueBackfillEans`, max `BEST_OFFERS_BUYBOX_CAP` = 100/UK day (~3 tokens each in the miner
+  window), a separate budget from 065's 200/day; a GTIN is not re-queued within 7 days. Stat `bestOffersBuyboxQueued`.
 - **Qualifies:** matched with an ASIN and fee inputs, 064's stock rule, `uk_sales_rank_drops30 >= 3` or
   `monthly_sold > 0`, not a pre-order, brand not blocked, and the **lower** of `roi30`/`roi90` >= 0.15. ROI and fees
   use 064's `estimate()` (profit ÷ gross cash cost, cost × 1.2). The dashboard tab filters to 20%.
