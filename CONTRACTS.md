@@ -502,7 +502,9 @@ per table is in §3.
 - **Writers:** the dashboard only (anon INSERT/DELETE, §3). There is no UPDATE grant, so a
   duplicate is rejected on 409/23505, never upserted.
 - **Readers:** alchemist-v2 (service_role SELECT, explicit grant) for Qogita price drops
-  (064) and the ungating finder (066). **Readers must normalise the Qogita brand the same
+  (064), the ungating finder (066) and the supplier best-offers rebuild (069). The list is
+  **supplier-wide** since 069 (spec-supplier-best-offers Q9): it also excludes brands for
+  `eany`, and the table keeps its name. **Readers must normalise the Qogita brand the same
   way before comparing** (NFKC, collapse whitespace, trim, lower-case), or a match is
   missed.
 
@@ -521,6 +523,24 @@ per table is in §3.
   dashboard-owned anon SELECT grant + policy (contract change, §3).
 - The price history behind it (change log, 30/90-day averages, posted state) lives in SQLite on the VPS, not
   Postgres (spec Q9/Q17), until the home-server move.
+
+### `supplier_best_offers` — a wholesale supplier's offers that qualify right now. Owner: `alchemist-v2`
+
+- **PK:** `(supplier, gtin)`; `supplier` is `qogita` | `eany` (check constraint, so a third supplier needs a
+  migration). Columns: `uk_asin`, `title`, `brand`, `cost_pence` (supplier price **ex VAT**), `basis` (`bb` =
+  buy-box 30/90-day averages, `new` = `uk_avg30_price`), `sell30_pence`, `sell90_pence`, `roi30`, `roi90`,
+  `profit_unit_pence`, `profit_month_pence`, `offer_units`, `stock_value_pence` (bigint, ex VAT), `gated` (cached
+  `gating_status` verdict, null = unknown), `supplier_link`, `dropped_today` (GTIN is in today's
+  `qogita_drop_candidates`), `first_qualified_at` (insert-only), `updated_at`. Migration
+  `alchemist-v2/migrations/2026-11-06-create-supplier-best-offers.sql` (**written, not applied**).
+- **Writer:** alchemist-v2 069 only (service_role), rebuilt inside the `qogita-drops` stage after every fresh pull,
+  behind `BEST_OFFERS_ENABLED` (no new `run_log` stage; stats `bestOffers`, `bestOffersNew`, `bestOffersRemoved`,
+  `bestOffersBasisBb`, `bestOffersBasisNew`). Rows that stop qualifying are deleted, so it is a snapshot, not history.
+  A partial read aborts the whole write; a removal of more than `BEST_OFFERS_MAX_REMOVE_PCT` (50%) is skipped.
+- **Qualifies:** matched with an ASIN and fee inputs, 064's stock rule, `uk_sales_rank_drops30 >= 3` or
+  `monthly_sold > 0`, not a pre-order, brand not blocked, and the **lower** of `roi30`/`roi90` >= 0.15. ROI and fees
+  use 064's `estimate()` (profit ÷ gross cash cost, cost × 1.2). The dashboard tab filters to 20%.
+- **Readers:** Alchemist_Dashboard 030 (anon SELECT, §3).
 
 ### `analytics_cache` — SP-API snapshot for the dashboard. Owner: `alchemist-v2`
 
@@ -672,6 +692,7 @@ checked), with `asin_tracker` added and verified live 2026-09-19:
 | `wholesale_prescreen_jobs`, `wholesale_prescreen_lines` | SELECT only | grant: SELECT + `USING (true)` read policy (alchemist-v2 migration `2026-10-09-create-wholesale-prescreen-tables.sql`, **not yet applied**); default anon/authenticated privileges revoked |
 | `asin_tracker` | SELECT / INSERT / UPDATE (no DELETE) | grants + permissive `using(true)` policies (KeepaCompanion migration `20260919220000`); the `status` CHECK constraint is what bounds the values. Accepted for single-user triage data, same call as `business_snapshots`. |
 | `qogita_blocked_brands` | SELECT / INSERT / DELETE (no UPDATE) | grants + one permissive `using(true)` / `with check(true)` policy per operation (dashboard migration `20261103130000`, applied live 2026-11-04); default anon/authenticated privileges revoked; the brand check constraint bounds the values. Single-user list, same call as `business_snapshots`. |
+| `supplier_best_offers` | SELECT only | `grant select` + one permissive `using (true)` select policy, after `revoke all` from anon/authenticated (alchemist-v2 migration `2026-11-06-create-supplier-best-offers.sql`, **not yet applied**); service_role select/insert/update/delete. Read-only for the browser (Dashboard 030); single-user data. |
 
 Everything else (`scout_log`, `tracking_log_archived`, `supplier_emails`, `supplier_offers`):
 **no anon access**.
@@ -706,6 +727,8 @@ edge only.
 |---|---|---|
 | `products` | `uk_current_price`, `uk_avg30_price`, `uk_buybox_avg30_pence`, `uk_buybox_avg90_pence`, `uk_breakeven_ex_vat`, `uk_breakeven_inc_vat`, `target_gb_price`, `target_gb_price_high`, `fba_pick_pack` | GBP **pence** (integer) |
 | `products` | `referral_pct` | numeric percentage |
+| `supplier_best_offers` | `cost_pence`, `sell30_pence`, `sell90_pence`, `profit_unit_pence`, `profit_month_pence`, `stock_value_pence` | GBP **pence** (integer; cost and stock value **ex VAT**) |
+| `supplier_best_offers` | `roi30`, `roi90` | fraction (0.2 = 20%), 4 dp; profit ÷ **gross** cash cost (cost × 1.2) |
 | `products` | `de/fr/it/es_360day_min` | EUR **cents** (legacy EU scan; `-1` = never scanned) |
 | `deals` | `eu_price_cents`, `avg30_price_cents`, `notified_price_cents`, `bought_price_cents` | **source-market minor unit, keyed by `marketplace`**: EUR **cents** for `de/fr/it/es`, GBP **pence** for `uk` (buy side) |
 | `deals` | `uk_*_pence`, all `eval_*_pence` | GBP **pence** (sell side) |

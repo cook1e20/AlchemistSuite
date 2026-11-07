@@ -691,6 +691,13 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       record counts in 068), weigh the insert count against DB size, `--execute`, then set the flag + `pm2 restart`.
       Notes: top-up re-checks ~700-900 presence batches daily; 14-digit outer-case codes will likely park not-found;
       padded UPCs grow 058's bucket. Next (auto): 069.*
+      *2026-11-07: alchemist-v2 069 landed (`153ed73`, 1069 pass / 4 fail (baseline 058 file), reviewed APPROVE 1 round;
+      overseer made `stock_value_pence` bigint). Dark behind `BEST_OFFERS_ENABLED`; SQLite Amazon signal cache, guarded
+      upsert + delete of `supplier_best_offers` (a partial read aborts; removals over 50% are skipped). CONTRACTS.md §2/§3/§4 updated and
+      blocked brands are now supplier-wide. **Operator:** apply `alchemist-v2/migrations/2026-11-06-create-supplier-best-offers.sql`,
+      check grants (anon SELECT only, service_role all four), deploy, set `BEST_OFFERS_ENABLED=true`, restart; after the
+      first fresh pull record the row count + BB/NEW split in 069 and check the pre-order skip count. Next (auto): 070, then
+      Dashboard 030 (its live check needs the migration).*
 - [ ] **R55. eany.io automated pull** (HITL: session cookie, live probe, flags) — root `issues/spec-eany-pull.md`,
       grilled 2026-11-06 after a Chrome capture session. Export = bearer-authed `backend.eany.io/api/v1/exports`,
       file = cookie-authed `eany.io/api/exports/<id>/download` (link 307s to /login without a session). Cost =
