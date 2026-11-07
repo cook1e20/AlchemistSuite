@@ -733,6 +733,10 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       - DealFinder 066 (write buy-box averages back to `products`)
       - DealFinder 067 (Qogita feed: poller, pre-screen shadow, cap, card, dedup; dark)
       Order: 075, 065, 066 and 061's `searchCatalogByEan` in parallel → 067.
+      *2026-11-07: alchemist-v2 075 landed (`9293baa`, 1085 pass / 4 fail (baseline 058 file), reviewed APPROVE; overseer
+      capped by code point so a split emoji can't fail a 500-row batch). Name/brand/link on every candidate row.
+      **Operator:** apply `alchemist-v2/migrations/2026-11-07-qogita-drop-candidates-name-brand-link.sql` BEFORE the next
+      alchemist-v2 deploy, or every candidate upsert fails (Discord posts still go out). CONTRACTS.md section 2 updated.*
 
 ### Anytime — cheap AFK filler
 
