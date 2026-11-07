@@ -737,6 +737,9 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       capped by code point so a split emoji can't fail a 500-row batch). Name/brand/link on every candidate row.
       **Operator:** apply `alchemist-v2/migrations/2026-11-07-qogita-drop-candidates-name-brand-link.sql` BEFORE the next
       alchemist-v2 deploy, or every candidate upsert fails (Discord posts still go out). CONTRACTS.md section 2 updated.*
+      *2026-11-07: DealFinder 065 landed (`24ff71b`, 667/667, typecheck clean, reviewed APPROVE + 1 fix round). Pure
+      `evaluateWholesale` (ex-VAT cost x1.2 through the shared GBP cost path, lower of BB avg30/avg90 >= 20%, pluggable
+      basis rule for Zappies 062); `evaluateDeal` refactor is behaviour-neutral. Not wired to a caller yet. Next (auto): 066.*
 
 ### Anytime — cheap AFK filler
 
