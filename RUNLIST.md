@@ -740,6 +740,10 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       *2026-11-07: DealFinder 065 landed (`24ff71b`, 667/667, typecheck clean, reviewed APPROVE + 1 fix round). Pure
       `evaluateWholesale` (ex-VAT cost x1.2 through the shared GBP cost path, lower of BB avg30/avg90 >= 20%, pluggable
       basis rule for Zappies 062); `evaluateDeal` refactor is behaviour-neutral. Not wired to a caller yet. Next (auto): 066.*
+      *2026-11-07: DealFinder 066 landed (`04f17ce`, 677/677, typecheck clean, reviewed APPROVE 1 round). Stage-2 (buybox=1)
+      rows write the two buy-box averages to `products`; stage-1 rows omit them; mixed batches split by key set. UPDATE-only
+      `writeBuyBoxAverages` ready for 067. No Keepa request or token change; ordinary deploy, no migration. CONTRACTS.md
+      section 2 updated. Remaining before 067: 061's `searchCatalogByEan` (DealFinder 061, Zappies ticket).*
 
 ### Anytime — cheap AFK filler
 

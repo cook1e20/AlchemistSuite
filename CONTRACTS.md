@@ -143,8 +143,12 @@ per table is in §3.
     older than `last_mined_at`. On a buy-box lookup Keepa -1 and 0 are stored as
     explicit `null`; that rule applies to buy-box lookups only. So `null` means "not
     yet looked up with `buybox=1`, or Keepa had no data". Same series as
-    `deals.uk_buybox_avg30_pence`; DealFinder's `products-upsert` does not write them.
-    Consumer: Alchemist_Dashboard issue 024.
+    `deals.uk_buybox_avg30_pence`. **Second writer: DealFinder (issue 066).** Its `products`
+    write-through includes both only when the UK lookup sent `buybox=1` (stage 2; keys omitted
+    otherwise, never nulled), and the Qogita feed (067) uses an UPDATE-only writer
+    (`writeBuyBoxAverages`, keyed on `ean` else `uk_asin`, these two columns only, never inserts).
+    Same -1/0/absent -> null rule; `undefined` = not fetched, leaves the stored value.
+    Consumers: Alchemist_Dashboard issue 024, DealFinder 067's pre-screen.
   - `last_evaluated_at` — stamped only when a full economics/gating verdict was computed
     (DealFinder); not yet read by any gating logic.
   - `uk_not_found_at` (timestamptz, nullable, no default — added live 2026-07-17,
