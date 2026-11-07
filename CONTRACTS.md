@@ -87,7 +87,7 @@ per table is in §3.
     stage on the first fresh pull of the London day (`QOGITA_PRODUCTS_LOAD_ENABLED`, default
     off; `run_log` stats `productsLoaded` / `productsLoadSkippedExisting`). It uses the same insert-only
     `bulkInsertBareProducts` path and load-time `last_mined_at` stamp as above. Rows are Qogita
-    GTINs not already present (any twin form) that pass 064's stock rule. 11/12-digit codes are padded and a
+    GTINs not already present (any twin form) that pass 064's stock rule (since 076: stock value units x price ex VAT >= £500, the MOV). 11/12-digit codes are padded and a
     14-digit code loses a leading 0, both to GTIN-13. Other codes are stored as listed.
   - `DealFinder` write-through (`src/products-upsert/`, `source = 'dealfinder'`) — writes
     only the columns its header comment lists (ean, uk_asin, de_asin, title, brand,
@@ -517,7 +517,8 @@ per table is in §3.
 - **PK:** `(uk_day date, gtin text)`, upserted by the `qogita-drops` stage (alchemist-v2 064). Columns:
   `found_at` (timestamptz, latest detection), `matched` (bool: a `products` row matched), `uk_asin` (nullable),
   `baseline_pence`, `current_pence` (cheapest invoice offer, **integer pence ex VAT**), `drop_pct` (numeric(6,1)),
-  `offer_stock` (int), `posted` (bool, default false; never reset to false once true). Matched and unmatched
+  `offer_stock` (int), `posted` (bool, default false; never reset to false once true; since 076 a matched row can stay
+  false because it fell below the Discord floors, lower ROI >= 20% and profit/unit >= 200p, so readers apply their own floors). Matched and unmatched
   candidates both land here. Migration `alchemist-v2/migrations/2026-11-04-create-qogita-drop-candidates.sql`
   (applied live 2026-11-06).
 - **075 columns** (all nullable text; migration `alchemist-v2/migrations/2026-11-07-qogita-drop-candidates-name-brand-link.sql`,
@@ -550,7 +551,7 @@ per table is in §3.
 - **Buy-box re-mine (070):** after each completed rebuild, the top `basis = 'new'` rows by `profit_month_pence`
   are Keepa-queued via `queueBackfillEans`, max `BEST_OFFERS_BUYBOX_CAP` = 100/UK day (~3 tokens each in the miner
   window), a separate budget from 065's 200/day; a GTIN is not re-queued within 7 days. Stat `bestOffersBuyboxQueued`.
-- **Qualifies:** matched with an ASIN and fee inputs, 064's stock rule, `uk_sales_rank_drops30 >= 3` or
+- **Qualifies:** matched with an ASIN and fee inputs, 064's stock rule (value-only since 076: >= £500 ex VAT), `uk_sales_rank_drops30 >= 3` or
   `monthly_sold > 0`, not a pre-order, brand not blocked, and the **lower** of `roi30`/`roi90` >= 0.15. ROI and fees
   use 064's `estimate()` (profit ÷ gross cash cost, cost × 1.2). The dashboard tab filters to 20%.
 - **Readers:** Alchemist_Dashboard 030 (anon SELECT, §3).

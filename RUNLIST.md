@@ -709,6 +709,12 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       order:** apply the 069 migration and check grants, push + deploy alchemist-v2 (068/069/070), run the 068 load
       (dry run, then `--execute`), set `BEST_OFFERS_ENABLED=true` (+ `QOGITA_PRODUCTS_LOAD_ENABLED=true`), restart, deploy
       the dashboard, then do the browser check of the Qogita tab with both actions.*
+      *2026-11-07 (operator request): MOV + profit floors. alchemist-v2 076 (`b627dda`, 1098 pass / 4 fail (baseline 058
+      file), reviewed 2 rounds): the shared stock rule is value-only, units x price ex VAT >= £500 (the "5 units" route is
+      gone; narrows 064 alerts, the 068 load and 069 best offers); Discord drop posts also need lower ROI >= 20% and
+      profit >= £2/unit (`QOGITA_ALERT_ROI_FLOOR`, `QOGITA_ALERT_MIN_PROFIT_PENCE`), unmatched drops no longer post, and
+      posts lead with the lower ROI plus profit/unit. Dashboard 031 (`36a8157`, `e1fc369`): Qogita tab defaults ROI 20%,
+      profit £2/unit, stock value £600 inc VAT (= £500 ex MOV); stock value column inc VAT. Ordinary deploys, no migration.*
 - [ ] **R55. eany.io automated pull** (HITL: session cookie, live probe, flags) — root `issues/spec-eany-pull.md`,
       grilled 2026-11-06 after a Chrome capture session. Export = bearer-authed `backend.eany.io/api/v1/exports`,
       file = cookie-authed `eany.io/api/exports/<id>/download` (link 307s to /login without a session). Cost =
