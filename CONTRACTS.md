@@ -515,11 +515,17 @@ per table is in §3.
   `baseline_pence`, `current_pence` (cheapest invoice offer, **integer pence ex VAT**), `drop_pct` (numeric(6,1)),
   `offer_stock` (int), `posted` (bool, default false; never reset to false once true). Matched and unmatched
   candidates both land here. Migration `alchemist-v2/migrations/2026-11-04-create-qogita-drop-candidates.sql`
-  (**written, not applied**).
+  (applied live 2026-11-06).
+- **075 columns** (all nullable text; migration `alchemist-v2/migrations/2026-11-07-qogita-drop-candidates-name-brand-link.sql`,
+  **written, not applied — apply before deploying the 075 build, or every candidate upsert fails**): `name` (product
+  name, ≤300 chars), `brand` (raw Qogita brand, ≤100 chars; **not** normalised, so normalise before comparing with
+  `qogita_blocked_brands`), `link` (CSV `Product Link` when http(s), else null; the reader builds the GTIN search URL).
+  Every row carries all three keys; null on rows written before 075 or where the CSV lacks the value.
 - **Writers:** alchemist-v2 only (service_role), only while `QOGITA_ALERTS_ENABLED=true`. Rows older than 14 days
   are purged by the 03:30 housekeeping cron. **No anon access** (RLS on, no policy, anon/authenticated revoked).
 - **Readers:** alchemist-v2 065 (19:50 UK: matched rows → one pre-screen job; unmatched → Keepa queue, max
-  `QOGITA_DROPS_KEEPA_CAP` = 200/day via `queueBackfillEans`, ~3 tokens each in the miner window); a later dashboard view would need a
+  `QOGITA_DROPS_KEEPA_CAP` = 200/day via `queueBackfillEans`, ~3 tokens each in the miner window); DealFinder 067
+  (Qogita feed, planned; reads as service_role, which already has SELECT); a later dashboard view would need a
   dashboard-owned anon SELECT grant + policy (contract change, §3).
 - The price history behind it (change log, 30/90-day averages, posted state) lives in SQLite on the VPS, not
   Postgres (spec Q9/Q17), until the home-server move.

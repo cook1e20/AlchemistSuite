@@ -720,6 +720,8 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       - alchemist-v2 073 (eany into products load + best offers; needs R54's 068/069)
       - alchemist-v2 074 (Hot deals 2-week trial, store and measure only)
       Order: 071 → 072 → 073 and 074. Operator first: copy the session cookie into `.env`, check eany's terms.
+      *2026-11-07 blocked: 071 starts with the live exports-list probe (operator present, `EANY_SESSION_COOKIE` on the
+      VPS); its findings decide poll vs IMAP, so the fetcher isn't built before it. Skipped to R56.*
 - [ ] **R56. Qogita drops as a DealFinder feed** (HITL: two migrations, flag flip) — root
       `issues/spec-qogita-dealfinder-feed.md`, 2026-11-06. Qogita drop (alchemist-v2 stock/drop rule) -> DealFinder:
       ASIN, free SP-API pre-screen, Keepa (200/day cap), wholesale evaluation on buy-box avg30/avg90 (lower ROI >= 20%,
