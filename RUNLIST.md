@@ -703,6 +703,12 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       lookup, max 100/UK day (`BEST_OFFERS_BUYBOX_CAP`, ~300 tokens), with its own ledger separate from 065's; a GTIN isn't
       re-queued within 7 days. Ships with 069's deploy (no extra migration or flag). Open live AC: BB share up a week
       after deploy. CONTRACTS.md section 2 updated. Next (auto): Dashboard 030.*
+      *2026-11-07: Dashboard 030 landed (`756dc21`, 338/338, typecheck + build clean, reviewed APPROVE 1 round + 1 small
+      fix). Qogita tab (eany disabled), inc-VAT cost, filters, "Send to pre-screen" (`Qogita offer <GTIN>`, ex-VAT) and
+      "Block brand". No new anon grant. Shows a message until the table exists. **R54 build complete. Operator, in
+      order:** apply the 069 migration and check grants, push + deploy alchemist-v2 (068/069/070), run the 068 load
+      (dry run, then `--execute`), set `BEST_OFFERS_ENABLED=true` (+ `QOGITA_PRODUCTS_LOAD_ENABLED=true`), restart, deploy
+      the dashboard, then do the browser check of the Qogita tab with both actions.*
 - [ ] **R55. eany.io automated pull** (HITL: session cookie, live probe, flags) — root `issues/spec-eany-pull.md`,
       grilled 2026-11-06 after a Chrome capture session. Export = bearer-authed `backend.eany.io/api/v1/exports`,
       file = cookie-authed `eany.io/api/exports/<id>/download` (link 307s to /login without a session). Cost =
