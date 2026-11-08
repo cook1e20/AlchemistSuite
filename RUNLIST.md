@@ -715,6 +715,13 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       profit >= £2/unit (`QOGITA_ALERT_ROI_FLOOR`, `QOGITA_ALERT_MIN_PROFIT_PENCE`), unmatched drops no longer post, and
       posts lead with the lower ROI plus profit/unit. Dashboard 031 (`36a8157`, `e1fc369`): Qogita tab defaults ROI 20%,
       profit £2/unit, stock value £600 inc VAT (= £500 ex MOV); stock value column inc VAT. Ordinary deploys, no migration.*
+      *2026-11-08: 069 migration applied live (table + RLS; then grants/policy via plain SQL, as the MCP apply hung
+      on the revoke/drop-policy call again: anon had no grant, so both were no-ops and were skipped). Verified: anon
+      SELECT, service_role SELECT/INSERT/UPDATE/DELETE, policy `supplier_best_offers_anon_read`. alchemist-v2
+      pushed `9d7dc45..b627dda` and deployed 10:26 UK (ships 066/068/069/070/075/076); Dashboard pushed
+      `4cda552..e1fc369`. All flags left dark (operator): `BEST_OFFERS_ENABLED`, `QOGITA_PRODUCTS_LOAD_ENABLED`,
+      `QOGITA_UNGATING_ENABLED` unset; the 068 load has not been run. Still to do: 068 dry run, `--execute`, flags,
+      Dashboard Qogita tab browser check.*
 - [ ] **R55. eany.io automated pull** (HITL: session cookie, live probe, flags) — root `issues/spec-eany-pull.md`,
       grilled 2026-11-06 after a Chrome capture session. Export = bearer-authed `backend.eany.io/api/v1/exports`,
       file = cookie-authed `eany.io/api/exports/<id>/download` (link 307s to /login without a session). Cost =
@@ -750,6 +757,9 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       rows write the two buy-box averages to `products`; stage-1 rows omit them; mixed batches split by key set. UPDATE-only
       `writeBuyBoxAverages` ready for 067. No Keepa request or token change; ordinary deploy, no migration. CONTRACTS.md
       section 2 updated. Remaining before 067: 061's `searchCatalogByEan` (DealFinder 061, Zappies ticket).*
+      *2026-11-08: 075 migration applied live (name/brand/link verified) before the alchemist-v2 deploy (`b627dda`,
+      10:26 UK). DealFinder `04f17ce` (065/066) pushed to `free-first-funnel` and fast-forwarded to `main`; VPS pulled
+      and `pm2 restart dealfinder` 10:26 UK, no dependency change.*
 
 ### Anytime — cheap AFK filler
 
