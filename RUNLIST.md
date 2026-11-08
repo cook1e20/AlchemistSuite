@@ -722,6 +722,15 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       `4cda552..e1fc369`. All flags left dark (operator): `BEST_OFFERS_ENABLED`, `QOGITA_PRODUCTS_LOAD_ENABLED`,
       `QOGITA_UNGATING_ENABLED` unset; the 068 load has not been run. Still to do: 068 dry run, `--execute`, flags,
       Dashboard Qogita tab browser check.*
+      *2026-11-08 17:00 UK: live (operator go-ahead). 068 dry run (`/root/deploy-backups/068-dryrun-20261108.log`):
+      260,553 GTINs, 67,720 pass the stock rule (12,513 already in products), 55,207 to insert, 0 invalid, 1,105
+      presence requests, 71 s. `--execute`: 55,207 inserted, 0 failed, load stamp 17:02:42Z (products was 1.11M rows /
+      376 MB, DB 522 MB). Flags on (`BEST_OFFERS_ENABLED`, `QOGITA_PRODUCTS_LOAD_ENABLED`, `QOGITA_UNGATING_ENABLED`;
+      backup `.env.bak-20261108-r54-golive`), restart 17:03. First fresh pull 17:37: signal cache 35,334 of 259,776 GTINs
+      with an ASIN; 563 qualify (112 BB / 451 NEW), 0 removed; skips unmatched 36,204, stock 192,025, pre-order 27,324,
+      roi 1,362, sales 2,294; buy-box re-mine queued 100 (351 over cap). 075 live: 11 candidates, all with name/brand/link.
+      Pre-order skip count (27k) is high: worth a look at the `Is a pre-order?` encoding. Still to do: Dashboard
+      Qogita tab browser check; first ungating digest 09:15 UK 11-09.*
 - [ ] **R55. eany.io automated pull** (HITL: session cookie, live probe, flags) — root `issues/spec-eany-pull.md`,
       grilled 2026-11-06 after a Chrome capture session. Export = bearer-authed `backend.eany.io/api/v1/exports`,
       file = cookie-authed `eany.io/api/exports/<id>/download` (link 307s to /login without a session). Cost =
