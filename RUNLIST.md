@@ -776,6 +776,10 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       `DealFinder/supabase/migrations/20261109120000_create_qogita_feed_evaluations.sql` (check grants: service_role only),
       push + deploy DealFinder, set `QOGITA_FEED_ENABLED=true`, `pm2 restart dealfinder`, record one tick's
       `qogita feed:` log line in 067's notes. Unverified live: catalog response fixture, Keepa product image field.*
+      *2026-11-09 10:58 UK: migration applied live (statement by statement with lock/statement timeouts; grants
+      verified, no anon). DealFinder `d2b52e1` pushed to `free-first-funnel` + `main`, VPS pulled and restarted, banner
+      `qogitaFeed=off`, no dependency change. Left to switch on: `QOGITA_FEED_ENABLED=true` and `DISCORD_QOGITA_WEBHOOK`
+      in DealFinder's `.env` (only alchemist-v2's has it today), restart, record one tick.*
 
 ### Anytime — cheap AFK filler
 

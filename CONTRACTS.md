@@ -521,7 +521,7 @@ per table is in §3.
   candidate with no row is retried on the next tick.
 - **Writers/readers:** DealFinder 067 only (service_role). **No anon access** (RLS on, no policy, anon/authenticated
   revoked, explicit service_role grants). Migration `DealFinder/supabase/migrations/20261109120000_create_qogita_feed_evaluations.sql`,
-  **written, not yet applied** (apply before `QOGITA_FEED_ENABLED=true`). No purge yet: ~100-1,000 rows/day.
+  applied live 2026-11-09 (grants verified: service_role SELECT/INSERT/UPDATE/DELETE, no anon). No purge yet: ~100-1,000 rows/day.
 
 ### `qogita_drop_candidates` — Qogita price-drop candidates. Owner: `alchemist-v2`
 
