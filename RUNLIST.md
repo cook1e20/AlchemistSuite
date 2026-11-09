@@ -801,6 +801,9 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       `FEED_PAGE_CAP`/`_UK` 6 -> 8, `SP_API_PRESCREEN_MAX_ASINS` 3600 -> 4800, `QOGITA_FEED_MAX_PER_TICK` 50 -> 100,
       `QOGITA_FEED_KEEPA_DAILY_CAP` 200 -> 500; restarted. To check: `seen=6000` on full runs, daily spend, no 429s,
       full-run time well under the hour, `tokensLeft` no longer pinned at >= 1,000.*
+      *2026-11-09 13:26 UK: catch-up run confirmed `seen=5998` (8 pages), 0 SP-API false rejects, 12 min (cold price
+      cache: SP-API 677 s; warm runs reuse 180 min). Qogita feed evaluated 100 (169/500 Keepa today), **first real
+      Qogita post** (1 passed, posted, 0 notify failures — R56's open check). `tokensLeft` 655 after the tick.*
 
 ### Anytime — cheap AFK filler
 
