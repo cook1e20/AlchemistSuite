@@ -782,8 +782,8 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       in DealFinder's `.env` (only alchemist-v2's has it today), restart, record one tick.*
       *2026-11-09 11:00 UK: **feed live** (operator go-ahead): webhook copied into DealFinder's `.env`, flag on, shadow
       pre-screen. First tick: 400 read, 50 evaluated (350 tick-capped), 11 no ASIN, 39 Keepa (117 tokens), 0 passed,
-      0 false rejects, 0 errors. 13 failed only on the probe's velocity floor (rank drops < 20). Open (operator):
-      a wholesale-specific velocity floor? Still to check: first real post, then `enforce` once false rejects stay 0.*
+      0 false rejects, 0 errors. 13 failed only on the probe's velocity floor (rank drops < 20). **Rejected (operator):**
+      a looser wholesale velocity floor; wholesale buys more units, so keep the probe's floor. Still to check: first real post, then `enforce` once false rejects stay 0.*
 
 ### Anytime — cheap AFK filler
 
