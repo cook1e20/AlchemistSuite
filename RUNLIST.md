@@ -769,6 +769,13 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       *2026-11-08: 075 migration applied live (name/brand/link verified) before the alchemist-v2 deploy (`b627dda`,
       10:26 UK). DealFinder `04f17ce` (065/066) pushed to `free-first-funnel` and fast-forwarded to `main`; VPS pulled
       and `pm2 restart dealfinder` 10:26 UK, no dependency change.*
+      *2026-11-09: DealFinder 061's `searchCatalogByEan` split out (`5298363`; resolution rule still waits on 060) and
+      067 built dark (`d2b52e1`, 706/706, typecheck clean, not reviewed by a second agent). New table
+      `qogita_feed_evaluations` (migration written, NOT applied). Pre-screen starts in shadow; Keepa 200 lookups/UK day,
+      50 candidates/tick. **Operator, in order:** apply
+      `DealFinder/supabase/migrations/20261109120000_create_qogita_feed_evaluations.sql` (check grants: service_role only),
+      push + deploy DealFinder, set `QOGITA_FEED_ENABLED=true`, `pm2 restart dealfinder`, record one tick's
+      `qogita feed:` log line in 067's notes. Unverified live: catalog response fixture, Keepa product image field.*
 
 ### Anytime — cheap AFK filler
 
