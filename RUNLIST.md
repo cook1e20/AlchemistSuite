@@ -557,6 +557,9 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       - 064: PM2 app, hourly Mon–Fri 08–18, Discord alert, deploy.
       Order: 059 and 063 can start in parallel; then 060 → 061 → 062 → 064.
       Blockers: none to start. 059 goes live only once the app password is on the VPS.
+      *2026-11-09 blocked: DealFinder has another session's uncommitted 063 work from 2026-10-20 (`src/email-source/`
+      offer-store + should-alert, migration `20261020120000_create_supplier_emails_and_offers.sql`, edits to issues
+      063/064). The overseer won't adopt it unasked: operator confirms it's finished (land it) or discards it.*
 
 - [ ] **R50. Home micro server — grill** (HITL) — root `issues/013-home-server-db-claude-and-vps-work.md`,
       operator idea 2026-10-19. One box at home: runs Claude remote sessions, hosts the shared DB (replacing
@@ -675,6 +678,9 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       (SQLite, auto-added) so items that have left the catalogue are never recommended. **Operator:** push + deploy (no migration), wait for one
       pull, set `QOGITA_UNGATING_ENABLED=true`, restart, confirm one real digest posts (066's open live AC). Not done
       (non-blocking): verdict age is ignored; no data-age warning if pulls stop.*
+      *2026-11-09: Dashboard 027 landed (`83ff2db`, 349/349, typecheck clean, overseer diff read). Scan column is now
+      "Cost inc VAT" (ex-VAT figure beneath for ex-VAT lists); morning view and pre-screen card read "cost inc VAT";
+      CSV gains a trailing "Cost inc VAT (£)" column (raw "Supplier Price (£)" kept). Ordinary deploy; not browser-checked.*
 - [ ] **R54. Supplier best offers + Qogita/eany tabs** (HITL: live load, migration, browser check) — root
       `issues/spec-supplier-best-offers.md`, grilled 2026-11-06 (Q1-Q13). Standing list of each pull's qualifying
       offers (matched, stock rule, sales test, ROI >= 15% stored / 20% shown, BB or NEW basis) as Wholesale sub-tabs.
