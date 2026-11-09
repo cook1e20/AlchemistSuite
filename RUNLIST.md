@@ -790,6 +790,17 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       pre-screen. First tick: 400 read, 50 evaluated (350 tick-capped), 11 no ASIN, 39 Keepa (117 tokens), 0 passed,
       0 false rejects, 0 errors. 13 failed only on the probe's velocity floor (rank drops < 20). **Rejected (operator):**
       a looser wholesale velocity floor; wholesale buys more units, so keep the probe's floor. Still to check: first real post, then `enforce` once false rejects stay 0.*
+- [ ] **R57. Keepa token use** (HITL) — review 2026-11-09 (operator ask). One bucket, 21 tokens/min, max 1,260.
+      Overnight the miner uses ~100% (14-16k lookups/night); daytime DealFinder spends 5.2-6.5k of ~15.1k (35-43%),
+      ~9k/day lost to a full bucket. Morning shortfall: the miner drains to ~0 by 07:45, so DealFinder starts at
+      ~300-450 and 5 runs/day end below the light scan's 700 floor; Monday's 07:30 `import` made it -283 (11-09).
+      Tickets: alchemist-v2 077 (morning reserve + import to Mon 20:30 + `tokensSpent`; CONTRACTS.md section 5 still
+      says 21-05, live is 20-08), DealFinder 068 (daily token summary row in `run_log`; stage name = contract change).
+      Rejected for now: daytime miner soak above a reserve (contract change; revisit if the raises don't use the spare).
+      *2026-11-09 13:13 UK: DealFinder `.env` raised on operator go-ahead (backup `.env.bak-20261109-token-raise`):
+      `FEED_PAGE_CAP`/`_UK` 6 -> 8, `SP_API_PRESCREEN_MAX_ASINS` 3600 -> 4800, `QOGITA_FEED_MAX_PER_TICK` 50 -> 100,
+      `QOGITA_FEED_KEEPA_DAILY_CAP` 200 -> 500; restarted. To check: `seen=6000` on full runs, daily spend, no 429s,
+      full-run time well under the hour, `tokensLeft` no longer pinned at >= 1,000.*
 
 ### Anytime — cheap AFK filler
 
