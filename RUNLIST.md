@@ -804,6 +804,10 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       *2026-11-09 13:26 UK: catch-up run confirmed `seen=5998` (8 pages), 0 SP-API false rejects, 12 min (cold price
       cache: SP-API 677 s; warm runs reuse 180 min). Qogita feed evaluated 100 (169/500 Keepa today), **first real
       Qogita post** (1 passed, posted, 0 notify failures — R56's open check). `tokensLeft` 655 after the tick.*
+- [ ] **R58. One Qogita alert format** (HITL: env flip) — `alchemist-v2/issues/078-qogita-drop-posts-switch.md`,
+      operator 2026-11-10. 064 drop alerts and DealFinder 067's feed both post to `#wholesale` (two formats, possible
+      duplicates). Keep DealFinder's card: add `QOGITA_ALERT_POSTS_ENABLED` (default true) to stop only 064's Discord
+      posts; candidates, 065 and 066 unchanged. Build with 077. Then operator sets it `false` + restarts. Blockers: none.
 
 ### Anytime — cheap AFK filler
 
