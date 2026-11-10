@@ -531,7 +531,9 @@ per table is in §3.
   `offer_stock` (int), `posted` (bool, default false; never reset to false once true; since 076 a matched row can stay
   false because it fell below the Discord floors, lower ROI >= 20% and profit/unit >= 200p, so readers apply their own floors). Matched and unmatched
   candidates both land here. Migration `alchemist-v2/migrations/2026-11-04-create-qogita-drop-candidates.sql`
-  (applied live 2026-11-06).
+  (applied live 2026-11-06). Since 078, `QOGITA_ALERT_POSTS_ENABLED=false` (alchemist-v2 env, default true) stops
+  064's own Discord posts, so `posted` stays false on every row while DealFinder 067 posts the cards; the rows are
+  still written either way.
 - **075 columns** (all nullable text; migration `alchemist-v2/migrations/2026-11-07-qogita-drop-candidates-name-brand-link.sql`,
   **written, not applied — apply before deploying the 075 build, or every candidate upsert fails**): `name` (product
   name, ≤300 chars), `brand` (raw Qogita brand, ≤100 chars; **not** normalised, so normalise before comparing with
