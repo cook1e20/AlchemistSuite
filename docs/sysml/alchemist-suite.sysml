@@ -43,7 +43,11 @@ package AlchemistSuite {
         part def SqliteHistory { doc /* Qogita price_changes and price_summary on the VPS (spec Q17). */ }
         part def Keepa      { doc /* One shared token bucket (CONTRACTS.md section 5). */ }
         part def SpApi      { doc /* One seller account; pricing and fees split by time (ADR 0001). */ }
+        part def KeepaCompanion { doc /* Chrome extension on Keepa Product Finder; writes asin_tracker. */ }
         part def QogitaApi;
+        part def EanyIo { doc /* Supplier portal, automated pull planned (RUNLIST R55). */ }
+        part def SupplierEmail { doc /* Zappies supplier emails, ingest planned (DealFinder). */ }
+        part def BuySheet { doc /* Google Sheet of purchases: cost, qty, Seller SKU, date. Read by the analytics and import stages. */ }
         part def Discord;
         part def Operator;
 
@@ -55,7 +59,11 @@ package AlchemistSuite {
             part sqlite     : SqliteHistory;
             part keepa      : Keepa;
             part spApi      : SpApi;
+            part keepaCompanion : KeepaCompanion;
             part qogita     : QogitaApi;
+            part eany       : EanyIo;
+            part supplierEmail : SupplierEmail;
+            part buySheet   : BuySheet;
             part discord    : Discord;
             part operator   : Operator;
 
@@ -69,6 +77,11 @@ package AlchemistSuite {
             connect alchemist to keepa;
             connect alchemist to spApi;
             connect alchemist to discord;
+            connect alchemist to buySheet;
+            connect alchemist to eany;
+            connect dealFinder to supplierEmail;
+            connect keepaCompanion to supabase;
+            connect operator to buySheet;
             connect dashboard to supabase;
             connect operator to dashboard;
             connect discord to operator;
@@ -80,6 +93,20 @@ package AlchemistSuite {
     // ---------------------------------------------------------------
     package Requirements {
         private import Structure::*;
+
+        requirement <'GOAL'> businessGoal {
+            doc /* Track the business, and offer as many pre-filtered buy deals as possible,
+                   so the inventory keeps rolling. Top of the requirement tree. */
+            requirement <'GOAL-1'> trackBusiness {
+                doc /* Finance and inventory state visible on the Dashboard, refreshed at least daily. */
+            }
+            requirement <'GOAL-2'> preFilteredDeals {
+                doc /* Every deal shown to the operator has passed an automated ROI and velocity screen. */
+            }
+            requirement <'GOAL-3'> inventoryRolling {
+                doc /* Every held item has a hold-or-sell verdict and a suggested price (RUNLIST R51). */
+            }
+        }
 
         requirement def TimeWindow {
             doc /* Calls happen only between startHour (inclusive) and endHour (exclusive), UK local time. */
@@ -111,11 +138,28 @@ package AlchemistSuite {
             attribute minRoi : Real = 0.20;
         }
 
+        requirement <'ADR5'> discordUrgentOnly {
+            doc /* Discord carries only urgent, perishable actions; everything else goes on a Dashboard tab (ADR 0005). */
+        }
+        requirement <'ADR4'> oneEconomics {
+            doc /* Every evaluator uses the shared economics package and the settings table (ADR 0004). */
+            attribute prepPencePerUnit : Integer = 100;
+            attribute defaultMinRoi : Real = 0.20;
+        }
+        requirement <'ADR3'> oneSourcingPipeline {
+            doc /* Every source writes candidates; DealFinder evaluates all of them (ADR 0003). */
+        }
+
+        satisfy oneSourcingPipeline by Structure::suite.dealFinder;
         satisfy dealFinderSpApiWindow by Structure::suite.dealFinder;
         satisfy alchemistSpApiWindow by Structure::suite.alchemist;
         satisfy minerKeepaWindow by Structure::suite.alchemist;
         satisfy keepaServerSideOnly by Structure::suite.dashboard;
         satisfy qogitaFeedRoiFloor by Structure::suite.dealFinder;
+        satisfy businessGoal.trackBusiness by Structure::suite.dashboard;
+        satisfy businessGoal.preFilteredDeals by Structure::suite.dealFinder;
+        satisfy businessGoal.preFilteredDeals by Structure::suite.alchemist;
+        satisfy businessGoal.inventoryRolling by Structure::suite.alchemist;
     }
 
     // ---------------------------------------------------------------
@@ -136,6 +180,36 @@ package AlchemistSuite {
             transition first new accept DismissDecision then dismissed;
             transition first notified accept BuyDecision then bought;
             transition first notified accept DismissDecision then dismissed;
+        }
+
+        // Target design (ADR 0002, issues/spec-business-loop.md): one lot per BuySheet row.
+        item def UnitsAtAmazon;
+        item def FirstSale;
+        item def PaceAboveExpected;
+        item def MarginalResult;
+        item def UnaccountedAfter30Days;
+        item def Found;
+        item def LastUnitSold;
+
+        state def LotLifecycle {
+            entry; then inTransit;
+            state inTransit;
+            state flagged;
+            state atAmazon;
+            state selling;
+            state winner;
+            state marginal;
+            state soldOut;
+
+            transition first inTransit accept UnitsAtAmazon then atAmazon;
+            transition first inTransit accept UnaccountedAfter30Days then flagged;
+            transition first flagged accept Found then atAmazon;
+            transition first atAmazon accept FirstSale then selling;
+            transition first selling accept PaceAboveExpected then winner;
+            transition first selling accept MarginalResult then marginal;
+            transition first selling accept LastUnitSold then soldOut;
+            transition first winner accept LastUnitSold then soldOut;
+            transition first marginal accept LastUnitSold then soldOut;
         }
     }
 

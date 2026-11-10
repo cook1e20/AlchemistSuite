@@ -512,6 +512,17 @@ per table is in §3.
   way before comparing** (NFKC, collapse whitespace, trim, lower-case), or a match is
   missed.
 
+### `qogita_feed_evaluations` — Qogita feed ledger. Owner: `DealFinder`
+
+- **PK:** `(gtin, uk_day, drop_current_pence)`: one row per evaluation of a `qogita_drop_candidates` row at a price.
+  Columns: `asin`, `verdict` (`no_asin` / `prescreen_reject` / `keepa_no_product` / `fail` / `pass` /
+  `pass_duplicate`), `reason`, `prescreen`, `keepa_looked_up` (bool; the daily Keepa cap counts these), `roi30`,
+  `roi90` (fractions, numeric(8,4)), `posted_at`, `posted_price_pence` (**pence ex VAT**), `evaluated_at`. A
+  candidate with no row is retried on the next tick.
+- **Writers/readers:** DealFinder 067 only (service_role). **No anon access** (RLS on, no policy, anon/authenticated
+  revoked, explicit service_role grants). Migration `DealFinder/supabase/migrations/20261109120000_create_qogita_feed_evaluations.sql`,
+  applied live 2026-11-09 (grants verified: service_role SELECT/INSERT/UPDATE/DELETE, no anon). No purge yet: ~100-1,000 rows/day.
+
 ### `qogita_drop_candidates` — Qogita price-drop candidates. Owner: `alchemist-v2`
 
 - **PK:** `(uk_day date, gtin text)`, upserted by the `qogita-drops` stage (alchemist-v2 064). Columns:
@@ -530,8 +541,9 @@ per table is in §3.
   are purged by the 03:30 housekeeping cron. **No anon access** (RLS on, no policy, anon/authenticated revoked).
 - **Readers:** alchemist-v2 065 (19:50 UK: matched rows → one pre-screen job; unmatched → Keepa queue, max
   `QOGITA_DROPS_KEEPA_CAP` = 200/day via `queueBackfillEans`, ~3 tokens each in the miner window); DealFinder 067
-  (Qogita feed, planned; reads as service_role, which already has SELECT); a later dashboard view would need a
-  dashboard-owned anon SELECT grant + policy (contract change, §3).
+  (Qogita feed, built 2026-11-09, dark behind `QOGITA_FEED_ENABLED`: reads the UK day's rows as service_role, which
+  already has SELECT, and never writes here; its state is its own `qogita_feed_evaluations`); a later dashboard view
+  would need a dashboard-owned anon SELECT grant + policy (contract change, §3).
 - The price history behind it (change log, 30/90-day averages, posted state) lives in SQLite on the VPS, not
   Postgres (spec Q9/Q17), until the home-server move.
 
@@ -676,6 +688,9 @@ per table is in §3.
 - Written by the SourceWatch checker (service_role). Reads `products` only, by `ean`.
 - A failed check leaves stored price, stock and buy state untouched.
 - Prices are GBP pence on the watch's `vat_basis`. ROI must match DealFinder's model (§4).
+- **Rescoped 2026-11-10** (`issues/spec-business-loop.md` Q39, not yet built): SourceWatch computes no ROI and posts
+  no Discord alerts. A stock or price change becomes a candidate (planned generic `candidates` table) that DealFinder
+  evaluates with the shared economics.
 - **No anon access** until SourceWatch issue 006 adds the extension's grant to §3.
 
 ### `tracking_log_archived` — archived, read-only
@@ -810,6 +825,10 @@ One Keepa account (one token bucket) is shared deliberately:
   minutes once DealFinder pauses. **Widening the window beyond the default overnight
   split is sanctioned only with DealFinder paused** (e.g. the E4 700k-catalog pilot) —
   otherwise the two probes fight over the same token bucket.
+- **DealFinder's Qogita feed (issue 067) spends from DealFinder's day budget:** `buybox=1` lookups (3 tokens) for
+  Qogita drops, capped at `QOGITA_FEED_KEEPA_DAILY_CAP` (200 lookups, ~600 tokens) per UK day and only inside the
+  08:00-20:00 SP-API window, after the hourly probe in the same tick. Separate from alchemist-v2 065's overnight
+  queue of unmatched drops (`QOGITA_DROPS_KEEPA_CAP`), so a drop can be looked up by both during the trial (D3).
 - **Rule: Keepa-token spend is server-side and schedule-gated only.** No dashboard action
   spends tokens live; the dashboard's only path to Keepa work is queueing a `commands`
   row that the overnight miner eventually services.

@@ -533,6 +533,13 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       tickets 001-008 in `SourceWatch/issues/`; CONTRACTS.md tables added as planned. A per-watch buy
       price now takes priority over the ROI floor. First watch: Trade Point DeWalt snips, buy below
       £11.50 inc. VAT. **Next: `SourceWatch/issues/001` (HITL: live migration).***
+      *2026-11-10: **rescoped** by `issues/spec-business-loop.md` Q39 (ADRs 0003, 0004, 0005): SourceWatch is a
+      source. On a stock or price change it writes a candidate (with the per-watch buy price) to the generic
+      `candidates` table (R61); DealFinder evaluates it (buy price first, else the shared ROI floor) and posts the
+      Discord alert. SourceWatch keeps the extension, checker and watch tables, but no ROI code and no Discord
+      posting. It also gains automatic watches for retail winners (R59). **Before 001:** push the local repo to
+      GitHub (no remote yet), then update `SourceWatch/issues/spec.md` and tickets 001-008 to this scope. Until
+      R61's `candidates` table exists, the checker can store buy-state changes in its own tables and emit nothing.*
 
 - [ ] **R42. Reverse seller tracker — grill + spike** (HITL) — root `issues/010-reverse-seller-tracker.md`,
       operator idea 2026-10-14. Poll a few strong sellers' storefronts via Keepa `/seller` once or twice a
@@ -557,12 +564,20 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       - 064: PM2 app, hourly Mon–Fri 08–18, Discord alert, deploy.
       Order: 059 and 063 can start in parallel; then 060 → 061 → 062 → 064.
       Blockers: none to start. 059 goes live only once the app password is on the VPS.
+      *2026-11-09 blocked: DealFinder has another session's uncommitted 063 work from 2026-10-20 (`src/email-source/`
+      offer-store + should-alert, migration `20261020120000_create_supplier_emails_and_offers.sql`, edits to issues
+      063/064). The overseer won't adopt it unasked: operator confirms it's finished (land it) or discards it.*
+      *2026-11-10: operator said land it. DealFinder 063 committed (`f7ffacb`, reviewed APPROVE, 706 tests pass, plus a
+      sequence revoke). Migration not applied yet: needs the operator's yes. After the apply: tick criterion 1, mark it
+      applied in CONTRACTS.md §2, move 063 to done/. Next: 059 (needs the app password) and 060 → 062.*
 
 - [ ] **R50. Home micro server — grill** (HITL) — root `issues/013-home-server-db-claude-and-vps-work.md`,
       operator idea 2026-10-19. One box at home: runs Claude remote sessions, hosts the shared DB (replacing
       the free Supabase plan instead of Pro; likely self-hosted Supabase so app code doesn't change), maybe
       takes some VPS work. Soft deadline: DB headroom ~2-3 months from 2026-10-19 (419 MB). Next: grill.
       Blockers: grill, hardware.
+      *2026-11-10: postponed (spec-business-loop Q27): stay on Supabase Pro and the VPS. Claude sessions on an
+      always-on box parked separately (Q30).*
 - [ ] **R51. Inventory hold-or-sell view** (HITL: one migration) — root
       `issues/014-inventory-hold-or-sell.md`, operator ask 2026-10-23: per held item, days held, my price,
       buy box now, BB avg30/avg90, last sale, and a verdict (Sell now / Hold / Reprice / Healthy).
@@ -675,6 +690,9 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       (SQLite, auto-added) so items that have left the catalogue are never recommended. **Operator:** push + deploy (no migration), wait for one
       pull, set `QOGITA_UNGATING_ENABLED=true`, restart, confirm one real digest posts (066's open live AC). Not done
       (non-blocking): verdict age is ignored; no data-age warning if pulls stop.*
+      *2026-11-09: Dashboard 027 landed (`83ff2db`, 349/349, typecheck clean, overseer diff read). Scan column is now
+      "Cost inc VAT" (ex-VAT figure beneath for ex-VAT lists); morning view and pre-screen card read "cost inc VAT";
+      CSV gains a trailing "Cost inc VAT (£)" column (raw "Supplier Price (£)" kept). Ordinary deploy; not browser-checked.*
 - [ ] **R54. Supplier best offers + Qogita/eany tabs** (HITL: live load, migration, browser check) — root
       `issues/spec-supplier-best-offers.md`, grilled 2026-11-06 (Q1-Q13). Standing list of each pull's qualifying
       offers (matched, stock rule, sales test, ROI >= 15% stored / 20% shown, BB or NEW basis) as Wholesale sub-tabs.
@@ -769,6 +787,65 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       *2026-11-08: 075 migration applied live (name/brand/link verified) before the alchemist-v2 deploy (`b627dda`,
       10:26 UK). DealFinder `04f17ce` (065/066) pushed to `free-first-funnel` and fast-forwarded to `main`; VPS pulled
       and `pm2 restart dealfinder` 10:26 UK, no dependency change.*
+      *2026-11-09: DealFinder 061's `searchCatalogByEan` split out (`5298363`; resolution rule still waits on 060) and
+      067 built dark (`d2b52e1`, 706/706, typecheck clean, not reviewed by a second agent). New table
+      `qogita_feed_evaluations` (migration written, NOT applied). Pre-screen starts in shadow; Keepa 200 lookups/UK day,
+      50 candidates/tick. **Operator, in order:** apply
+      `DealFinder/supabase/migrations/20261109120000_create_qogita_feed_evaluations.sql` (check grants: service_role only),
+      push + deploy DealFinder, set `QOGITA_FEED_ENABLED=true`, `pm2 restart dealfinder`, record one tick's
+      `qogita feed:` log line in 067's notes. Unverified live: catalog response fixture, Keepa product image field.*
+      *2026-11-09 10:58 UK: migration applied live (statement by statement with lock/statement timeouts; grants
+      verified, no anon). DealFinder `d2b52e1` pushed to `free-first-funnel` + `main`, VPS pulled and restarted, banner
+      `qogitaFeed=off`, no dependency change. Left to switch on: `QOGITA_FEED_ENABLED=true` and `DISCORD_QOGITA_WEBHOOK`
+      in DealFinder's `.env` (only alchemist-v2's has it today), restart, record one tick.*
+      *2026-11-09 11:00 UK: **feed live** (operator go-ahead): webhook copied into DealFinder's `.env`, flag on, shadow
+      pre-screen. First tick: 400 read, 50 evaluated (350 tick-capped), 11 no ASIN, 39 Keepa (117 tokens), 0 passed,
+      0 false rejects, 0 errors. 13 failed only on the probe's velocity floor (rank drops < 20). **Rejected (operator):**
+      a looser wholesale velocity floor; wholesale buys more units, so keep the probe's floor. Still to check: first real post, then `enforce` once false rejects stay 0.*
+- [ ] **R57. Keepa token use** (HITL) — review 2026-11-09 (operator ask). One bucket, 21 tokens/min, max 1,260.
+      Overnight the miner uses ~100% (14-16k lookups/night); daytime DealFinder spends 5.2-6.5k of ~15.1k (35-43%),
+      ~9k/day lost to a full bucket. Morning shortfall: the miner drains to ~0 by 07:45, so DealFinder starts at
+      ~300-450 and 5 runs/day end below the light scan's 700 floor; Monday's 07:30 `import` made it -283 (11-09).
+      Tickets: alchemist-v2 077 (morning reserve + import to Mon 20:30 + `tokensSpent`; CONTRACTS.md section 5 still
+      says 21-05, live is 20-08), DealFinder 068 (daily token summary row in `run_log`; stage name = contract change).
+      Rejected for now: daytime miner soak above a reserve (contract change; revisit if the raises don't use the spare).
+      *2026-11-09 13:13 UK: DealFinder `.env` raised on operator go-ahead (backup `.env.bak-20261109-token-raise`):
+      `FEED_PAGE_CAP`/`_UK` 6 -> 8, `SP_API_PRESCREEN_MAX_ASINS` 3600 -> 4800, `QOGITA_FEED_MAX_PER_TICK` 50 -> 100,
+      `QOGITA_FEED_KEEPA_DAILY_CAP` 200 -> 500; restarted. To check: `seen=6000` on full runs, daily spend, no 429s,
+      full-run time well under the hour, `tokensLeft` no longer pinned at >= 1,000.*
+      *2026-11-09 13:26 UK: catch-up run confirmed `seen=5998` (8 pages), 0 SP-API false rejects, 12 min (cold price
+      cache: SP-API 677 s; warm runs reuse 180 min). Qogita feed evaluated 100 (169/500 Keepa today), **first real
+      Qogita post** (1 passed, posted, 0 notify failures — R56's open check). `tokensLeft` 655 after the tick.*
+- [ ] **R58. One Qogita alert format** (HITL: env flip) — `alchemist-v2/issues/078-qogita-drop-posts-switch.md`,
+      operator 2026-11-10. 064 drop alerts and DealFinder 067's feed both post to `#wholesale` (two formats, possible
+      duplicates). Keep DealFinder's card: add `QOGITA_ALERT_POSTS_ENABLED` (default true) to stop only 064's Discord
+      posts; candidates, 065 and 066 unchanged. Build with 077. Then operator sets it `false` + restarts. Blockers: none.
+
+- [ ] **R59. Inventory pipeline live, then the business loop** (HITL: operator steps, migrations) — root
+      `issues/spec-business-loop.md` (grilled 2026-11-10), ADR 0002. **Step 1 is R51's remaining operator steps**
+      (`SP_API_SELLER_ID`, deploy alchemist-v2), then confirm the lot code reads the BuySheet's formula SKU column and
+      lots appear (`analytics_cache` had not run live since 2026-07-21). Then, in order: `lots` table + BuySheet ingest +
+      Keepa snapshot at ingest + automatic attribution; in-transit rule (bought - at Amazon - sold, 30-day flag) feeding
+      Finance; realised ROI (Finances API + £1/unit prep; revives alchemist-v2 043, R20); winners + top-ups; automatic
+      SourceWatch watches for retail winners (needs R41); post-mortems, sources report, Review tab.
+      Tickets: not filed yet. File them in alchemist-v2 and Alchemist_Dashboard from the spec's build order, one per
+      step, after step 1 shows real lots. Blockers: R51's operator steps.
+- [ ] **R60. Shared economics package + settings table** (HITL: new repo, migration) — root
+      `issues/spec-business-loop.md` challenge 3, ADR 0004. New TypeScript package (e.g. `alchemist-economics`) with the
+      canonical rules; Supabase `settings` table + Dashboard Settings page; DealFinder, alchemist-v2 and the Dashboard
+      adopt it one at a time. First ticket: inventory every evaluator's current rules (floors, basis, VAT, prep) in each
+      repo, so the package starts from the real differences. Blockers: none; can run alongside R59.
+- [ ] **R61. DealFinder as the sourcing pipeline** (HITL: migration, flag flips) — root
+      `issues/spec-business-loop.md` challenge 2, ADR 0003. Generic `candidates` table written by every source, read
+      by DealFinder; `qogita_drop_candidates` folds in after the 067 cut-over. One alert per drop (spec Q34) is
+      already under way as R58 (064's Discord posts off, DealFinder's card kept). eany, Zappies, SourceWatch and
+      top-ups arrive as candidate writers. Blockers: R56 (067), R58.
+- [ ] **R62. Discord for urgent actions only** (auto once R61's cut-over is done) — ADR 0005. Move 065's night summary,
+      the ungating digest and routine stage summaries to Dashboard tabs; every remaining message says what to do.
+      Blockers: the tabs they move to.
+- [ ] **R63. Lift free-plan workarounds** (HITL: migrations) — spec Q26. Qogita price history SQLite -> Postgres;
+      015 "no catalogue table" ruling lifted for Postgres; longer purges; archive old `deals`. Blockers: after R59's
+      first steps.
 
 ### Anytime — cheap AFK filler
 

@@ -19,6 +19,7 @@ drops (unmatched GTINs) never get an alert at all. DealFinder already does the f
 | D2 | Volume is controlled by DealFinder's existing free SP-API ROI pre-screen (issue 041), run before any Keepa token, not by a hard cap. A safety cap per tick still applies (see 3). |
 | D3 | Keep both alchemist-v2 064 (hourly estimate alerts) and 065 (19:50 night pre-screen) running during a trial. Decide on retiring them afterwards. Expect two pings for some drops. |
 | D4 | Pass rule: the trigger is the Qogita drop (alchemist-v2's rule: >= 10% below its 30-day average, enough stock, not a pre-order, brand not blocked). Sell basis = the UK **buy-box 30- and 90-day averages**, never the current Amazon buy box (a temporarily depressed Amazon price must not sink a deal). ROI at both; the lower must be **>= 20%** on the gross cash cost (conservative, as 064's profit figure and best-offers Q3). Velocity floor as the UK market. No Amazon-below-avg90 guard. |
+| D3 update | 2026-11-10 (spec-business-loop Q34, ADR 0005): no double-ping trial; 064's Discord posts switch off and 067's card is kept (RUNLIST R58). |
 | D5 | Posts to the wholesale channel (`DISCORD_QOGITA_WEBHOOK`, `#wholesale`). |
 
 ## Scope boundary
@@ -68,6 +69,11 @@ standalone deal: `name`, `brand`, `link` (Qogita product link). Migration + 064 
 
 061 (EAN->ASIN catalogue lookup) and 062 (wholesale GBP evaluation) are the same machinery. Build them once as a
 "supplier offer" source; Qogita is the first consumer, Zappies the second.
+
+## Rejected
+
+- A looser wholesale velocity floor (2026-11-09, after the first live tick failed 13 high-ROI drops on velocity alone):
+  wholesale buys more units, so a slow seller is worse, not better. D4's "velocity floor as the UK market" stands.
 
 ## Open questions
 

@@ -33,3 +33,39 @@ _Avoid_: Rotation (that word is for the Keepa token split)
 **Triage**:
 A manual per-ASIN decision state recorded in KeepaCompanion's `asin_tracker`.
 _Avoid_: Using it for any automated screening pass
+
+## Sourcing
+
+**Source**:
+Where a buying opportunity comes from: the Keepa deals feed, a supplier catalogue (Qogita, eany), supplier emails, a watched retail page, a top-up, or the operator's own find.
+_Avoid_: Feed (one kind of source), channel
+
+**Candidate**:
+A product a source offers at a known cost, waiting to be screened and evaluated. Every source produces candidates in the same shape.
+_Avoid_: Lead, drop (a drop is one reason a candidate exists)
+
+## Buying and inventory
+
+**BuySheet**:
+The operator's spreadsheet of purchases, one row per buy, written by SellerAmp at the moment of buying. It is the record of what was bought, for how much, and what was expected.
+_Avoid_: Purchase log, stock sheet
+
+**Lot**:
+One BuySheet row's units, identified by its Seller SKU, followed from purchase to sold out.
+_Avoid_: Batch, purchase, order
+
+**In transit**:
+A lot's units that were bought but are neither at Amazon nor sold: on the way to, or at, the prep centre.
+_Avoid_: Waiting to ship (that is the Finance tab's figure built from it), pending
+
+**Winner**:
+A lot selling at or faster than expected that can still be bought again at the target return.
+_Avoid_: Best seller, hit
+
+**Top-up**:
+A suggestion to rebuy a winner, timed so new stock arrives before the old runs out.
+_Avoid_: Reorder, restock
+
+**Post-mortem**:
+The explanation of why a lot did worse than expected, comparing the market when it was bought with what happened after.
+_Avoid_: Review (that is the tab), loss report
