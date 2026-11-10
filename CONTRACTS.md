@@ -292,8 +292,8 @@ per table is in §3.
   `price_pence` per `(supplier, asin)`. `(message_id, line_index)` is unique (0-based line
   position), so a retried email upserts its lines instead of duplicating them. Indexed on `(supplier, asin)` (plus a
   partial `notified_at` index for the last-notified lookup).
-- Migration `20261020120000_create_supplier_emails_and_offers.sql` (DealFinder), **written,
-  not yet applied**. DealFinder issue 063; parent root issue 011.
+- Migration `20261020120000_create_supplier_emails_and_offers.sql` (DealFinder), **applied live
+  2026-11-10**. DealFinder issue 063; parent root issue 011.
 
 ### `business_snapshots` — finance history. Owner: `Alchemist_Dashboard`
 

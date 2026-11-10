@@ -563,6 +563,8 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       *2026-11-10: operator said land it. DealFinder 063 committed (`f7ffacb`, reviewed APPROVE, 706 tests pass, plus a
       sequence revoke). Migration not applied yet: needs the operator's yes. After the apply: tick criterion 1, mark it
       applied in CONTRACTS.md §2, move 063 to done/. Next: 059 (needs the app password) and 060 → 062.*
+      *2026-11-10: 063 migration applied live on operator approval (RLS on, service_role only, 4 indexes verified);
+      063 in done/ (DealFinder `3e3b8fa`, `613810f`).*
 
 - [ ] **R50. Home micro server — grill** (HITL) — root `issues/013-home-server-db-claude-and-vps-work.md`,
       operator idea 2026-10-19. One box at home: runs Claude remote sessions, hosts the shared DB (replacing
