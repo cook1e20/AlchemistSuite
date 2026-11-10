@@ -810,6 +810,10 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       morning reserve 07:00-07:59 UK, import Mon 20:30 London, `tokensSpent` in mine/import stats; CONTRACTS.md §5
       now shows the live 20:00-08:00 split. Open: operator deploys, then check the 08:0x light scan has `tokensLeft`
       >= ~900. DealFinder 068 still to build.*
+      *2026-11-10: DealFinder 068 landed (`e575f53`, reviewed APPROVE + 1 follow-up round, 737 pass). Operator: stage
+      `dealfinder`, DealFinder may write only its own `run_log` rows (CONTRACTS §2). Dashboard 035 filed (`c6fe6b6`,
+      `KNOWN_STAGES` + freshness by `finished_at`). Open: deploy DealFinder; check one day's row against the funnel
+      log lines; build Dashboard 035.*
       *2026-11-09 13:26 UK: catch-up run confirmed `seen=5998` (8 pages), 0 SP-API false rejects, 12 min (cold price
       cache: SP-API 677 s; warm runs reuse 180 min). Qogita feed evaluated 100 (169/500 Keepa today), **first real
       Qogita post** (1 passed, posted, 0 notify failures — R56's open check). `tokensLeft` 655 after the tick.*

@@ -251,6 +251,24 @@ per table is in §3.
   scheduler-liveness signal (VERIFICATION.md §2.2). 86 legacy `stage='wholesale'` rows
   remain (newest 2026-07-06, pre-strip code; housekeeping purges them at >60d) —
   `wholesale` is not a canonical name; the dashboard must keep ignoring it.
+- **Second writer: DealFinder, stage `dealfinder` only** (DealFinder issue 068, operator 2026-11-10). One row per UK
+  day (Europe/London): its Keepa token summary. DealFinder writes only rows with `stage = 'dealfinder'` (every query
+  pinned to the stage, update by id and stage, no delete) and never touches alchemist-v2's rows. Lifecycle differs
+  from alchemist-v2's: `started_at` = first DealFinder tick of the UK day (fixed), `finished_at` and `stats` refreshed
+  after every tick, `status` always `completed`. Judge freshness by `finished_at`; there is no row overnight
+  while DealFinder pauses (live 20:00-08:00). Anything that reads "latest run_log row" as alchemist-v2 scheduler
+  liveness must filter by stage (alchemist-v2 `index.js` status line doesn't; cosmetic). alchemist-v2's age purge
+  removes these rows too. Dashboard `KNOWN_STAGES`: Alchemist_Dashboard issue 035. `stats` keys (tokens are Keepa
+  tokens from `tokensLeft` deltas, so slight underestimates: the 5-token feed pages are not counted, and refill
+  between stages can make `tokensGated` low or negative):
+  `ukDay` (YYYY-MM-DD UK); `firstTickAt`, `lastTickAt` (ISO UTC); `fullRuns`, `lightRuns`, `qogitaRuns` (completed
+  ticks; pause-skipped and thrown ticks excluded); `tokensFull`, `tokensLight` (stage 1 + 2), `tokensGated`,
+  `tokensQogita` (lookups x 3), `tokensSpent` (sum of the four); `tokensLeftMin`, `tokensLeftMax`, `tokensLeftLast`
+  (at full/light run ends, null if unknown); `runsBelowFloor` (run ends with `tokensLeft` < `LIGHT_SCAN_MIN_TOKENS_LEFT`,
+  default 700); `lightScreenSkipped` (ASINs whose light-tick velocity screen was skipped for budget, summed);
+  `qogitaKeepaLookups`; `qogitaKeepaCapped` (summed per tick, so it overstates distinct items); `qogitaKeepaDailyCap`;
+  `runEnds` (array, max 500, `{at: 'HH:MM' UK, tick: 'full'|'light', tokensLeft}`).
+  alchemist-v2's `mine` and `import` rows gain `tokensSpent` (alchemist-v2 077), so both apps' spend is in this table.
 - Timestamp gotcha: values come back as `+00`-offset strings that `new Date()` rejects;
   the dashboard compares them lexically (`pipeline-status.ts`).
 
