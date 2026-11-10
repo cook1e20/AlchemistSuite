@@ -807,21 +807,35 @@ into the stored price, and never recompute/"adjust" it in the UI.
 One Keepa account (one token bucket) is shared deliberately:
 
 - **DealFinder stands down overnight:** the hourly probe skips its tick entirely during
-  the UK-local window **21:00–05:00** (defaults; env-tunable
-  `OVERNIGHT_PAUSE_START_HOUR` / `OVERNIGHT_PAUSE_END_HOUR`, DST handled via
-  `Intl` `Europe/London` — `DealFinder/issues/done/031-overnight-pause.md`,
+  the UK-local window **20:00-08:00** (live: env-set on the VPS,
+  `OVERNIGHT_PAUSE_START_HOUR` / `OVERNIGHT_PAUSE_END_HOUR` = 20 / 8; the in-code
+  defaults are still 21 / 5 and a fresh deploy without the env falls back to them; DST
+  handled via `Intl` `Europe/London` — `DealFinder/issues/done/031-overnight-pause.md`,
   `src/overnight-pause/`).
-- **alchemist-v2's miner owns that window:** cron `*/15 21-23 * * *` + `*/15 0-4 * * *`
-  (every 15 min, 21:00–04:59) — these are the **default** expressions, derived from
-  env-tunable `MINER_WINDOW_START_HOUR` / `MINER_WINDOW_END_HOUR` (default 21 / 5,
-  end-exclusive like DealFinder's `OVERNIGHT_PAUSE_*_HOUR` above; `start === end` means
-  all-day — `miner-schedule.js`'s `minerCronExpressions`, issue 030). Each run sizes
+- **alchemist-v2's miner owns that window:** live, `MINER_WINDOW_START_HOUR` /
+  `MINER_WINDOW_END_HOUR` = 20 / 8 (VPS `.env`), giving cron `*/15 20-23 * * *` +
+  `*/15 0-7 * * *` (every 15 min, 20:00-07:59 UK). The in-code defaults are still 21 / 5
+  (`*/15 21-23 * * *` + `*/15 0-4 * * *`); end-exclusive like DealFinder's
+  `OVERNIGHT_PAUSE_*_HOUR` above; `start === end` means all-day —
+  `miner-schedule.js`'s `minerCronExpressions`, issue 030. Each run sizes
   itself from the **live** balance via Keepa's free `/token` endpoint
   (`keepa.getTokenStatus()`); `TOKEN_LIMIT_MINER` is only an optional operator ceiling.
   Frequent small drains, not two big bursts — the bucket caps out and idles within
-  minutes once DealFinder pauses. **Widening the window beyond the default overnight
+  minutes once DealFinder pauses. **Widening the window beyond the overnight
   split is sanctioned only with DealFinder paused** (e.g. the E4 700k-catalog pilot) —
   otherwise the two probes fight over the same token bucket.
+- **Morning reserve (alchemist-v2 issue 077):** so DealFinder does not start its day with an
+  empty bucket, a miner run that starts within `MINER_RESERVE_FROM_MINUTES` (default 60) before
+  `MINER_WINDOW_END_HOUR` (UK time, DST-safe) sizes its budget as **live balance minus
+  `MINER_MORNING_RESERVE`** (default 900 tokens; `0` disables). A budget <= 0 is a clean empty
+  run (no Keepa call). With the live 20/8 window this means runs from 07:00 leave ~900 tokens
+  for DealFinder's 08:00 light scan (which skips its velocity screen below 700). Keyed off the
+  configured end hour, not a hard-coded 08:00.
+- **Weekly buy-sheet `import` runs Monday 20:30 UK** (cron `30 20 * * 1`, `Europe/London`),
+  inside the miner window, so its ~600-token spend comes out of the miner's overnight share
+  rather than DealFinder's morning (it used to run 07:30, server-local time). `run_log.stats`
+  for `mine` and `import` carry `tokensSpent` (sum of Keepa `tokensConsumed` for the run)
+  beside `tokensRemaining`.
 - **DealFinder's Qogita feed (issue 067) spends from DealFinder's day budget:** `buybox=1` lookups (3 tokens) for
   Qogita drops, capped at `QOGITA_FEED_KEEPA_DAILY_CAP` (200 lookups, ~600 tokens) per UK day and only inside the
   08:00-20:00 SP-API window, after the hourly probe in the same tick. Separate from alchemist-v2 065's overnight
