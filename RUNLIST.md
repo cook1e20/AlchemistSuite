@@ -815,6 +815,10 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       operator 2026-11-10. 064 drop alerts and DealFinder 067's feed both post to `#wholesale` (two formats, possible
       duplicates). Keep DealFinder's card: add `QOGITA_ALERT_POSTS_ENABLED` (default true) to stop only 064's Discord
       posts; candidates, 065 and 066 unchanged. Build with 077. Then operator sets it `false` + restarts. Blockers: none.
+      *2026-11-10: alchemist-v2 078 landed (`57bd990`, overseer-read, 1120 pass / 4 baseline 058 fails). `alertPostsDisabled`
+      counts drops that cleared the floors on each pull (no once-a-day dedup, so it can exceed 067's daily total).
+      Open: operator deploys with 077, sets `QOGITA_ALERT_POSTS_ENABLED=false`, `pm2 restart alchemist`. Bug 079 filed (flaky
+      scheduler test in Node's runner, predates 077).*
 
 ### Anytime — cheap AFK filler
 
