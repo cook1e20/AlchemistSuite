@@ -698,8 +698,8 @@ checked), with `asin_tracker` added and verified live 2026-09-19:
 | `ungating_opportunities` | SELECT only | grant + read policy |
 | `products` | SELECT only | grant: SELECT (dashboard migration `20260715120000`, fixing §6 item 3) + pre-existing `USING (true)` read policy |
 | `run_log` | SELECT only | grant + `USING (true)` read policy (dashboard migration `20260715120000`) |
-| `wholesale_sync_requests` | SELECT all; INSERT rows shaped `{status: 'pending', catalog_request_id: null}` | grant: SELECT, INSERT; policy `WITH CHECK (status = 'pending' AND catalog_request_id IS NULL)` on insert, `USING (true)` on select (dashboard migration `20260720130000`) |
-| Storage object `wholesale-catalogs/latest.csv.gz` | SELECT (GET) only | `storage.objects` policy scoped to `bucket_id = 'wholesale-catalogs' AND name = 'latest.csv.gz'` (dashboard migration `20260720150000`) |
+| `wholesale_sync_requests` | SELECT all; INSERT rows shaped `{status: 'pending', catalog_request_id: null}` | grant: SELECT, INSERT; policy `WITH CHECK (status = 'pending' AND catalog_request_id IS NULL)` on insert, `USING (true)` on select (dashboard migration `20260720130000`). **Unused by the dashboard since its issue 032 (2026-11-10)**; grant left in place |
+| Storage object `wholesale-catalogs/latest.csv.gz` | SELECT (GET) only | `storage.objects` policy scoped to `bucket_id = 'wholesale-catalogs' AND name = 'latest.csv.gz'` (dashboard migration `20260720150000`). **Unused by the dashboard since its issue 032 (2026-11-10)**: the Qogita tab reads `supplier_best_offers`; policy left in place |
 | `analytics_cache` | SELECT only | grant: SELECT + `USING (true)` read policy (alchemist-v2 migration `2026-07-21-create-analytics-cache.sql`) |
 | `ungate_log` | SELECT only | grant: SELECT + `USING (true)` read policy (dashboard migration `20260924120000`) — Wholesale Search Gate column |
 | `gating_status` | SELECT only | grant: SELECT + `USING (true)` read policy (dashboard migration `20260925120000`) — Wholesale Search Gate column; browser-initiated writes only via `gating-check` (the alchemist-v2 night pre-screen also writes, service role) |
