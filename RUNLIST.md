@@ -535,11 +535,11 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       £11.50 inc. VAT. **Next: `SourceWatch/issues/001` (HITL: live migration).***
       *2026-11-10: **rescoped** by `issues/spec-business-loop.md` Q39 (ADRs 0003, 0004, 0005): SourceWatch is a
       source. On a stock or price change it writes a candidate (with the per-watch buy price) to the generic
-      `candidates` table (R59); DealFinder evaluates it (buy price first, else the shared ROI floor) and posts the
+      `candidates` table (R61); DealFinder evaluates it (buy price first, else the shared ROI floor) and posts the
       Discord alert. SourceWatch keeps the extension, checker and watch tables, but no ROI code and no Discord
-      posting. It also gains automatic watches for retail winners (R57). **Before 001:** push the local repo to
+      posting. It also gains automatic watches for retail winners (R59). **Before 001:** push the local repo to
       GitHub (no remote yet), then update `SourceWatch/issues/spec.md` and tickets 001-008 to this scope. Until
-      R59's `candidates` table exists, the checker can store buy-state changes in its own tables and emit nothing.*
+      R61's `candidates` table exists, the checker can store buy-state changes in its own tables and emit nothing.*
 
 - [ ] **R42. Reverse seller tracker — grill + spike** (HITL) — root `issues/010-reverse-seller-tracker.md`,
       operator idea 2026-10-14. Poll a few strong sellers' storefronts via Keepa `/seller` once or twice a
@@ -821,7 +821,7 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       duplicates). Keep DealFinder's card: add `QOGITA_ALERT_POSTS_ENABLED` (default true) to stop only 064's Discord
       posts; candidates, 065 and 066 unchanged. Build with 077. Then operator sets it `false` + restarts. Blockers: none.
 
-- [ ] **R57. Inventory pipeline live, then the business loop** (HITL: operator steps, migrations) — root
+- [ ] **R59. Inventory pipeline live, then the business loop** (HITL: operator steps, migrations) — root
       `issues/spec-business-loop.md` (grilled 2026-11-10), ADR 0002. **Step 1 is R51's remaining operator steps**
       (`SP_API_SELLER_ID`, deploy alchemist-v2), then confirm the lot code reads the BuySheet's formula SKU column and
       lots appear (`analytics_cache` had not run live since 2026-07-21). Then, in order: `lots` table + BuySheet ingest +
@@ -830,21 +830,21 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       SourceWatch watches for retail winners (needs R41); post-mortems, sources report, Review tab.
       Tickets: not filed yet. File them in alchemist-v2 and Alchemist_Dashboard from the spec's build order, one per
       step, after step 1 shows real lots. Blockers: R51's operator steps.
-- [ ] **R58. Shared economics package + settings table** (HITL: new repo, migration) — root
+- [ ] **R60. Shared economics package + settings table** (HITL: new repo, migration) — root
       `issues/spec-business-loop.md` challenge 3, ADR 0004. New TypeScript package (e.g. `alchemist-economics`) with the
       canonical rules; Supabase `settings` table + Dashboard Settings page; DealFinder, alchemist-v2 and the Dashboard
       adopt it one at a time. First ticket: inventory every evaluator's current rules (floors, basis, VAT, prep) in each
-      repo, so the package starts from the real differences. Blockers: none; can run alongside R57.
-- [ ] **R59. DealFinder as the sourcing pipeline** (HITL: migration, flag flips) — root
+      repo, so the package starts from the real differences. Blockers: none; can run alongside R59.
+- [ ] **R61. DealFinder as the sourcing pipeline** (HITL: migration, flag flips) — root
       `issues/spec-business-loop.md` challenge 2, ADR 0003. Generic `candidates` table written by every source, read
-      by DealFinder; `qogita_drop_candidates` folds in after the 067 cut-over. 067 runs in shadow a few days, then
-      064 alerts off the same day 067 posts (no double-ping trial; supersedes spec-qogita-dealfinder-feed D3). eany,
-      Zappies, SourceWatch and top-ups arrive as candidate writers. Blockers: R56 (067).
-- [ ] **R60. Discord for urgent actions only** (auto once R59's cut-over is done) — ADR 0005. Move 065's night summary,
+      by DealFinder; `qogita_drop_candidates` folds in after the 067 cut-over. One alert per drop (spec Q34) is
+      already under way as R58 (064's Discord posts off, DealFinder's card kept). eany, Zappies, SourceWatch and
+      top-ups arrive as candidate writers. Blockers: R56 (067), R58.
+- [ ] **R62. Discord for urgent actions only** (auto once R61's cut-over is done) — ADR 0005. Move 065's night summary,
       the ungating digest and routine stage summaries to Dashboard tabs; every remaining message says what to do.
       Blockers: the tabs they move to.
-- [ ] **R61. Lift free-plan workarounds** (HITL: migrations) — spec Q26. Qogita price history SQLite -> Postgres;
-      015 "no catalogue table" ruling lifted for Postgres; longer purges; archive old `deals`. Blockers: after R57's
+- [ ] **R63. Lift free-plan workarounds** (HITL: migrations) — spec Q26. Qogita price history SQLite -> Postgres;
+      015 "no catalogue table" ruling lifted for Postgres; longer purges; archive old `deals`. Blockers: after R59's
       first steps.
 
 ### Anytime — cheap AFK filler
