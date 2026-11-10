@@ -138,6 +138,19 @@ package AlchemistSuite {
             attribute minRoi : Real = 0.20;
         }
 
+        requirement <'ADR5'> discordUrgentOnly {
+            doc /* Discord carries only urgent, perishable actions; everything else goes on a Dashboard tab (ADR 0005). */
+        }
+        requirement <'ADR4'> oneEconomics {
+            doc /* Every evaluator uses the shared economics package and the settings table (ADR 0004). */
+            attribute prepPencePerUnit : Integer = 100;
+            attribute defaultMinRoi : Real = 0.20;
+        }
+        requirement <'ADR3'> oneSourcingPipeline {
+            doc /* Every source writes candidates; DealFinder evaluates all of them (ADR 0003). */
+        }
+
+        satisfy oneSourcingPipeline by Structure::suite.dealFinder;
         satisfy dealFinderSpApiWindow by Structure::suite.dealFinder;
         satisfy alchemistSpApiWindow by Structure::suite.alchemist;
         satisfy minerKeepaWindow by Structure::suite.alchemist;
@@ -167,6 +180,36 @@ package AlchemistSuite {
             transition first new accept DismissDecision then dismissed;
             transition first notified accept BuyDecision then bought;
             transition first notified accept DismissDecision then dismissed;
+        }
+
+        // Target design (ADR 0002, issues/spec-business-loop.md): one lot per BuySheet row.
+        item def UnitsAtAmazon;
+        item def FirstSale;
+        item def PaceAboveExpected;
+        item def MarginalResult;
+        item def UnaccountedAfter30Days;
+        item def Found;
+        item def LastUnitSold;
+
+        state def LotLifecycle {
+            entry; then inTransit;
+            state inTransit;
+            state flagged;
+            state atAmazon;
+            state selling;
+            state winner;
+            state marginal;
+            state soldOut;
+
+            transition first inTransit accept UnitsAtAmazon then atAmazon;
+            transition first inTransit accept UnaccountedAfter30Days then flagged;
+            transition first flagged accept Found then atAmazon;
+            transition first atAmazon accept FirstSale then selling;
+            transition first selling accept PaceAboveExpected then winner;
+            transition first selling accept MarginalResult then marginal;
+            transition first selling accept LastUnitSold then soldOut;
+            transition first winner accept LastUnitSold then soldOut;
+            transition first marginal accept LastUnitSold then soldOut;
         }
     }
 

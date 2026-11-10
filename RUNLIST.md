@@ -563,6 +563,8 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       the free Supabase plan instead of Pro; likely self-hosted Supabase so app code doesn't change), maybe
       takes some VPS work. Soft deadline: DB headroom ~2-3 months from 2026-10-19 (419 MB). Next: grill.
       Blockers: grill, hardware.
+      *2026-11-10: postponed (spec-business-loop Q27): stay on Supabase Pro and the VPS. Claude sessions on an
+      always-on box parked separately (Q30).*
 - [ ] **R51. Inventory hold-or-sell view** (HITL: one migration) — root
       `issues/014-inventory-hold-or-sell.md`, operator ask 2026-10-23: per held item, days held, my price,
       buy box now, BB avg30/avg90, last sale, and a verdict (Sell now / Hold / Reprice / Healthy).
@@ -769,6 +771,32 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       *2026-11-08: 075 migration applied live (name/brand/link verified) before the alchemist-v2 deploy (`b627dda`,
       10:26 UK). DealFinder `04f17ce` (065/066) pushed to `free-first-funnel` and fast-forwarded to `main`; VPS pulled
       and `pm2 restart dealfinder` 10:26 UK, no dependency change.*
+
+- [ ] **R57. Inventory pipeline live, then the business loop** (HITL: operator steps, migrations) — root
+      `issues/spec-business-loop.md` (grilled 2026-11-10), ADR 0002. **Step 1 is R51's remaining operator steps**
+      (`SP_API_SELLER_ID`, deploy alchemist-v2), then confirm the lot code reads the BuySheet's formula SKU column and
+      lots appear (`analytics_cache` had not run live since 2026-07-21). Then, in order: `lots` table + BuySheet ingest +
+      Keepa snapshot at ingest + automatic attribution; in-transit rule (bought - at Amazon - sold, 30-day flag) feeding
+      Finance; realised ROI (Finances API + £1/unit prep; revives alchemist-v2 043, R20); winners + top-ups; automatic
+      SourceWatch watches for retail winners (needs R41); post-mortems, sources report, Review tab.
+      Tickets: not filed yet. File them in alchemist-v2 and Alchemist_Dashboard from the spec's build order, one per
+      step, after step 1 shows real lots. Blockers: R51's operator steps.
+- [ ] **R58. Shared economics package + settings table** (HITL: new repo, migration) — root
+      `issues/spec-business-loop.md` challenge 3, ADR 0004. New TypeScript package (e.g. `alchemist-economics`) with the
+      canonical rules; Supabase `settings` table + Dashboard Settings page; DealFinder, alchemist-v2 and the Dashboard
+      adopt it one at a time. First ticket: inventory every evaluator's current rules (floors, basis, VAT, prep) in each
+      repo, so the package starts from the real differences. Blockers: none; can run alongside R57.
+- [ ] **R59. DealFinder as the sourcing pipeline** (HITL: migration, flag flips) — root
+      `issues/spec-business-loop.md` challenge 2, ADR 0003. Generic `candidates` table written by every source, read
+      by DealFinder; `qogita_drop_candidates` folds in after the 067 cut-over. 067 runs in shadow a few days, then
+      064 alerts off the same day 067 posts (no double-ping trial; supersedes spec-qogita-dealfinder-feed D3). eany,
+      Zappies, SourceWatch and top-ups arrive as candidate writers. Blockers: R56 (067).
+- [ ] **R60. Discord for urgent actions only** (auto once R59's cut-over is done) — ADR 0005. Move 065's night summary,
+      the ungating digest and routine stage summaries to Dashboard tabs; every remaining message says what to do.
+      Blockers: the tabs they move to.
+- [ ] **R61. Lift free-plan workarounds** (HITL: migrations) — spec Q26. Qogita price history SQLite -> Postgres;
+      015 "no catalogue table" ruling lifted for Postgres; longer purges; archive old `deals`. Blockers: after R57's
+      first steps.
 
 ### Anytime — cheap AFK filler
 
