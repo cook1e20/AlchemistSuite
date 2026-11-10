@@ -56,6 +56,7 @@ happened fed back into what gets suggested.
 | Q31 | One generic **`candidates`** table (source, GTIN/ASIN, cost ex VAT, quantity, link, source ref, found_at, evaluation state), written by every source, read by DealFinder. `qogita_drop_candidates` folds into it after the 067 cut-over. |
 | Q32 | The best-offers list stays computed in alchemist-v2 (batch over catalogue data it holds), using the shared economics. |
 | Q33 | Keepa/SP-API split unchanged in hours; sourcing (DealFinder) by day, operations (alchemist-v2) by night: miner, buy-ingest snapshots, lot rechecks, post-mortems, winner checks, analytics. |
+| Q39 | **SourceWatch is a source, not its own pipeline** (operator 2026-11-10). It keeps the Chrome extension, the VPS checker and the `source_watches` / `source_watch_changes` tables. When a watched page comes back in stock or its price changes, it writes a **candidate** (cost from the page, `vat_basis`, link, ASIN/EAN, the watch's per-watch buy price as a candidate field). DealFinder applies the per-watch buy price when set (it takes priority, as in the SourceWatch spec), else the shared ROI floor, and sends the Discord alert. SourceWatch does no ROI calculation and posts nothing to Discord. Supersedes the 2026-10-13 R41 scope ("alert on entering in stock AND ROI >= floor") and the SourceWatch spec's own alert path; change `SourceWatch/issues/spec.md` and tickets 001-008 before 001 is built. The repo is local-only (no remote): push it to GitHub first. |
 | Q34 | 067 runs in shadow (log only) for a few days to check it against 064, then 064's alerts switch off the day 067 starts posting. No double-ping trial. 065's night summary leaves Discord for a tab. |
 | Q26 | Free-plan workarounds are lifted (Supabase Pro), after the loop's first steps: Qogita price history moves from SQLite into Postgres; the 015 "no catalogue table" ruling is lifted for Postgres; purges lengthen; old `deals` rows are archived. |
 | Q27 | R50 home server postponed: stay on Pro and the VPS. |
@@ -83,7 +84,7 @@ happened fed back into what gets suggested.
 4. `settings` table + Settings page; shared economics package (Q35-Q37). Root, then each repo adopts it.
 5. Realised ROI from the Finances API + prep setting (Q15, Q19; alchemist-v2 043).
 6. Winners and wholesale top-ups (Q16). alchemist-v2 (detection), Discord via the Q38 rule.
-7. Automatic SourceWatch watches for retail winners (Q16d). Needs R41.
+7. Automatic SourceWatch watches for retail winners (Q16d). Needs R41, rescoped by Q39 (SourceWatch writes candidates).
 8. Post-mortems (Q18), Sources report (Q13), Review tab (Q21). alchemist-v2 + Dashboard.
 9. `candidates` table and 067 cut-over (Q31, Q34). DealFinder + alchemist-v2.
 10. Free-plan workarounds lifted (Q26).

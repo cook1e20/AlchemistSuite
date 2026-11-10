@@ -676,6 +676,9 @@ per table is in §3.
 - Written by the SourceWatch checker (service_role). Reads `products` only, by `ean`.
 - A failed check leaves stored price, stock and buy state untouched.
 - Prices are GBP pence on the watch's `vat_basis`. ROI must match DealFinder's model (§4).
+- **Rescoped 2026-11-10** (`issues/spec-business-loop.md` Q39, not yet built): SourceWatch computes no ROI and posts
+  no Discord alerts. A stock or price change becomes a candidate (planned generic `candidates` table) that DealFinder
+  evaluates with the shared economics.
 - **No anon access** until SourceWatch issue 006 adds the extension's grant to §3.
 
 ### `tracking_log_archived` — archived, read-only

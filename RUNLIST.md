@@ -533,6 +533,13 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       tickets 001-008 in `SourceWatch/issues/`; CONTRACTS.md tables added as planned. A per-watch buy
       price now takes priority over the ROI floor. First watch: Trade Point DeWalt snips, buy below
       £11.50 inc. VAT. **Next: `SourceWatch/issues/001` (HITL: live migration).***
+      *2026-11-10: **rescoped** by `issues/spec-business-loop.md` Q39 (ADRs 0003, 0004, 0005): SourceWatch is a
+      source. On a stock or price change it writes a candidate (with the per-watch buy price) to the generic
+      `candidates` table (R59); DealFinder evaluates it (buy price first, else the shared ROI floor) and posts the
+      Discord alert. SourceWatch keeps the extension, checker and watch tables, but no ROI code and no Discord
+      posting. It also gains automatic watches for retail winners (R57). **Before 001:** push the local repo to
+      GitHub (no remote yet), then update `SourceWatch/issues/spec.md` and tickets 001-008 to this scope. Until
+      R59's `candidates` table exists, the checker can store buy-state changes in its own tables and emit nothing.*
 
 - [ ] **R42. Reverse seller tracker — grill + spike** (HITL) — root `issues/010-reverse-seller-tracker.md`,
       operator idea 2026-10-14. Poll a few strong sellers' storefronts via Keepa `/seller` once or twice a
