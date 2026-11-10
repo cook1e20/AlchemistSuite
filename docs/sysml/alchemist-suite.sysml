@@ -43,7 +43,11 @@ package AlchemistSuite {
         part def SqliteHistory { doc /* Qogita price_changes and price_summary on the VPS (spec Q17). */ }
         part def Keepa      { doc /* One shared token bucket (CONTRACTS.md section 5). */ }
         part def SpApi      { doc /* One seller account; pricing and fees split by time (ADR 0001). */ }
+        part def KeepaCompanion { doc /* Chrome extension on Keepa Product Finder; writes asin_tracker. */ }
         part def QogitaApi;
+        part def EanyIo { doc /* Supplier portal, automated pull planned (RUNLIST R55). */ }
+        part def SupplierEmail { doc /* Zappies supplier emails, ingest planned (DealFinder). */ }
+        part def BuySheet { doc /* Google Sheet of purchases: cost, qty, Seller SKU, date. Read by the analytics and import stages. */ }
         part def Discord;
         part def Operator;
 
@@ -55,7 +59,11 @@ package AlchemistSuite {
             part sqlite     : SqliteHistory;
             part keepa      : Keepa;
             part spApi      : SpApi;
+            part keepaCompanion : KeepaCompanion;
             part qogita     : QogitaApi;
+            part eany       : EanyIo;
+            part supplierEmail : SupplierEmail;
+            part buySheet   : BuySheet;
             part discord    : Discord;
             part operator   : Operator;
 
@@ -69,6 +77,11 @@ package AlchemistSuite {
             connect alchemist to keepa;
             connect alchemist to spApi;
             connect alchemist to discord;
+            connect alchemist to buySheet;
+            connect alchemist to eany;
+            connect dealFinder to supplierEmail;
+            connect keepaCompanion to supabase;
+            connect operator to buySheet;
             connect dashboard to supabase;
             connect operator to dashboard;
             connect discord to operator;
@@ -80,6 +93,20 @@ package AlchemistSuite {
     // ---------------------------------------------------------------
     package Requirements {
         private import Structure::*;
+
+        requirement <'GOAL'> businessGoal {
+            doc /* Track the business, and offer as many pre-filtered buy deals as possible,
+                   so the inventory keeps rolling. Top of the requirement tree. */
+            requirement <'GOAL-1'> trackBusiness {
+                doc /* Finance and inventory state visible on the Dashboard, refreshed at least daily. */
+            }
+            requirement <'GOAL-2'> preFilteredDeals {
+                doc /* Every deal shown to the operator has passed an automated ROI and velocity screen. */
+            }
+            requirement <'GOAL-3'> inventoryRolling {
+                doc /* Every held item has a hold-or-sell verdict and a suggested price (RUNLIST R51). */
+            }
+        }
 
         requirement def TimeWindow {
             doc /* Calls happen only between startHour (inclusive) and endHour (exclusive), UK local time. */
@@ -116,6 +143,10 @@ package AlchemistSuite {
         satisfy minerKeepaWindow by Structure::suite.alchemist;
         satisfy keepaServerSideOnly by Structure::suite.dashboard;
         satisfy qogitaFeedRoiFloor by Structure::suite.dealFinder;
+        satisfy businessGoal.trackBusiness by Structure::suite.dashboard;
+        satisfy businessGoal.preFilteredDeals by Structure::suite.dealFinder;
+        satisfy businessGoal.preFilteredDeals by Structure::suite.alchemist;
+        satisfy businessGoal.inventoryRolling by Structure::suite.alchemist;
     }
 
     // ---------------------------------------------------------------

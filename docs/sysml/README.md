@@ -5,6 +5,7 @@ sequence diagrams of the DealFinder probe and the Qogita drop scan (2026-11-09).
 
 | File | What it is |
 |---|---|
+| [`structure.md`](structure.md) | Context, interconnection (who writes / reads which table) and inventory views as Mermaid, plus the business goal. |
 | [`sequences.md`](sequences.md) | The sequence views as Mermaid. Renders on GitHub; the quickest thing to edit and review. |
 | [`alchemist-suite.sysml`](alchemist-suite.sysml) | The model in SysML v2 textual notation: parts, items, requirements, the deal lifecycle and the two interactions. |
 
