@@ -1,7 +1,7 @@
 // Alchemist Suite: starter SysML v2 model (textual notation).
 // Source of truth for the views in sequences.md. Built from CONTRACTS.md and issues/spec-*.md,
-// not from the child repos' code. Not yet checked with a SysML v2 parser.
-// Open in SysIDE (VS Code), SysON (web) or the SysML v2 Pilot Implementation (Jupyter).
+// not from the child repos' code. Checked clean with Spec42 (VS Code extension, v0.60.1).
+// Note: 'new' is quoted because new is a SysML v2 keyword.
 
 package AlchemistSuite {
     private import ScalarValues::*;
@@ -169,17 +169,17 @@ package AlchemistSuite {
         private import Items::*;
 
         state def DealLifecycle {
-            entry; then new;
-            state new;
+            entry; then 'new';
+            state 'new';
             state notified;
             state bought;
             state dismissed;
 
-            transition first new then notified;
-            transition first new accept BuyDecision then bought;
-            transition first new accept DismissDecision then dismissed;
-            transition first notified accept BuyDecision then bought;
-            transition first notified accept DismissDecision then dismissed;
+            transition notify first 'new' then notified;
+            transition buyNew first 'new' accept BuyDecision then bought;
+            transition dismissNew first 'new' accept DismissDecision then dismissed;
+            transition buyNotified first notified accept BuyDecision then bought;
+            transition dismissNotified first notified accept DismissDecision then dismissed;
         }
 
         // Target design (ADR 0002, issues/spec-business-loop.md): one lot per BuySheet row.
@@ -306,6 +306,35 @@ package AlchemistSuite {
             message signal of ProductSignal from supabase.sendSignal to alchemist.receiveSignal;
             message candidates of DropCandidate from alchemist.sendCandidates to supabase.receiveCandidates;
             message card of DealCard from alchemist.sendCard to discord.receiveCard;
+        }
+    }
+
+    // ---------------------------------------------------------------
+    // Views: what Spec42's Views panel can draw. A view picks a view
+    // definition (the diagram kind) and exposes the elements to show.
+    // ---------------------------------------------------------------
+    package Views {
+        private import StandardViewDefinitions::*;
+
+        view suiteStructure : GeneralView {
+            doc /* The systems and services, and how they are typed. */
+            expose AlchemistSuite::Structure::suite;
+        }
+        view suiteWiring : InterconnectionView {
+            doc /* Who talks to whom: the connections inside suite. */
+            expose AlchemistSuite::Structure::suite;
+        }
+        view dealLifecycle : StateTransitionView {
+            doc /* Deal status: new, notified, bought, dismissed. */
+            expose AlchemistSuite::Lifecycle::DealLifecycle;
+        }
+        view dealFinderProbe : SequenceView {
+            doc /* View 1 in sequences.md: one DealFinder day-time tick. */
+            expose AlchemistSuite::Interactions::DealFinderProbe;
+        }
+        view qogitaDropsPull : SequenceView {
+            doc /* View 2 in sequences.md: one hourly Qogita pull. */
+            expose AlchemistSuite::Interactions::QogitaDropsPull;
         }
     }
 }
