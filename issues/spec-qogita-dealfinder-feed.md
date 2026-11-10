@@ -70,6 +70,11 @@ standalone deal: `name`, `brand`, `link` (Qogita product link). Migration + 064 
 061 (EAN->ASIN catalogue lookup) and 062 (wholesale GBP evaluation) are the same machinery. Build them once as a
 "supplier offer" source; Qogita is the first consumer, Zappies the second.
 
+## Rejected
+
+- A looser wholesale velocity floor (2026-11-09, after the first live tick failed 13 high-ROI drops on velocity alone):
+  wholesale buys more units, so a slow seller is worse, not better. D4's "velocity floor as the UK market" stands.
+
 ## Open questions
 
 - Q2 (settled 2026-11-06): Keepa cap 200/day for this source (biggest drops first, the rest roll to
