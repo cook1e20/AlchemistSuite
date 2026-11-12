@@ -943,6 +943,10 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       *2026-11-12: landed (DealFinder `e9caab0`, 791/791, typecheck clean). Cell colours now use `velocityCellClass` (the stored verdict
       overrides the page defaults), and a shipping override keeps the stored velocity wording. Limitation: a badge-pass row with
       drops30 between 20 and 50 still shows a red drops30 cell (the static page can't see the server floors). Not visually checked.*
+- [ ] **R69. `alchemist-v2/issues/080-bug-fees-give-up-write-refreshes-buy-box-age.md`** (auto, bug, minor) — the fees give-up
+      write at `FEES_INTERNAL_ERROR_CAP` (and other fees-phase writes) still stamps `updated_at`, so 048's reuse sees a buy box
+      fetched ticks or nights earlier as fresh for 24h. Fix with 053's `keepUpdatedAt` flag when the buy box wasn't fetched this
+      tick, or record a won't-fix (048's documented "last write" approximation). Reviewed (pricing reuse). Blockers: none.
 
 ## Phase A — keystone bugs and safety (all AFK)
 
