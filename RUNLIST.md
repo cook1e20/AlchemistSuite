@@ -909,7 +909,7 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       "who ran the 2026-07-15 load"; accept as unknown and move to `done/`.
       Blockers: none.
       *2026-10-13: closed — accepted as unknown; 005 moved to `issues/done/`.*
-- [ ] **R68. `alchemist-v2/issues/058-bug-sp-prescreen-false-not-found-13pct.md` — slice 1: per-bucket shadow
+- [x] **R68. `alchemist-v2/issues/058-bug-sp-prescreen-false-not-found-13pct.md` — slice 1: per-bucket shadow
       counters** (auto, adopted 2026-11-12, **do first**) — the uncommitted `test/stage-miner-prescreen.test.js` (+70
       lines, 2026-10-27) is an abandoned red-first start of 058 AC1, NOT another session's work (operator confirmed no
       other session). It is the "4 baseline failures" in every alchemist-v2 landing since. Adopt it: implement
@@ -918,6 +918,9 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       tests unless a reviewer finds them wrong. Reviewed (feeds a go/no-go on enforcing). Shadow only: no live SP-API
       calls, never enforce. After it lands the suite should be fully green (bar 067's flake), and 058's base-rate
       evidence starts accruing on the next deploy (operator). Blockers: none.
+      *2026-11-12: landed (alchemist-v2 `1c2e401`, 1124/1124, reviewed 2 rounds: the per-bucket `unchecked` test was fixed so it
+      exercises the counter). **Open (operator):** deploy alchemist-v2 (ordinary, no migration). Then read the evidence per bucket from
+      `run_log.stats.prescreenShadowBuckets`: false rate = false/(false+confirmed). AC2 live retries still need operator OK.*
 - [ ] **R64. `alchemist-v2/issues/067-bug-scheduler-test-ipc-flake.md`** (auto, bug, major) — `scheduler.test.js`
       fails 4/6 runs on Node 22.12 (deserialize error, likely banner output). Do first: every other alchemist-v2
       landing depends on a trustworthy `npm test`. Fix on the test side. Blockers: none.
