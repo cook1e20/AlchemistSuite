@@ -971,6 +971,13 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       won't-fix: fees-phase writes and the job give-up on a buy box fetched on an earlier tick keep `updated_at`; same-tick fetches stamp.
       048's ~36h approximation is gone. **Open (operator):** deploy alchemist-v2 (ordinary, no migration).*
       *2026-11-12 11:31Z: deployed on operator go-ahead (VPS alchemist-v2 `531a13a`, was `620ddc3`, `pm2 restart alchemist`, online).*
+- [x] **R70. `DealFinder/issues/069-bug-zappies-html-download-failure-never-retried.md`** (auto, bug, minor) — logged from
+      R44's 064 review: a failed/empty HTML download was recorded as processed and never retried. Blockers: none.
+      *2026-11-12: landed (DealFinder `5e63161`, 835/835, typecheck clean, overseer diff read). Failed downloads are flagged
+      per message, recorded with `processed_at` null (counted in `failed=`) and retried next poll; "no HTML part" unchanged.
+      Ships with R44's DealFinder deploy (ordinary, no migration).*
+- [ ] **R71. `DealFinder/issues/070-zappies-check-processed-before-downloading.md`** (auto) — logged from R44's 064 review:
+      don't download HTML for emails already processed (1-8 MB each, every hourly poll). Blockers: none (064 landed).
 
 ## Phase A — keystone bugs and safety (all AFK)
 
