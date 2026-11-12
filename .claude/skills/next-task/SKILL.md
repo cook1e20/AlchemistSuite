@@ -47,7 +47,8 @@ commit in that repo staging only this issue's paths.
 
 Tick the RUNLIST entry and append a one-line result note (date + outcome or follow-up
 issue filed). If a cross-repo contract changed, update `CONTRACTS.md` in the same commit.
-Commit only those files.
+If that was the last open entry for a root spec, close the spec out as RUNLIST's "Spec lifecycle" says, in the
+same commit. Commit only those files.
 
 ONLY WORK ON A SINGLE ENTRY. When done, remind the user to `/clear` before the next
 `/next-task`.

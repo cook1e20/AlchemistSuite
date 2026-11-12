@@ -112,7 +112,9 @@ In root:
 
 4. Tick the RUNLIST entry and append a one-line result note (date + outcome or follow-up
    issue filed). If a cross-repo contract changed, update `CONTRACTS.md` in the same
-   commit. Commit only those files — root may have unrelated dirty files.
+   commit. If that was the last open entry for a root spec, close the spec out as
+   RUNLIST's "Spec lifecycle" says, in the same commit. Commit only those files — root
+   may have unrelated dirty files.
 
 Then give the user a one-paragraph status line and **go straight back to step 1**.
 

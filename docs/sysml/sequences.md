@@ -105,7 +105,7 @@ sequenceDiagram
 
 ## 3. Qogita drops as a DealFinder feed (planned, DealFinder 067, dark)
 
-`issues/spec-qogita-dealfinder-feed.md`. This is the step the hand drawing puts on "Alchemist": the live
+`issues/in-progress/spec-qogita-dealfinder-feed.md`. This is the step the hand drawing puts on "Alchemist": the live
 Keepa check of a drop. It belongs to DealFinder, in its day window, reading what alchemist-v2 wrote.
 
 ```mermaid

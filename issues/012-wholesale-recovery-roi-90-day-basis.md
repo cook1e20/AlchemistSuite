@@ -3,7 +3,7 @@ kind: coordination
 
 ## Parent PRD
 
-`issues/constellation-prd.md`; builds on `issues/spec-wholesale-prescreen.md`. Grill before it gets
+`issues/constellation-prd.md`; builds on `issues/in-progress/spec-wholesale-prescreen.md`. Grill before it gets
 tickets.
 
 ## Idea (operator, 2026-10-17)

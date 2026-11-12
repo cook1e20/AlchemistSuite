@@ -377,7 +377,7 @@ per table is in §3.
 
 - Migration `alchemist-v2/migrations/2026-10-09-create-wholesale-prescreen-tables.sql`
   (issue 045; **written, not yet applied** — RUNLIST R35). Spec: root
-  `issues/spec-wholesale-prescreen.md`.
+  `issues/in-progress/spec-wholesale-prescreen.md`.
 - **Jobs:** `id` uuid, `list_name`, `command_id` (text, no FK), `status`
   (`running` → `catalog_done` → `pricing` → `completed`, or `failed` + `failure_reason`),
   settings `vat_basis`, `bsr_ceiling`, `roi_floor` (fraction), and funnel counts
@@ -476,7 +476,7 @@ per table is in §3.
   `source` (anon surface left as is; single-user tool).
 - **Contract:** bookkeeping only. No Qogita catalogue table in Postgres (issue 015
   Design; reaffirmed in the 2026-11-03 Qogita price-drops grill). Catalogue files and a
-  SQLite price history on the VPS are allowed (root `issues/spec-qogita-price-drops.md`).
+  SQLite price history on the VPS are allowed (root `issues/in-progress/spec-qogita-price-drops.md`).
   A handful of ephemeral rows. Status lifecycle:
   `pending` (anon-inserted) → `requested` (alchemist-v2's `wholesale-sync` stage submit
   leg, landed 2026-07-20, issue 033 — Phase 3) → `ready` / `failed` (the

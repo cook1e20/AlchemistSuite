@@ -7,6 +7,12 @@ unblocked entry** in the repo that owns it (`/clear` between entries);
 blocker needs you. Labels: `auto` (no human gate; older entries say AFK) or `HITL`. Tick the box
 (and add a one-line result note) when the issue lands.
 
+**Spec lifecycle** (root `issues/spec-*.md`): a spec stays in `issues/` while it is drafted and grilled. Once its
+tickets are filed and queued here, move it to `issues/in-progress/`. When the last RUNLIST entry pointing at it is
+ticked, move it to `issues/done/` with a closing note: what shipped, and anything dropped. On each move, update the
+live links (this file, `CONTRACTS.md`, open issues in every repo); links inside `done/` files stay as history.
+PRDs (`issues/constellation-prd.md`, each repo's `prd.md`) are living descriptions of a system and stay where they are.
+
 Priorities set 2026-07-15 (constellation review). Reorder freely — this file is the
 queue, not a contract. `severity: critical` bugs in any repo jump the queue regardless
 of this order.
@@ -183,7 +189,7 @@ Live state at the reset: DB **472 MB of the 500 MB free cap** (read-only mode on
 
 ### Wholesale pre-screen (queued 2026-10-09)
 
-Spec: `issues/spec-wholesale-prescreen.md` (grilled Q1–Q16). Terms: `GLOSSARY.md`. SP-API
+Spec: `issues/in-progress/spec-wholesale-prescreen.md` (grilled Q1–Q16). Terms: `GLOSSARY.md`. SP-API
 window split: `docs/adr/0001-sp-api-pricing-window-split.md`. Goal: a free SP-API pass over
 supplier stock lists so Keepa tokens go only on a shortlist, without touching DealFinder's
 SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
@@ -621,7 +627,7 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       *2026-11-03: done; org plan `pro` confirmed via the Supabase API. R12's "hold until Pro or home server" and
       the Storage 50 MB global cap no longer bind (gzip stays).*
 - [ ] **R53. Qogita price drops + ungating finder** (HITL: migrations, Discord webhook, VPS switch) — root
-      `issues/spec-qogita-price-drops.md`, grilled 2026-11-03 (Q1-Q20, live API probes). Hourly invoice-only
+      `issues/in-progress/spec-qogita-price-drops.md`, grilled 2026-11-03 (Q1-Q20, live API probes). Hourly invoice-only
       catalogue pull → SQLite price history on the VPS (change log + 30/90-day averages + December median) → drops
       costed instantly from `products` → new Qogita Discord channel → SP-API confirmation the same night → daily
       ungating-finder digest. The invoice-only account setting stays ON (filters the API: 247,834 vs 465,639 rows).
@@ -708,7 +714,7 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       "Cost inc VAT" (ex-VAT figure beneath for ex-VAT lists); morning view and pre-screen card read "cost inc VAT";
       CSV gains a trailing "Cost inc VAT (£)" column (raw "Supplier Price (£)" kept). Ordinary deploy; not browser-checked.*
 - [ ] **R54. Supplier best offers + Qogita/eany tabs** (HITL: live load, migration, browser check) — root
-      `issues/spec-supplier-best-offers.md`, grilled 2026-11-06 (Q1-Q13). Standing list of each pull's qualifying
+      `issues/in-progress/spec-supplier-best-offers.md`, grilled 2026-11-06 (Q1-Q13). Standing list of each pull's qualifying
       offers (matched, stock rule, sales test, ROI >= 15% stored / 20% shown, BB or NEW basis) as Wholesale sub-tabs.
       Only 17% of Qogita GTINs are in `products` and 0.9% have buy-box averages, hence 068 and 070.
       Tickets:
@@ -763,7 +769,7 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       roi 1,362, sales 2,294; buy-box re-mine queued 100 (351 over cap). 075 live: 11 candidates, all with name/brand/link.
       Pre-order skip count (27k) is high: worth a look at the `Is a pre-order?` encoding. Still to do: Dashboard
       Qogita tab browser check; first ungating digest 09:15 UK 11-09.*
-- [ ] **R55. eany.io automated pull** (HITL: session cookie, live probe, flags) — root `issues/spec-eany-pull.md`,
+- [ ] **R55. eany.io automated pull** (HITL: session cookie, live probe, flags) — root `issues/in-progress/spec-eany-pull.md`,
       grilled 2026-11-06 after a Chrome capture session. Export = bearer-authed `backend.eany.io/api/v1/exports`,
       file = cookie-authed `eany.io/api/exports/<id>/download` (link 307s to /login without a session). Cost =
       EUR x 1.2 x ECB rate (delivery included, duty is overhead). Cookie on the VPS now; Playwright on the home
@@ -777,7 +783,7 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       *2026-11-07 blocked: 071 starts with the live exports-list probe (operator present, `EANY_SESSION_COOKIE` on the
       VPS); its findings decide poll vs IMAP, so the fetcher isn't built before it. Skipped to R56.*
 - [ ] **R56. Qogita drops as a DealFinder feed** (HITL: two migrations, flag flip) — root
-      `issues/spec-qogita-dealfinder-feed.md`, 2026-11-06. Qogita drop (alchemist-v2 stock/drop rule) -> DealFinder:
+      `issues/in-progress/spec-qogita-dealfinder-feed.md`, 2026-11-06. Qogita drop (alchemist-v2 stock/drop rule) -> DealFinder:
       ASIN, free SP-API pre-screen, Keepa (200/day cap), wholesale evaluation on buy-box avg30/avg90 (lower ROI >= 20%,
       never the current buy box), gating -> card in `#wholesale`. 064/065 keep running during the trial.
       *2026-11-06: 064 alerts switched to DealFinder-style embeds (alchemist-v2 40c9aa8, deployed).*
