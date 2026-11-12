@@ -935,9 +935,12 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       minor) — fees retry writes refresh `updated_at`, so a stale buy box looks fresh to 048's reuse. Blockers: none.
       *2026-11-12: landed (alchemist-v2 `620ddc3`, 1130/1130, reviewed 1 round APPROVE). The retry write no longer stamps `updated_at`.
       No migration. Follow-up bug 080 logged (minor): the give-up write at the cap still makes the old buy box look fresh.*
-- [ ] **R67. `DealFinder/issues/058-bug-dashboard-drops30-labels-ignore-rank-drops-floor.md`** (auto, bug, minor)
+- [x] **R67. `DealFinder/issues/058-bug-dashboard-drops30-labels-ignore-rank-drops-floor.md`** (auto, bug, minor)
       — drops30 cell coloured against the monthly-sold floor; visible now that R9 set the drops floor to 20.
       Blockers: none.
+      *2026-11-12: landed (DealFinder `e9caab0`, 791/791, typecheck clean). Cell colours now use `velocityCellClass` (the stored verdict
+      overrides the page defaults), and a shipping override keeps the stored velocity wording. Limitation: a badge-pass row with
+      drops30 between 20 and 50 still shows a red drops30 cell (the static page can't see the server floors). Not visually checked.*
 
 ## Phase A — keystone bugs and safety (all AFK)
 
