@@ -838,6 +838,9 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       `dealfinder`, DealFinder may write only its own `run_log` rows (CONTRACTS §2). Dashboard 035 filed (`c6fe6b6`,
       `KNOWN_STAGES` + freshness by `finished_at`). Open: deploy DealFinder; check one day's row against the funnel
       log lines; build Dashboard 035.*
+      *2026-11-12 10:2x UK: Dashboard 032/033/035 (`0b9964b`, 373/373, typecheck clean) had sat unpushed on local `main`;
+      pushed on operator go-ahead, Vercel production Ready. Open: browser check of 032 (Qogita/eany sub-tabs) and 033 (Deals
+      A2A view).*
       *2026-11-12 09:52 UK: deployed on operator go-ahead: alchemist-v2 `de107b4` (was `b627dda`; reserve on by default,
       900 tokens / last 60 min of the window) and DealFinder `065a30d` (was `d2b52e1`; ships 068's token row + the unwired
       Zappies 060-063 code). Pre-deploy baseline: 11-12 08:13 light tick `tokensLeft=1102`. **To check:** 11-13 morning
@@ -853,6 +856,9 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       *2026-11-12 09:52 UK: done: `QOGITA_ALERT_POSTS_ENABLED=false` (backup `.env.bak-20261112-r58`), deployed with 077,
       restarted. **To check:** the next Qogita pull logs `alertPostsDisabled` and no 064 posts, and DealFinder cards still
       arrive; then close 078.*
+      *2026-11-12 10:07 UK pull: switch confirmed: `drops: 15 candidates (9 matched), 0 posted (1 not posted: posts switched
+      off)`, best offers 522 qualify, finished 4.4 min, no errors. Left: see DealFinder's feed post a card from these
+      candidates on a later tick (10:05 tick read 161, fresh 0, so it predates the pull), then close 078.*
 
 - [ ] **R59. Inventory pipeline live, then the business loop** (HITL: operator steps, migrations) — root
       `issues/spec-business-loop.md` (grilled 2026-11-10), ADR 0002. **Step 1 is R51's remaining operator steps**
