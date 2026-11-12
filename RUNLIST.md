@@ -921,6 +921,8 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       *2026-11-12: landed (alchemist-v2 `1c2e401`, 1124/1124, reviewed 2 rounds: the per-bucket `unchecked` test was fixed so it
       exercises the counter). **Open (operator):** deploy alchemist-v2 (ordinary, no migration). Then read the evidence per bucket from
       `run_log.stats.prescreenShadowBuckets`: false rate = false/(false+confirmed). AC2 live retries still need operator OK.*
+      *2026-11-12 11:17Z: deployed on operator go-ahead (VPS alchemist-v2 `620ddc3`, was `de107b4`, `pm2 restart alchemist`; ships
+      R68/R64/R65/R66; DealFinder `e9caab0` restarted for R67). Bucket evidence accrues from tonight's mine runs.*
 - [x] **R64. `alchemist-v2/issues/067-bug-scheduler-test-ipc-flake.md`** (auto, bug, major) — `scheduler.test.js`
       fails 4/6 runs on Node 22.12 (deserialize error, likely banner output). Do first: every other alchemist-v2
       landing depends on a trustworthy `npm test`. Fix on the test side. Blockers: none.
