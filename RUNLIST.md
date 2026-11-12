@@ -887,6 +887,17 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       "who ran the 2026-07-15 load"; accept as unknown and move to `done/`.
       Blockers: none.
       *2026-10-13: closed — accepted as unknown; 005 moved to `issues/done/`.*
+- [ ] **R64. `alchemist-v2/issues/067-bug-scheduler-test-ipc-flake.md`** (auto, bug, major) — `scheduler.test.js`
+      fails 4/6 runs on Node 22.12 (deserialize error, likely banner output). Do first: every other alchemist-v2
+      landing depends on a trustworthy `npm test`. Fix on the test side. Blockers: none.
+      *2026-11-12 triage: 079 merged in as a duplicate.*
+- [ ] **R65. `alchemist-v2/issues/057-bug-backfill-candidates-timeout-reports-clean-empty-run.md`** (auto, bug,
+      minor) — a candidate-fetch DB error reports a clean empty `mine` run. Blockers: none.
+- [ ] **R66. `alchemist-v2/issues/053-bug-internal-error-retry-stamps-updated-at-pricing-age.md`** (auto, bug,
+      minor) — fees retry writes refresh `updated_at`, so a stale buy box looks fresh to 048's reuse. Blockers: none.
+- [ ] **R67. `DealFinder/issues/058-bug-dashboard-drops30-labels-ignore-rank-drops-floor.md`** (auto, bug, minor)
+      — drops30 cell coloured against the monthly-sold floor; visible now that R9 set the drops floor to 20.
+      Blockers: none.
 
 ## Phase A — keystone bugs and safety (all AFK)
 
