@@ -621,6 +621,9 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       cleared; remaining as above (operator: migration, `SP_API_SELLER_ID`, deploy).*
       *2026-10-30: migration applied live (`stock_health jsonb` present; service_role now DELETE, INSERT,
       SELECT; anon SELECT unchanged). Remaining: `SP_API_SELLER_ID`, deploy + `pm2 restart`.*
+      *2026-11-12: `SP_API_SELLER_ID=A2FTJ0MI2JDBZ2` set on the VPS by the operator (backup `.env.bak-sellerid`), `pm2 restart
+      alchemist --update-env`, online; alchemist-v2 at `531a13a`. Remaining: confirm the 04:30 UK analytics run fills `iHoldBuyBox`
+      and that lots appear (R59 step 1).*
 - [x] **R52. Supabase Pro** (HITL, operator) — decided 2026-11-03 in the Qogita grill (spec Q1). The DB was at
       497/500 MB on 2026-11-03, growing ~5 MB/day (not the ~1.1 MB/day assumed on 10-19). Free puts the DB
       read-only once over. Pro is a bridge: the home-server move (R50) is still the plan, now for January.
