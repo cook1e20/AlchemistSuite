@@ -831,12 +831,19 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       *2026-11-10: code landed: alchemist-v2 077 (`f122b4b`: morning reserve, import moved to Mon 20:30 UK,
       `tokensSpent`; CONTRACTS.md section 5 fixed to 20:00-08:00) and DealFinder 068 (`e575f53`, daily token row).
       **Operator:** deploy alchemist-v2, then check the next 08:0x DealFinder `tokensLeft` >= ~900 (077's HITL box).*
+      *2026-11-12 09:52 UK: deployed on operator go-ahead: alchemist-v2 `de107b4` (was `b627dda`; reserve on by default,
+      900 tokens / last 60 min of the window) and DealFinder `065a30d` (was `d2b52e1`; ships 068's token row + the unwired
+      Zappies 060-063 code). Pre-deploy baseline: 11-12 08:13 light tick `tokensLeft=1102`. **To check:** 11-13 morning
+      DealFinder `tokensLeft` >= ~900, then tick 077's HITL box. Banner label fixed later (`94b56c9`, ships next deploy).*
 - [ ] **R58. One Qogita alert format** (HITL: env flip) — `alchemist-v2/issues/078-qogita-drop-posts-switch.md`,
       operator 2026-11-10. 064 drop alerts and DealFinder 067's feed both post to `#wholesale` (two formats, possible
       duplicates). Keep DealFinder's card: add `QOGITA_ALERT_POSTS_ENABLED` (default true) to stop only 064's Discord
       posts; candidates, 065 and 066 unchanged. Build with 077. Then operator sets it `false` + restarts. Blockers: none.
       *2026-11-10: code landed (alchemist-v2 `57bd990`). **Operator:** deploy alchemist-v2 (with 077), set
       `QOGITA_ALERT_POSTS_ENABLED=false`, `pm2 restart alchemist`; check DealFinder cards still arrive.*
+      *2026-11-12 09:52 UK: done: `QOGITA_ALERT_POSTS_ENABLED=false` (backup `.env.bak-20261112-r58`), deployed with 077,
+      restarted. **To check:** the next Qogita pull logs `alertPostsDisabled` and no 064 posts, and DealFinder cards still
+      arrive; then close 078.*
 
 - [ ] **R59. Inventory pipeline live, then the business loop** (HITL: operator steps, migrations) — root
       `issues/spec-business-loop.md` (grilled 2026-11-10), ADR 0002. **Step 1 is R51's remaining operator steps**
