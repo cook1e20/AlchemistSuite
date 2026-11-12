@@ -570,6 +570,10 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       *2026-11-10: operator said land it. DealFinder 063 committed (`f7ffacb`, reviewed APPROVE, 706 tests pass, plus a
       sequence revoke). Migration not applied yet: needs the operator's yes. After the apply: tick criterion 1, mark it
       applied in CONTRACTS.md §2, move 063 to done/. Next: 059 (needs the app password) and 060 → 062.*
+      *2026-11-12: 060 landed (DealFinder `a46c430`, 759/759, typecheck clean). Six real emails captured as fixtures via
+      the Gmail connector (059's fixture box ticked; its client still waits on the app password). Products split on image
+      runs, not links/`Price:` (real lists have link-less products with `Sku:` first). Header price returned separately;
+      take-all vs case price is a 062 call. Next (auto): 061 resolution rule, then 062.*
 
 - [ ] **R50. Home micro server — grill** (HITL) — root `issues/013-home-server-db-claude-and-vps-work.md`,
       operator idea 2026-10-19. One box at home: runs Claude remote sessions, hosts the shared DB (replacing
