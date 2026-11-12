@@ -828,10 +828,15 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       *2026-11-09 13:26 UK: catch-up run confirmed `seen=5998` (8 pages), 0 SP-API false rejects, 12 min (cold price
       cache: SP-API 677 s; warm runs reuse 180 min). Qogita feed evaluated 100 (169/500 Keepa today), **first real
       Qogita post** (1 passed, posted, 0 notify failures — R56's open check). `tokensLeft` 655 after the tick.*
+      *2026-11-10: code landed: alchemist-v2 077 (`f122b4b`: morning reserve, import moved to Mon 20:30 UK,
+      `tokensSpent`; CONTRACTS.md section 5 fixed to 20:00-08:00) and DealFinder 068 (`e575f53`, daily token row).
+      **Operator:** deploy alchemist-v2, then check the next 08:0x DealFinder `tokensLeft` >= ~900 (077's HITL box).*
 - [ ] **R58. One Qogita alert format** (HITL: env flip) — `alchemist-v2/issues/078-qogita-drop-posts-switch.md`,
       operator 2026-11-10. 064 drop alerts and DealFinder 067's feed both post to `#wholesale` (two formats, possible
       duplicates). Keep DealFinder's card: add `QOGITA_ALERT_POSTS_ENABLED` (default true) to stop only 064's Discord
       posts; candidates, 065 and 066 unchanged. Build with 077. Then operator sets it `false` + restarts. Blockers: none.
+      *2026-11-10: code landed (alchemist-v2 `57bd990`). **Operator:** deploy alchemist-v2 (with 077), set
+      `QOGITA_ALERT_POSTS_ENABLED=false`, `pm2 restart alchemist`; check DealFinder cards still arrive.*
 
 - [ ] **R59. Inventory pipeline live, then the business loop** (HITL: operator steps, migrations) — root
       `issues/spec-business-loop.md` (grilled 2026-11-10), ADR 0002. **Step 1 is R51's remaining operator steps**
@@ -847,6 +852,11 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       canonical rules; Supabase `settings` table + Dashboard Settings page; DealFinder, alchemist-v2 and the Dashboard
       adopt it one at a time. First ticket: inventory every evaluator's current rules (floors, basis, VAT, prep) in each
       repo, so the package starts from the real differences. Blockers: none; can run alongside R59.
+      *2026-11-12: inventory done (`docs/research/2026-11-12-economics-rules-inventory.md`, read-only, code defaults
+      only): 16 evaluators, comparison table, 24 differences from Q37. Biggest: sell basis (DealFinder retail
+      min(live BB, avg30); alchemist-v2 `desiredPrice` on NEW-price; pre-screen live BB), prep only in DealFinder,
+      three fee-default pairs, floors 0.15-0.30, nothing reads a settings table. **Next (HITL):** operator reviews the
+      inventory, then create the package repo + `settings` migration.*
 - [ ] **R61. DealFinder as the sourcing pipeline** (HITL: migration, flag flips) — root
       `issues/spec-business-loop.md` challenge 2, ADR 0003. Generic `candidates` table written by every source, read
       by DealFinder; `qogita_drop_candidates` folds in after the 067 cut-over. One alert per drop (spec Q34) is
