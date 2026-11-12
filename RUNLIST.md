@@ -574,6 +574,9 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       the Gmail connector (059's fixture box ticked; its client still waits on the app password). Products split on image
       runs, not links/`Price:` (real lists have link-less products with `Sku:` first). Header price returned separately;
       take-all vs case price is a 062 call. Next (auto): 061 resolution rule, then 062.*
+      *2026-11-12: 061 done (DealFinder `57ecb43`, 770/770, typecheck clean): pure `resolveAsin` + `catalogEans`. Unknown
+      lookup -> `pending` (retry next poll, link never used unchecked); EAN with no UK listing falls back to the link,
+      else skips. Next (auto): 062 pricing/evaluation.*
 
 - [ ] **R50. Home micro server — grill** (HITL) — root `issues/013-home-server-db-claude-and-vps-work.md`,
       operator idea 2026-10-19. One box at home: runs Claude remote sessions, hosts the shared DB (replacing
