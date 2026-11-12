@@ -921,10 +921,12 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       *2026-11-12: landed (alchemist-v2 `1c2e401`, 1124/1124, reviewed 2 rounds: the per-bucket `unchecked` test was fixed so it
       exercises the counter). **Open (operator):** deploy alchemist-v2 (ordinary, no migration). Then read the evidence per bucket from
       `run_log.stats.prescreenShadowBuckets`: false rate = false/(false+confirmed). AC2 live retries still need operator OK.*
-- [ ] **R64. `alchemist-v2/issues/067-bug-scheduler-test-ipc-flake.md`** (auto, bug, major) — `scheduler.test.js`
+- [x] **R64. `alchemist-v2/issues/067-bug-scheduler-test-ipc-flake.md`** (auto, bug, major) — `scheduler.test.js`
       fails 4/6 runs on Node 22.12 (deserialize error, likely banner output). Do first: every other alchemist-v2
       landing depends on a trustworthy `npm test`. Fix on the test side. Blockers: none.
       *2026-11-12 triage: 079 merged in as a duplicate.*
+      *2026-11-12: landed (alchemist-v2 `1c2e401`): the scheduler tests silence console (test side only). The file failed 6/8 runs before and
+      passes 30/30 after; npm test 1124/1124. The root cause is inferred (stray stdout corrupts node:test's IPC frames), not bisected.*
 - [ ] **R65. `alchemist-v2/issues/057-bug-backfill-candidates-timeout-reports-clean-empty-run.md`** (auto, bug,
       minor) — a candidate-fetch DB error reports a clean empty `mine` run. Blockers: none.
 - [ ] **R66. `alchemist-v2/issues/053-bug-internal-error-retry-stamps-updated-at-pricing-age.md`** (auto, bug,
