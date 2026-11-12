@@ -577,6 +577,11 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       *2026-11-12: 061 done (DealFinder `57ecb43`, 770/770, typecheck clean): pure `resolveAsin` + `catalogEans`. Unknown
       lookup -> `pending` (retry next poll, link never used unchecked); EAN with no UK listing falls back to the link,
       else skips. Next (auto): 062 pricing/evaluation.*
+      *2026-11-12: 062 done (DealFinder `f2b2b0f`, 786/786, typecheck clean, reviewed APPROVE). `evaluateZappiesLine` on
+      `evaluateWholesale`: gate = ROI at avg90 − 10% >= 30% + rank drops; current-BB and avg30 ROIs shown only; MOQ cost;
+      `ZAPPIES_SHIPPING_PENCE` default 0. Default taken: the line's own price, a take-all header price never overrides it
+      (operator can revisit). Not wired in. Remaining: 059 (needs the Gmail app password on the VPS), then 064 (poller,
+      alert, deploy).*
 
 - [ ] **R50. Home micro server — grill** (HITL) — root `issues/013-home-server-db-claude-and-vps-work.md`,
       operator idea 2026-10-19. One box at home: runs Claude remote sessions, hosts the shared DB (replacing
