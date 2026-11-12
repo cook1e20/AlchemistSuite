@@ -251,6 +251,24 @@ per table is in §3.
   scheduler-liveness signal (VERIFICATION.md §2.2). 86 legacy `stage='wholesale'` rows
   remain (newest 2026-07-06, pre-strip code; housekeeping purges them at >60d) —
   `wholesale` is not a canonical name; the dashboard must keep ignoring it.
+- **Second writer: DealFinder, stage `dealfinder` only** (DealFinder issue 068, operator 2026-11-10). One row per UK
+  day (Europe/London): its Keepa token summary. DealFinder writes only rows with `stage = 'dealfinder'` (every query
+  pinned to the stage, update by id and stage, no delete) and never touches alchemist-v2's rows. Lifecycle differs
+  from alchemist-v2's: `started_at` = first DealFinder tick of the UK day (fixed), `finished_at` and `stats` refreshed
+  after every tick, `status` always `completed`. Judge freshness by `finished_at`; there is no row overnight
+  while DealFinder pauses (live 20:00-08:00). Anything that reads "latest run_log row" as alchemist-v2 scheduler
+  liveness must filter by stage (alchemist-v2 `index.js` status line doesn't; cosmetic). alchemist-v2's age purge
+  removes these rows too. Dashboard `KNOWN_STAGES`: Alchemist_Dashboard issue 035. `stats` keys (tokens are Keepa
+  tokens from `tokensLeft` deltas, so slight underestimates: the 5-token feed pages are not counted, and refill
+  between stages can make `tokensGated` low or negative):
+  `ukDay` (YYYY-MM-DD UK); `firstTickAt`, `lastTickAt` (ISO UTC); `fullRuns`, `lightRuns`, `qogitaRuns` (completed
+  ticks; pause-skipped and thrown ticks excluded); `tokensFull`, `tokensLight` (stage 1 + 2), `tokensGated`,
+  `tokensQogita` (lookups x 3), `tokensSpent` (sum of the four); `tokensLeftMin`, `tokensLeftMax`, `tokensLeftLast`
+  (at full/light run ends, null if unknown); `runsBelowFloor` (run ends with `tokensLeft` < `LIGHT_SCAN_MIN_TOKENS_LEFT`,
+  default 700); `lightScreenSkipped` (ASINs whose light-tick velocity screen was skipped for budget, summed);
+  `qogitaKeepaLookups`; `qogitaKeepaCapped` (summed per tick, so it overstates distinct items); `qogitaKeepaDailyCap`;
+  `runEnds` (array, max 500, `{at: 'HH:MM' UK, tick: 'full'|'light', tokensLeft}`).
+  alchemist-v2's `mine` and `import` rows gain `tokensSpent` (alchemist-v2 077), so both apps' spend is in this table.
 - Timestamp gotcha: values come back as `+00`-offset strings that `new Date()` rejects;
   the dashboard compares them lexically (`pipeline-status.ts`).
 
@@ -292,8 +310,8 @@ per table is in §3.
   `price_pence` per `(supplier, asin)`. `(message_id, line_index)` is unique (0-based line
   position), so a retried email upserts its lines instead of duplicating them. Indexed on `(supplier, asin)` (plus a
   partial `notified_at` index for the last-notified lookup).
-- Migration `20261020120000_create_supplier_emails_and_offers.sql` (DealFinder), **written,
-  not yet applied**. DealFinder issue 063; parent root issue 011.
+- Migration `20261020120000_create_supplier_emails_and_offers.sql` (DealFinder), **applied live
+  2026-11-10**. DealFinder issue 063; parent root issue 011.
 
 ### `business_snapshots` — finance history. Owner: `Alchemist_Dashboard`
 
@@ -531,7 +549,9 @@ per table is in §3.
   `offer_stock` (int), `posted` (bool, default false; never reset to false once true; since 076 a matched row can stay
   false because it fell below the Discord floors, lower ROI >= 20% and profit/unit >= 200p, so readers apply their own floors). Matched and unmatched
   candidates both land here. Migration `alchemist-v2/migrations/2026-11-04-create-qogita-drop-candidates.sql`
-  (applied live 2026-11-06).
+  (applied live 2026-11-06). Since 078, `QOGITA_ALERT_POSTS_ENABLED=false` (alchemist-v2 env, default true) stops
+  064's own Discord posts, so `posted` stays false on every row while DealFinder 067 posts the cards; the rows are
+  still written either way.
 - **075 columns** (all nullable text; migration `alchemist-v2/migrations/2026-11-07-qogita-drop-candidates-name-brand-link.sql`,
   **written, not applied — apply before deploying the 075 build, or every candidate upsert fails**): `name` (product
   name, ≤300 chars), `brand` (raw Qogita brand, ≤100 chars; **not** normalised, so normalise before comparing with
@@ -810,21 +830,35 @@ into the stored price, and never recompute/"adjust" it in the UI.
 One Keepa account (one token bucket) is shared deliberately:
 
 - **DealFinder stands down overnight:** the hourly probe skips its tick entirely during
-  the UK-local window **21:00–05:00** (defaults; env-tunable
-  `OVERNIGHT_PAUSE_START_HOUR` / `OVERNIGHT_PAUSE_END_HOUR`, DST handled via
-  `Intl` `Europe/London` — `DealFinder/issues/done/031-overnight-pause.md`,
+  the UK-local window **20:00-08:00** (live: env-set on the VPS,
+  `OVERNIGHT_PAUSE_START_HOUR` / `OVERNIGHT_PAUSE_END_HOUR` = 20 / 8; the in-code
+  defaults are still 21 / 5 and a fresh deploy without the env falls back to them; DST
+  handled via `Intl` `Europe/London` — `DealFinder/issues/done/031-overnight-pause.md`,
   `src/overnight-pause/`).
-- **alchemist-v2's miner owns that window:** cron `*/15 21-23 * * *` + `*/15 0-4 * * *`
-  (every 15 min, 21:00–04:59) — these are the **default** expressions, derived from
-  env-tunable `MINER_WINDOW_START_HOUR` / `MINER_WINDOW_END_HOUR` (default 21 / 5,
-  end-exclusive like DealFinder's `OVERNIGHT_PAUSE_*_HOUR` above; `start === end` means
-  all-day — `miner-schedule.js`'s `minerCronExpressions`, issue 030). Each run sizes
+- **alchemist-v2's miner owns that window:** live, `MINER_WINDOW_START_HOUR` /
+  `MINER_WINDOW_END_HOUR` = 20 / 8 (VPS `.env`), giving cron `*/15 20-23 * * *` +
+  `*/15 0-7 * * *` (every 15 min, 20:00-07:59 UK). The in-code defaults are still 21 / 5
+  (`*/15 21-23 * * *` + `*/15 0-4 * * *`); end-exclusive like DealFinder's
+  `OVERNIGHT_PAUSE_*_HOUR` above; `start === end` means all-day —
+  `miner-schedule.js`'s `minerCronExpressions`, issue 030. Each run sizes
   itself from the **live** balance via Keepa's free `/token` endpoint
   (`keepa.getTokenStatus()`); `TOKEN_LIMIT_MINER` is only an optional operator ceiling.
   Frequent small drains, not two big bursts — the bucket caps out and idles within
-  minutes once DealFinder pauses. **Widening the window beyond the default overnight
+  minutes once DealFinder pauses. **Widening the window beyond the overnight
   split is sanctioned only with DealFinder paused** (e.g. the E4 700k-catalog pilot) —
   otherwise the two probes fight over the same token bucket.
+- **Morning reserve (alchemist-v2 issue 077):** so DealFinder does not start its day with an
+  empty bucket, a miner run that starts within `MINER_RESERVE_FROM_MINUTES` (default 60) before
+  `MINER_WINDOW_END_HOUR` (UK time, DST-safe) sizes its budget as **live balance minus
+  `MINER_MORNING_RESERVE`** (default 900 tokens; `0` disables). A budget <= 0 is a clean empty
+  run (no Keepa call). With the live 20/8 window this means runs from 07:00 leave ~900 tokens
+  for DealFinder's 08:00 light scan (which skips its velocity screen below 700). Keyed off the
+  configured end hour, not a hard-coded 08:00.
+- **Weekly buy-sheet `import` runs Monday 20:30 UK** (cron `30 20 * * 1`, `Europe/London`),
+  inside the miner window, so its ~600-token spend comes out of the miner's overnight share
+  rather than DealFinder's morning (it used to run 07:30, server-local time). `run_log.stats`
+  for `mine` and `import` carry `tokensSpent` (sum of Keepa `tokensConsumed` for the run)
+  beside `tokensRemaining`.
 - **DealFinder's Qogita feed (issue 067) spends from DealFinder's day budget:** `buybox=1` lookups (3 tokens) for
   Qogita drops, capped at `QOGITA_FEED_KEEPA_DAILY_CAP` (200 lookups, ~600 tokens) per UK day and only inside the
   08:00-20:00 SP-API window, after the hourly probe in the same tick. Separate from alchemist-v2 065's overnight

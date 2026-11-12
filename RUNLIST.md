@@ -570,6 +570,8 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       *2026-11-10: operator said land it. DealFinder 063 committed (`f7ffacb`, reviewed APPROVE, 706 tests pass, plus a
       sequence revoke). Migration not applied yet: needs the operator's yes. After the apply: tick criterion 1, mark it
       applied in CONTRACTS.md §2, move 063 to done/. Next: 059 (needs the app password) and 060 → 062.*
+      *2026-11-10: 063 migration applied live on operator approval (RLS on, service_role only, 4 indexes verified);
+      063 in done/ (DealFinder `3e3b8fa`, `613810f`).*
       *2026-11-12: 060 landed (DealFinder `a46c430`, 759/759, typecheck clean). Six real emails captured as fixtures via
       the Gmail connector (059's fixture box ticked; its client still waits on the app password). Products split on image
       runs, not links/`Price:` (real lists have link-less products with `Sku:` first). Header price returned separately;
@@ -828,9 +830,14 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       *2026-11-09 13:26 UK: catch-up run confirmed `seen=5998` (8 pages), 0 SP-API false rejects, 12 min (cold price
       cache: SP-API 677 s; warm runs reuse 180 min). Qogita feed evaluated 100 (169/500 Keepa today), **first real
       Qogita post** (1 passed, posted, 0 notify failures — R56's open check). `tokensLeft` 655 after the tick.*
-      *2026-11-10: code landed: alchemist-v2 077 (`f122b4b`: morning reserve, import moved to Mon 20:30 UK,
-      `tokensSpent`; CONTRACTS.md section 5 fixed to 20:00-08:00) and DealFinder 068 (`e575f53`, daily token row).
-      **Operator:** deploy alchemist-v2, then check the next 08:0x DealFinder `tokensLeft` >= ~900 (077's HITL box).*
+      *2026-11-10: alchemist-v2 077 landed (`f122b4b`, reviewed APPROVE, 1112 pass / 4 baseline 058 fails): 900-token
+      morning reserve 07:00-07:59 UK, import Mon 20:30 London, `tokensSpent` in mine/import stats; CONTRACTS.md §5
+      now shows the live 20:00-08:00 split. Open: operator deploys, then check the 08:0x light scan has `tokensLeft`
+      >= ~900. DealFinder 068 still to build.*
+      *2026-11-10: DealFinder 068 landed (`e575f53`, reviewed APPROVE + 1 follow-up round, 737 pass). Operator: stage
+      `dealfinder`, DealFinder may write only its own `run_log` rows (CONTRACTS §2). Dashboard 035 filed (`c6fe6b6`,
+      `KNOWN_STAGES` + freshness by `finished_at`). Open: deploy DealFinder; check one day's row against the funnel
+      log lines; build Dashboard 035.*
       *2026-11-12 09:52 UK: deployed on operator go-ahead: alchemist-v2 `de107b4` (was `b627dda`; reserve on by default,
       900 tokens / last 60 min of the window) and DealFinder `065a30d` (was `d2b52e1`; ships 068's token row + the unwired
       Zappies 060-063 code). Pre-deploy baseline: 11-12 08:13 light tick `tokensLeft=1102`. **To check:** 11-13 morning
@@ -839,8 +846,10 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       operator 2026-11-10. 064 drop alerts and DealFinder 067's feed both post to `#wholesale` (two formats, possible
       duplicates). Keep DealFinder's card: add `QOGITA_ALERT_POSTS_ENABLED` (default true) to stop only 064's Discord
       posts; candidates, 065 and 066 unchanged. Build with 077. Then operator sets it `false` + restarts. Blockers: none.
-      *2026-11-10: code landed (alchemist-v2 `57bd990`). **Operator:** deploy alchemist-v2 (with 077), set
-      `QOGITA_ALERT_POSTS_ENABLED=false`, `pm2 restart alchemist`; check DealFinder cards still arrive.*
+      *2026-11-10: alchemist-v2 078 landed (`57bd990`, overseer-read, 1120 pass / 4 baseline 058 fails). `alertPostsDisabled`
+      counts drops that cleared the floors on each pull (no once-a-day dedup, so it can exceed 067's daily total).
+      Open: operator deploys with 077, sets `QOGITA_ALERT_POSTS_ENABLED=false`, `pm2 restart alchemist`. Bug 079 filed (flaky
+      scheduler test in Node's runner, predates 077).*
       *2026-11-12 09:52 UK: done: `QOGITA_ALERT_POSTS_ENABLED=false` (backup `.env.bak-20261112-r58`), deployed with 077,
       restarted. **To check:** the next Qogita pull logs `alertPostsDisabled` and no 064 posts, and DealFinder cards still
       arrive; then close 078.*
