@@ -925,7 +925,7 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       fails 4/6 runs on Node 22.12 (deserialize error, likely banner output). Do first: every other alchemist-v2
       landing depends on a trustworthy `npm test`. Fix on the test side. Blockers: none.
       *2026-11-12 triage: 079 merged in as a duplicate.*
-      *2026-11-12: landed (alchemist-v2 `1c2e401`): the scheduler tests silence console (test side only). The file failed 6/8 runs before and
+      *2026-11-12: landed (alchemist-v2 `8f2869d`): the scheduler tests silence console (test side only). The file failed 6/8 runs before and
       passes 30/30 after; npm test 1124/1124. The root cause is inferred (stray stdout corrupts node:test's IPC frames), not bisected.*
 - [ ] **R65. `alchemist-v2/issues/057-bug-backfill-candidates-timeout-reports-clean-empty-run.md`** (auto, bug,
       minor) — a candidate-fetch DB error reports a clean empty `mine` run. Blockers: none.
