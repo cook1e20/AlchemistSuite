@@ -590,6 +590,11 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       `ZAPPIES_SHIPPING_PENCE` default 0. Default taken: the line's own price, a take-all header price never overrides it
       (operator can revisit). Not wired in. Remaining: 059 (needs the Gmail app password on the VPS), then 064 (poller,
       alert, deploy).*
+      *2026-11-12: 059 code landed (DealFinder `a699f4e`, 804/804, typecheck clean, overseer diff read + 1 fix round:
+      imapflow already converts text parts to UTF-8, so the declared-charset decode was dropped). `fetchZappiesMail` over
+      injected `imapflow` ^2.11.0 (new dependency): All Mail read-only, `gmraw` search, HTML part only, `GmailAuthError`.
+      **Operator:** create the app password, enable IMAP, set `GMAIL_USER`/`GMAIL_APP_PASSWORD` in the VPS `.env`. Next
+      (auto): 064 poller/alert can be built dark before that.*
 
 - [ ] **R50. Home micro server — grill** (HITL) — root `issues/013-home-server-db-claude-and-vps-work.md`,
       operator idea 2026-10-19. One box at home: runs Claude remote sessions, hosts the shared DB (replacing
