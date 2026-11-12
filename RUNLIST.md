@@ -950,6 +950,7 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       *2026-11-12: landed (alchemist-v2 `531a13a`, 1134/1134, reviewed 1 round: code approved, docs/issue close-out added). Fixed, not
       won't-fix: fees-phase writes and the job give-up on a buy box fetched on an earlier tick keep `updated_at`; same-tick fetches stamp.
       048's ~36h approximation is gone. **Open (operator):** deploy alchemist-v2 (ordinary, no migration).*
+      *2026-11-12 11:31Z: deployed on operator go-ahead (VPS alchemist-v2 `531a13a`, was `620ddc3`, `pm2 restart alchemist`, online).*
 
 ## Phase A — keystone bugs and safety (all AFK)
 
