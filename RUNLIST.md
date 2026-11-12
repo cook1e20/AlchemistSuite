@@ -595,6 +595,12 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       injected `imapflow` ^2.11.0 (new dependency): All Mail read-only, `gmraw` search, HTML part only, `GmailAuthError`.
       **Operator:** create the app password, enable IMAP, set `GMAIL_USER`/`GMAIL_APP_PASSWORD` in the VPS `.env`. Next
       (auto): 064 poller/alert can be built dark before that.*
+      *2026-11-12: 064 code landed (DealFinder `31e14e8`, 830/830, typecheck clean, reviewed 2 rounds -> APPROVE). PM2 app
+      `zappies-ingester`, hourly Mon-Fri 08-18 UK; idles with one log line without Gmail creds or with poll hours outside 8-20.
+      Keepa guard resets each tick; `tokensUsed` = ASINs x 3; no webhook = not retried. Logged DealFinder 069 (bug, minor) and
+      070 (skip downloading processed emails). **Operator, in order:** Gmail app password + IMAP + VPS env (059), deploy
+      DealFinder, `pm2 start ecosystem.config.cjs --only zappies-ingester` (a bare `pm2 start` now starts both apps), review
+      the first live day's skip rate and hand-check one alert. Then tick R44.*
 
 - [ ] **R50. Home micro server — grill** (HITL) — root `issues/013-home-server-db-claude-and-vps-work.md`,
       operator idea 2026-10-19. One box at home: runs Claude remote sessions, hosts the shared DB (replacing
