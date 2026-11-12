@@ -976,8 +976,11 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       *2026-11-12: landed (DealFinder `5e63161`, 835/835, typecheck clean, overseer diff read). Failed downloads are flagged
       per message, recorded with `processed_at` null (counted in `failed=`) and retried next poll; "no HTML part" unchanged.
       Ships with R44's DealFinder deploy (ordinary, no migration).*
-- [ ] **R71. `DealFinder/issues/070-zappies-check-processed-before-downloading.md`** (auto) — logged from R44's 064 review:
+- [x] **R71. `DealFinder/issues/070-zappies-check-processed-before-downloading.md`** (auto) — logged from R44's 064 review:
       don't download HTML for emails already processed (1-8 MB each, every hourly poll). Blockers: none (064 landed).
+      *2026-11-12: landed (DealFinder `8f11151`, 838/838, typecheck clean, overseer diff read). `fetchZappiesMail` takes a
+      `skip` predicate (the tick's processed check, one call per email) and never downloads a processed email. Ships with
+      R44's DealFinder deploy (ordinary, no migration).*
 
 ## Phase A — keystone bugs and safety (all AFK)
 
