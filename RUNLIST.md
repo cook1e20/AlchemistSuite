@@ -981,6 +981,22 @@ SP-API use. R27 and R28 can start now. R28 + R29 give the daytime demo.
       *2026-11-12: landed (DealFinder `8f11151`, 838/838, typecheck clean, overseer diff read). `fetchZappiesMail` takes a
       `skip` predicate (the tick's processed check, one call per email) and never downloads a processed email. Ships with
       R44's DealFinder deploy (ordinary, no migration).*
+- [x] **R74. Miner candidate fetch timing out** (bug, major, fixed live 2026-11-13) — 19 of 48 `mine` runs on the
+      11-12 night ended with no Keepa spend; pm2 logs: 97 x `DB backfill-candidates error: canceling statement due to
+      statement timeout`. `getBackfillCandidates` orders by `last_mined_at` with no index, so every 1000-row page was a
+      seq scan + sort of ~1.19M rows (4.7s idle, past the 8s authenticator timeout cold/under load).
+      *2026-11-13: `idx_products_last_mined_at` (`last_mined_at asc nulls first`) created CONCURRENTLY live; same query
+      957ms cold via an index scan. Migration `alchemist-v2/migrations/2026-11-13-index-products-last-mined-at.sql`.
+      No code change, no deploy. Check: tonight's `mine` rows show no `completed_with_errors` with 0 candidates.*
+
+### Miner backlog (queued 2026-11-13)
+
+- [ ] **R72. `alchemist-v2/issues/081-miner-prioritise-qogita-mov-rows.md`** (HITL: grill the rule) — 189k bare
+      Qogita rows wait oldest-first behind 443k DealFinder no-UK-price rows in one 632k tier-0 pool (~45 nights a
+      pass). Prioritise MOV-passing Qogita rows below the null-`last_mined_at` front of queue. Blockers: none.
+- [ ] **R73. `alchemist-v2/issues/082-miner-no-uk-price-recheck-horizon.md`** (HITL: grill the horizon) — rows Keepa
+      answers with no UK price stay tier 0 and are re-bought every pass (~2-3k tokens/night). Park them on a long
+      re-check horizon like not-found rows. Best with or after R72. Blockers: none.
 
 ## Phase A — keystone bugs and safety (all AFK)
 
